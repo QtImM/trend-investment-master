@@ -1444,6 +1444,59 @@
 2. 尝试验证移除该依赖后，当前 `Feign` 与统一降级门面是否仍可成立
 3. 再决定是否开始为 Prometheus 指标暴露补基础接入
 
+### 2026-03-18 - 阶段 27：移除回测服务中的 Hystrix 模块依赖
+
+#### 本阶段目标
+
+- 验证回测服务是否已经真正具备脱离 `Hystrix` 模块依赖独立运行的条件
+- 把上一阶段已经收缩到“默认关闭”的旧配置路径彻底删掉
+- 用实际编译和测试结果确认当前 `Feign + 统一降级门面 + Resilience4j` 结构已经足以承接回测服务
+
+#### 已完成事项
+
+1. 移除了模块级 `Hystrix` 依赖
+   - 从 `trend-trading-backtest-service/pom.xml` 中删除 `spring-cloud-starter-netflix-hystrix`
+   - 让回测服务不再显式依赖 `Hystrix` starter
+
+2. 删除了旧配置开关
+   - 从 `application.yml` 中移除 `feign.hystrix.enabled`
+   - 从 `application-nacos.yml` 中移除 `feign.hystrix.enabled`
+   - 从两份配置与 `Nacos Config` 模板中移除 `backtest.remote.index-data.feign.hystrix-enabled`
+   - 避免后续继续误以为该模块仍存在可切换的旧熔断包装路径
+
+3. 更新了迁移记录
+   - 在退场方案文档中补充“回测服务已移除 Hystrix 模块依赖”的状态
+   - 明确当前重点已经转向继续完善 `Resilience4j` 与后续监控替代路径
+
+4. 完成了本地验证
+   - 使用本机 Maven 对 `trend-trading-backtest-service` 执行了 `test`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在回测服务在通信与容错迁移这条线上已经进一步演进为：
+
+- 远程调用实现仍可在 `feign/http` 之间切换
+- 统一降级门面继续负责异常后的兜底逻辑
+- `Resilience4j` 保护层可按配置启用
+- 模块本身已经不再显式依赖 `Hystrix` starter
+
+这意味着 `trend-trading-backtest-service` 已经成为当前仓库里第一个在代码层和模块依赖层都明显退出 `Hystrix` 的业务服务试点。
+
+#### 这一步为什么重要
+
+- 只有把旧依赖真正从模块里删掉，才能证明前面提炼的接缝不是“看起来可替换”
+- 这一步让后续 `index-hystrix-dashboard` / `index-turbine` 的退场判断更有依据
+- 同时它也为后面补 Prometheus 指标暴露提供了更清晰的替代目标
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 开始为回测服务补最小 Prometheus 指标暴露入口
+2. 继续评估 `index-hystrix-dashboard` 与 `index-turbine` 的退场前提是否已满足一部分
+3. 再决定是否把同类 `Hystrix` 退出路径推广到其他仍有远程依赖的模块
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

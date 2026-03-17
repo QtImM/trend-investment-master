@@ -13,16 +13,10 @@ eureka:
   client:
     enabled: false
 
-feign:
-  hystrix:
-    enabled: ${backtest.remote.index-data.feign.hystrix-enabled:false}
-
 backtest:
   remote:
     index-data:
       mode: feign
-      feign:
-        hystrix-enabled: false
       fallback:
         enabled: true
       resilience4j:

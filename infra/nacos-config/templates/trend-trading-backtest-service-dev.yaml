@@ -12,8 +12,6 @@ backtest:
   remote:
     index-data:
       mode: feign
-      feign:
-        hystrix-enabled: false
       fallback:
         enabled: true
       resilience4j:

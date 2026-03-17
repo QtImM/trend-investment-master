@@ -141,11 +141,10 @@
    - 已把兜底返回逻辑从 Feign fallback 适配类中独立出来，后续替换 `Hystrix` 时可复用
    - 已预留并行 HTTP 调用实现入口，默认仍走 `Feign`
    - 已将远程调用失败后的兜底处理上提为通用门面，当前 `feign/http` 两种模式都可复用同一套降级策略
-   - 已为 `feign.hystrix.enabled` 增加回测服务内部迁移开关，后续可在保持统一兜底门面的前提下逐步弱化旧熔断链路
    - 已为 `Resilience4j` 增加最小并行试点入口，可按配置启用新的调用保护层而不影响默认旧路径
    - 已移除回测服务启动类中的 `@EnableCircuitBreaker`，继续弱化 `Hystrix` 时代的显式框架痕迹
-   - 已将回测服务中的 `feign.hystrix.enabled` 默认值下调为 `false`，旧熔断包装仅在显式配置时启用
-   - 仍保留 `Feign + Hystrix` 旧调用链，后续应单独推进通信与容错能力替换
+   - 已从回测服务模块中移除 `spring-cloud-starter-netflix-hystrix` 依赖与相关配置开关
+   - 当前回测服务已不再依赖 `Feign + Hystrix` 旧调用链，后续重点转向继续完善 `Resilience4j` 与指标体系
 
 2. `index-config-server` 自身的 Git 配置来源
    - 当前仓库中记录的是远程 Git 地址 `https://github.com/how2j/trendConfig/`

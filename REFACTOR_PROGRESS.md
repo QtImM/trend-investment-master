@@ -619,6 +619,70 @@
 2. 梳理 `index-config-server` 当前仍承载的配置项，准备首批迁移清单
 3. 再选择一个业务服务继续复制这套试点样板
 
+### 2026-03-17 - 阶段 12：trend-trading-backtest-view 接入 Nacos Config 试点入口
+
+#### 本阶段目标
+
+- 把配置中心迁移从市场数据链路继续推进到真正仍在依赖 `index-config-server` 的消费方
+- 让 `trend-trading-backtest-view` 在保留旧 `Config Server + Bus + RabbitMQ` 路径的同时，具备 `Nacos Config` 试点入口
+- 同时梳理 `index-config-server` 的首批可迁移配置依赖
+
+#### 已完成事项
+
+1. 调整了 `trend-trading-backtest-view` 的依赖
+   - 增加兼容当前 `Spring Boot 2.0.x / Finchley` 的 `Nacos Config` 依赖
+   - 保留原有 `Config Client` 与 `Bus AMQP` 依赖，确保默认模式不受影响
+
+2. 增加了 Nacos Config 引导文件
+   - 新增 `bootstrap-nacos.yml`
+   - 在 `nacos` profile 下关闭旧 `Config Client` 发现逻辑
+   - 在 `nacos` profile 下关闭旧 `Bus` 链路
+   - 指定读取 `trend-trading-backtest-view-dev.yaml` 作为试点 Data ID
+
+3. 调整了启动前置检查逻辑
+   - 默认模式下仍要求 `Config Server` 与 `RabbitMQ` 可用
+   - `nacos` 模式下改为检查 `Nacos` 端口
+   - 保留对 `Eureka` 的依赖检查，避免把“配置中心迁移”和“注册中心迁移”混在同一步里
+
+4. 调整了视图服务配置模板
+   - 修改 `infra/nacos-config/templates/trend-trading-backtest-view-dev.yaml`
+   - 去掉不应放在 Data ID 内容里的 `Nacos` 连接配置
+   - 把 `version` 配置调整为当前控制器直接消费的顶层属性
+   - 保留旧 `Eureka` 配置，继续兼容当前注册中心路径
+
+5. 补充了 `index-config-server` 首批迁移清单
+   - 在退场方案文档中明确：
+     - 已具备 `Nacos Config` 试点入口的模块
+     - 当前仍依赖 `Config Server + Bus + RabbitMQ` 的 `trend-trading-backtest-view`
+     - 远程 Git 配置仓仍需继续盘点与转写
+
+6. 完成了本地编译验证
+   - 使用本地临时 Maven 工具对 `trend-trading-backtest-view` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在配置中心迁移已经不再只停留在市场数据链路，而是开始真正触碰旧 `Config Server` 的消费方。
+
+这意味着后续可以更实际地验证：
+
+- `nacos` profile 是否能替代旧配置来源
+- 旧 `Bus + RabbitMQ` 链路是否可以逐步退出
+
+#### 这一步为什么重要
+
+- `trend-trading-backtest-view` 是目前仓库里已确认还在直接消费 `index-config-server` 的服务
+- 先把它做成可切换试点，比继续只改模板更接近真实退场条件
+- 同时把依赖盘点写进正式文档，也能避免后面误判哪些服务还没迁完
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 联动验证 `trend-trading-backtest-view` 在 `nacos` profile 下的配置加载行为
+2. 继续梳理远程 Git 配置仓中仍被 `index-config-server` 承载的关键配置项
+3. 再决定是否继续让该模块进入 `Nacos Discovery` 试点
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

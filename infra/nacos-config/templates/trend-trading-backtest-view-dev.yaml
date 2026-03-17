@@ -21,12 +21,9 @@ management:
       exposure:
         include: "*"
 
-app:
-  version: dev
+version: dev
 
-nacos:
-  discovery:
-    server-addr: 127.0.0.1:8848
-  config:
-    server-addr: 127.0.0.1:8848
-    file-extension: yaml
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

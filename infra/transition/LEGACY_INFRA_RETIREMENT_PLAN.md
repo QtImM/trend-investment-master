@@ -110,6 +110,33 @@
 4. 再扩展到其他服务
 5. 确认没有服务再依赖 Config Server 后，删除 `index-config-server`
 
+### 当前已确认的配置依赖盘点
+
+截至当前仓库状态，可以先确认以下事实：
+
+1. `index-codes-service`、`index-data-service`、`gateway-service`
+   - 已补齐 `bootstrap-nacos.yml`
+   - 已具备 `Nacos Config` 试点入口
+   - 已有对应的 `templates/*.yaml` 可作为未来导入 `Nacos` 的 Data ID 内容
+
+2. `trend-trading-backtest-view`
+   - 当前仍保留 `bootstrap.yml`
+   - 仍通过 `spring.cloud.config.discovery.serviceId=index-config-server` 读取旧配置
+   - 仍依赖 `spring-cloud-starter-bus-amqp`
+   - 仍依赖本地 `RabbitMQ` 作为旧配置刷新链路
+
+### 当前建议的首批迁移清单
+
+建议把 `index-config-server` 的首批迁移对象明确为：
+
+1. `trend-trading-backtest-view`
+   - 优先迁移它的配置读取入口
+   - 目标是让它在 `nacos` profile 下绕过 `Config Server + Bus + RabbitMQ`
+
+2. `index-config-server` 自身的 Git 配置来源
+   - 当前仓库中记录的是远程 Git 地址 `https://github.com/how2j/trendConfig/`
+   - 后续需要把其中仍被消费的关键配置项转写为 `infra/nacos-config/templates/*.yaml`
+
 ### 当前建议
 
 当前不要直接删除 `index-config-server`，应先把它视作“旧配置体系”的兼容保底模块。

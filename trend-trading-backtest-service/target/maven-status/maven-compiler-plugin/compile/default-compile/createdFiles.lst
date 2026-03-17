@@ -1,9 +1,0 @@
-bupt\pojo\IndexData.class
-bupt\TrendTradingBackTestServiceApplication.class
-bupt\service\BackTestService.class
-bupt\web\BackTestController.class
-bupt\pojo\Trade.class
-bupt\client\IndexDataClientFeignHystrix.class
-bupt\pojo\AnnualProfit.class
-bupt\client\IndexDataClient.class
-bupt\pojo\Profit.class

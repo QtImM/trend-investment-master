@@ -1,6 +1,0 @@
-bupt\config\RedisCacheConfig.class
-bupt\IndexDataApplication.class
-bupt\pojo\IndexData.class
-bupt\config\IpConfiguration.class
-bupt\service\IndexDataService.class
-bupt\web\IndexDataController.class

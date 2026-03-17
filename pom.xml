@@ -8,17 +8,20 @@
   <artifactId>trendParentProject</artifactId>
   <version>1.0-SNAPSHOT</version>
   <modules>
+    <!-- infrastructure -->
     <module>eureka-server</module>
+    <module>index-config-server</module>
+    <module>index-hystrix-dashboard</module>
+    <module>index-turbine</module>
+    <module>index-zuul-service</module>
+
+    <!-- business -->
     <module>third-part-index-data-project</module>
-      <module>index-gather-store-service</module>
-      <module>index-codes-service</module>
-      <module>index-data-service</module>
-      <module>index-zuul-service</module>
-      <module>trend-trading-backtest-service</module>
-      <module>trend-trading-backtest-view</module>
-      <module>index-config-server</module>
-      <module>index-hystrix-dashboard</module>
-      <module>index-turbine</module>
+    <module>index-gather-store-service</module>
+    <module>index-codes-service</module>
+    <module>index-data-service</module>
+    <module>trend-trading-backtest-service</module>
+    <module>trend-trading-backtest-view</module>
   </modules>
   <packaging>pom</packaging>
   <name>trendParentProject</name>
@@ -36,7 +39,14 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
+    <hutool.version>4.3.1</hutool.version>
+
+    <!-- modernization target notes -->
+    <target.java.version>21</target.java.version>
+    <target.spring-cloud-stack>nacos-gateway-resilience4j-http-clients</target.spring-cloud-stack>
   </properties>
 
   <dependencies>
@@ -48,7 +58,7 @@
     <dependency>
       <groupId>cn.hutool</groupId>
       <artifactId>hutool-all</artifactId>
-      <version>4.3.1</version>
+      <version>${hutool.version}</version>
     </dependency>
   </dependencies>
 
@@ -61,7 +71,32 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>cn.hutool</groupId>
+        <artifactId>hutool-all</artifactId>
+        <version>${hutool.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
+            <encoding>${project.build.sourceEncoding}</encoding>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
 </project>

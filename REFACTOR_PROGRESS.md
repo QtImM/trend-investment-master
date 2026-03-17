@@ -411,6 +411,57 @@
 2. 开始准备第一个服务的 `Nacos Config` 读取试点
 3. 验证新网关是否能通过新注册中心发现已试点服务
 
+### 2026-03-17 - 阶段 8：gateway-service 接入 Nacos Discovery 试点
+
+#### 本阶段目标
+
+- 让新的 `gateway-service` 在保留原有 `Eureka` 默认模式下，具备通过 `nacos` profile 接入新注册中心的能力
+- 把前面两个市场数据服务的注册试点，继续延伸到调用入口层
+- 为后续验证“新网关 + 新注册中心”的服务发现链路做准备
+
+#### 已完成事项
+
+1. 调整了 `gateway-service` 的依赖
+   - 引入兼容当前 `Spring Boot 2.0.x / Finchley` 的 `Nacos Discovery` 依赖
+   - 保留原有 `Eureka` 依赖，继续兼容旧注册中心模式
+
+2. 增加了独立的 Nacos 配置文件
+   - 新增 `application-nacos.yml`
+   - 保留原网关路由与跨域配置
+   - 在 `nacos` profile 下配置 `127.0.0.1:8848`
+   - 在 `nacos` profile 下关闭 `Eureka client`
+
+3. 调整了启动类
+   - 保留 `@EnableDiscoveryClient`
+   - 增加 `nacos` profile 启动识别逻辑
+   - 默认模式下仍检查 `Eureka` 端口
+   - `nacos` 模式下改为检查 `Nacos` 端口
+   - 继续保持网关固定使用 `8032` 端口运行，避免影响旧 `Zuul` 入口
+
+4. 完成了本地编译验证
+   - 使用本地临时 Maven 工具对 `gateway-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在新体系里已经不只是业务服务能试点注册到 `Nacos`，连新的网关入口也具备了切换到 `Nacos Discovery` 的能力。
+
+这意味着当前迁移已经从“单个服务试点”推进到了“入口层也开始具备新注册中心接入能力”的阶段。
+
+#### 这一步为什么重要
+
+- 只有服务注册还不够，真正的基础设施替换还需要网关入口也能发现这些服务
+- 先让 `gateway-service` 支持双路径运行，可以显著降低后续联调风险
+- 这一步是 `eureka-server` 未来退场前的必要过渡动作
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 实际验证 `gateway-service` 在 `nacos` 模式下能发现已试点服务
+2. 为一个服务启动 `Nacos Config` 配置读取试点
+3. 开始梳理 `index-config-server` 的首批可迁移配置项
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

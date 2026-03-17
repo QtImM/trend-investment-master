@@ -8,6 +8,13 @@ spring:
 server:
   port: 8051
 
+backtest:
+  remote:
+    index-data:
+      mode: feign
+      http:
+        base-url: http://localhost:8021
+
 management:
   endpoints:
     web:

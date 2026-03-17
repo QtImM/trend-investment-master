@@ -1046,6 +1046,66 @@
 2. 在具备环境后，验证回测链路的真实远程调用与兜底行为
 3. 开始准备 `Hystrix` 退出后的最小兼容路径
 
+### 2026-03-17 - 阶段 20：为回测服务预留并行 HTTP 调用实现
+
+#### 本阶段目标
+
+- 在不删除旧 `Feign` 客户端的前提下，为回测服务预留新的 HTTP 调用实现入口
+- 继续采用“默认行为不变、替换路径先并行存在”的方式推进通信层迁移
+- 为后续 `Feign -> Spring HTTP Service Clients` 真正落地前，先把切换结构准备好
+
+#### 已完成事项
+
+1. 增加了可切换的 HTTP 调用实现
+   - 新增 `HttpIndexDataGateway`
+   - 通过 `RestTemplateBuilder` 按配置调用 `/data/{code}` 接口
+   - 当前仅在 `backtest.remote.index-data.mode=http` 时启用
+
+2. 调整了现有 Feign 适配器
+   - 为 `FeignIndexDataGateway` 增加条件装配
+   - 默认仍在 `feign` 模式下启用
+   - 保持当前运行路径不变
+
+3. 增加了并行切换配置
+   - 在 `application.yml`、`application-nacos.yml` 和
+     `infra/nacos-config/templates/trend-trading-backtest-service-dev.yaml`
+     中新增：
+     - `backtest.remote.index-data.mode`
+     - `backtest.remote.index-data.http.base-url`
+   - 当前默认值为 `feign`
+
+4. 更新了迁移记录
+   - 在退场方案文档中补充“已预留并行 HTTP 调用实现入口”的状态
+   - 明确后续可以在不删除旧 Feign 的情况下做对照切换
+
+5. 完成了本地编译验证
+   - 使用本地临时 Maven 工具对 `trend-trading-backtest-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在回测服务已经具备三层替换准备：
+
+- 远程调用接缝
+- 独立降级策略接缝
+- 并行 HTTP 实现入口
+
+这意味着后续真正替换 `Feign` 时，不再需要“一步到位硬切”，而可以先通过配置切换对照两条实现路径。
+
+#### 这一步为什么重要
+
+- 直接删除旧 Feign 再换新实现，风险高且不利于回归比较
+- 先让新旧实现并行存在，后面更容易验证行为差异
+- 这一步也是最接近“现代化调用链替换”但又不破坏当前老体系的做法
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续准备 `Hystrix` 退出后的最小兼容路径
+2. 在环境具备后，验证 `feign` 与 `http` 两种模式的行为差异
+3. 再决定是否继续把同类接缝推广到其他调用方
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

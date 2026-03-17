@@ -1,11 +1,13 @@
 package bupt.client;
 
 import bupt.pojo.IndexData;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@ConditionalOnProperty(prefix = "backtest.remote.index-data", name = "mode", havingValue = "feign", matchIfMissing = true)
 public class FeignIndexDataGateway implements IndexDataGateway {
     private final IndexDataClient indexDataClient;
 

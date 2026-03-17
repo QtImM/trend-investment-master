@@ -17,6 +17,13 @@ feign:
   hystrix:
     enabled: true
 
+backtest:
+  remote:
+    index-data:
+      mode: feign
+      http:
+        base-url: http://localhost:8021
+
 management:
   endpoints:
     web:

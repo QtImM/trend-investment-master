@@ -139,6 +139,7 @@
    - 已修正回测服务误注入 Hystrix fallback 的问题，避免默认命中兜底假数据
    - 已抽出远程市场数据访问接缝，后续可在不改业务计算逻辑的前提下替换 `Feign`
    - 已把兜底返回逻辑从 Feign fallback 适配类中独立出来，后续替换 `Hystrix` 时可复用
+   - 已预留并行 HTTP 调用实现入口，默认仍走 `Feign`
    - 仍保留 `Feign + Hystrix` 旧调用链，后续应单独推进通信与容错能力替换
 
 2. `index-config-server` 自身的 Git 配置来源

@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  nacos:
+    image: nacos/nacos-server:v2.4.3
+    container_name: trend-nacos
+    restart: unless-stopped
+    environment:
+      MODE: standalone
+      SPRING_DATASOURCE_PLATFORM: derby
+      NACOS_AUTH_ENABLE: "false"
+      JVM_XMS: 256m
+      JVM_XMX: 256m
+      JVM_XMN: 128m
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    volumes:
+      - ./logs:/home/nacos/logs
+      - ./data:/home/nacos/data

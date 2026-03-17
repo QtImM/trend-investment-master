@@ -20,6 +20,12 @@ spring:
           uri: lb://INDEX-CODES-SERVICE
           predicates:
             - Path=/api-codes/**
+        - id: api-market
+          uri: lb://MARKET-DATA-SERVICE
+          predicates:
+            - Path=/api-market/**
+          filters:
+            - StripPrefix=1
         - id: api-backtest
           uri: lb://TREND-TRADING-BACKTEST-SERVICE
           predicates:

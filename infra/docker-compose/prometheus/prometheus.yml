@@ -42,3 +42,11 @@ scrape_configs:
           - host.docker.internal:8001
         labels:
           application: index-gather-store-service
+
+  - job_name: market-data-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:8061
+        labels:
+          application: market-data-service

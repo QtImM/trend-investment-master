@@ -2649,6 +2649,68 @@
 2. 评估是否开始推进市场数据服务合并主线
 3. 判断 `trend-trading-backtest-view` 是否可以整体退场
 
+### 2026-03-18 - 阶段 48：落地 market-data-service 收敛试点模块
+
+#### 本阶段目标
+
+- 直接开始业务服务收敛主线，而不是继续只停留在“未来要合并”的文档状态
+- 先把 `index-codes-service` 和 `index-data-service` 的读能力合成为一个可编译、可挂路由、可纳入监控样板的新模块
+- 用新增模块验证后续“市场数据服务收敛”这条迁移路线是能真实落地的
+
+#### 已完成事项
+
+1. 新增了 `market-data-service` 试点模块
+   - 在父工程 `pom.xml` 中注册了 `market-data-service`
+   - 新建模块 `market-data-service`
+   - 补齐了启动类、缓存配置、端口探测与最小 `Zipkin / Prometheus / Nacos` 依赖
+
+2. 合并了市场数据读能力的最小入口
+   - 新增 `/codes` 读取入口
+   - 新增 `/data/{code}` 读取入口
+   - 先复用 `index-codes-service` 与 `index-data-service` 当前占位型缓存读取逻辑
+   - 让新模块先具备“接口兼容 + 编译可用”的收敛试点形态
+
+3. 补齐了新模块的接入样板
+   - 新增 `application-nacos.yml`
+   - 新增 `bootstrap-nacos.yml`
+   - 新增 `infra/nacos-config/templates/market-data-service-dev.yaml`
+   - 在 `infra/nacos-config/README.md` 中登记新模板
+
+4. 扩展了入口层和监控样板
+   - 在 `gateway-service` 中新增 `/api-market/**` 路由，转发到 `lb://MARKET-DATA-SERVICE`
+   - 在 `infra/docker-compose/prometheus/prometheus.yml` 中新增 `market-data-service` 抓取目标 `host.docker.internal:8061`
+
+5. 更新了迁移矩阵
+   - 在 `SERVICE_TRANSITION_MATRIX.md` 中登记 `market-data-service` 为“市场数据读能力收敛试点模块”
+
+6. 完成了本地验证
+   - 使用本机 Maven 对 `market-data-service` 与 `gateway-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在市场数据服务收敛已经不再只是目标架构里的文字描述：
+
+- `market-data-service` 已真实落库
+- 新模块已具备最小读能力接口
+- 新网关入口和 Prometheus 抓取样板也已同步接上
+
+这意味着后续可以沿着这条新模块继续把 `index-gather-store-service` 的同步能力逐步并入，而不是继续维持三个高度耦合的小服务长期并存。
+
+#### 这一步为什么重要
+
+- 旧市场数据模块边界本来就偏细碎，继续只做文档规划不会让架构真正收敛
+- 先把读能力合成一个试点模块，可以最快验证“服务合并”这条主线是否顺畅
+- 这一步也把当前重构从“旧基础设施退场 + 新前端接管”推进到了“业务服务边界开始收缩”的下一阶段
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 让 `trend-web` 优先读取 `/api-market/**`，开始消费新的市场数据试点服务
+2. 评估把 `index-gather-store-service` 的同步能力继续并入 `market-data-service`
+3. 在验证新链路可用后，再考虑把旧 `index-codes-service` 和 `index-data-service` 从入口链路中降级
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

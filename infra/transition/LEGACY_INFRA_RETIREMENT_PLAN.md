@@ -215,6 +215,14 @@
 
 这两个模块属于后退场模块，应排在注册中心、配置中心、网关之后处理。
 
+### 当前试点进展
+
+1. `trend-trading-backtest-service`
+   - 已补最小 `Prometheus` 指标暴露入口
+   - 已引入 `micrometer-registry-prometheus`
+   - 已在配置中暴露 `/actuator/prometheus`
+   - 当前可作为后续 `Hystrix Dashboard / Turbine -> Prometheus / Grafana` 的第一个业务服务试点
+
 ## 七、推荐执行顺序
 
 建议按以下顺序推进：

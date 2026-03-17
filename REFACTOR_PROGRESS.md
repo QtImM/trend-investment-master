@@ -1497,6 +1497,59 @@
 2. 继续评估 `index-hystrix-dashboard` 与 `index-turbine` 的退场前提是否已满足一部分
 3. 再决定是否把同类 `Hystrix` 退出路径推广到其他仍有远程依赖的模块
 
+### 2026-03-18 - 阶段 28：为回测服务补最小 Prometheus 指标入口
+
+#### 本阶段目标
+
+- 为已经退出 `Hystrix` 模块依赖的回测服务补最小观测替代入口
+- 不一次性搭完整监控体系，先让服务具备被 `Prometheus` 抓取的基础能力
+- 为后续 `index-hystrix-dashboard` 与 `index-turbine` 的退场准备第一个业务服务试点
+
+#### 已完成事项
+
+1. 增加了 `Prometheus` registry 依赖
+   - 在 `trend-trading-backtest-service/pom.xml` 中引入 `micrometer-registry-prometheus`
+
+2. 调整了服务监控配置
+   - 更新 `application.yml`
+   - 更新 `application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/trend-trading-backtest-service-dev.yaml`
+   - 开启 `management.endpoint.prometheus.enabled=true`
+   - 将暴露端点收口为 `health,info,prometheus`
+   - 增加统一的 `application` 指标标签
+
+3. 更新了退场方案文档
+   - 在基础设施退场文档中补充回测服务已具备最小 `Prometheus` 暴露能力
+   - 明确它可以作为后续替代 `Hystrix Dashboard / Turbine` 的观测试点
+
+4. 完成了本地验证
+   - 使用本机 Maven 对 `trend-trading-backtest-service` 执行了 `test`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在回测服务除了已经完成通信层与容错层的渐进迁移之外，也开始具备新的观测出口：
+
+- `/actuator/health`
+- `/actuator/info`
+- `/actuator/prometheus`
+
+这意味着后续如果继续推进 `Prometheus / Grafana`，已经有了一个可以先接入抓取配置的真实业务服务样板。
+
+#### 这一步为什么重要
+
+- 只退出旧熔断体系但不补新的观测出口，会让后续退场缺少替代抓手
+- 先从一个核心业务服务补最小指标入口，比直接改整套监控基础设施更稳
+- 这一步把“容错替换”和“观测替换”正式接上了
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 为仓库补一个最小 `Prometheus` 抓取配置样板
+2. 继续评估 `index-hystrix-dashboard` 与 `index-turbine` 的退场条件
+3. 再决定是否把同类指标暴露入口推广到 `gateway-service` 或其他业务服务
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

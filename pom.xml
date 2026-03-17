@@ -35,6 +35,7 @@
     <java.version>1.8</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.parameters>true</maven.compiler.parameters>
     <spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
     <spring-cloud-alibaba.version>0.2.2.RELEASE</spring-cloud-alibaba.version>
     <resilience4j.version>1.7.1</resilience4j.version>
@@ -42,6 +43,9 @@
 
     <!-- modernization target notes -->
     <target.java.version>21</target.java.version>
+    <target.spring-boot.version>3.5.x</target.spring-boot.version>
+    <target.spring-cloud.version>2024.0.x</target.spring-cloud.version>
+    <target.spring-cloud-alibaba.version>2023.x</target.spring-cloud-alibaba.version>
     <target.spring-cloud-stack>nacos-gateway-resilience4j-http-clients</target.spring-cloud-stack>
   </properties>
 
@@ -99,7 +103,22 @@
           <configuration>
             <source>${maven.compiler.source}</source>
             <target>${maven.compiler.target}</target>
+            <parameters>${maven.compiler.parameters}</parameters>
             <encoding>${project.build.sourceEncoding}</encoding>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <configuration>
+            <encoding>${project.build.sourceEncoding}</encoding>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
           </configuration>
         </plugin>
         <plugin>
@@ -109,5 +128,16 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <profiles>
+    <profile>
+      <id>modernization-java21-preview</id>
+      <properties>
+        <java.version>${target.java.version}</java.version>
+        <maven.compiler.source>${target.java.version}</maven.compiler.source>
+        <maven.compiler.target>${target.java.version}</maven.compiler.target>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>

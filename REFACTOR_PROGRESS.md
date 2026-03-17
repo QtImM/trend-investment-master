@@ -3338,6 +3338,68 @@
 2. 或补一轮围绕 `market-data-service` 与 `trend-trading-backtest-service` 的关键回归测试
 3. 再决定是否把 `third-part-index-data-project` 进一步迁为纯 `fixtures/` 目录
 
+### 2026-03-18 - 阶段 60：在父 POM 中补齐版本升级预备入口
+
+#### 本阶段目标
+
+- 在不直接触发大版本切换的前提下，为 `Boot 3 / Java 21 / Cloud 2024` 升级准备父工程入口
+- 先把根工程里的目标版本标记和公共插件管理补齐
+- 让后续升级动作尽量集中在父 POM，而不是再回到多个模块分散修改
+
+#### 已完成事项
+
+1. 补充了父工程的升级目标标记
+   - 更新根 `pom.xml`
+   - 新增：
+     - `target.spring-boot.version`
+     - `target.spring-cloud.version`
+     - `target.spring-cloud-alibaba.version`
+   - 让后续升级目标在父工程里更明确
+
+2. 收口了父工程的公共插件管理
+   - 在根 `pom.xml` 中补充 `maven-resources-plugin`
+   - 在根 `pom.xml` 中补充 `maven-surefire-plugin`
+   - 给 `maven-compiler-plugin` 增加 `parameters`
+   - 让主线模块后续升级时不再各自分散处理这些基础插件配置
+
+3. 增加了 Java 21 预备 profile
+   - 在根 `pom.xml` 中新增 `modernization-java21-preview`
+   - 当前该 profile 默认不启用
+   - 但已经作为后续 Java 21 升级的统一入口落在父工程中
+
+4. 更新了迁移清单与执行记录
+   - 更新 `MIGRATION_CHECKLIST.md`
+   - 更新 `REFACTOR_PROGRESS.md`
+   - 明确当前已经进入“版本现代化准备”阶段，而不是只停留在业务与基础设施收敛
+
+5. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在父工程已经不只是“记录目标版本”，而是开始具备真正的升级入口：
+
+- 有了更明确的 Boot / Cloud / Java 目标标记
+- 有了更完整的公共插件管理
+- 有了非默认启用的 Java 21 预备 profile
+
+这意味着后续继续推进版本现代化时，改动会更集中，也更容易分阶段推进。
+
+#### 这一步为什么重要
+
+- 如果直接开始改大版本而没有先整理父工程入口，升级过程很容易重新散回多个模块
+- 先把父 POM 的升级入口补齐，能明显降低后续正式升级时的重复修改量
+- 这一步也让当前重构从“基础设施替换 + 服务收敛”自然过渡到了“版本现代化准备”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 开始梳理 `Boot 3 / Java 21` 升级时的主要兼容阻塞点
+2. 或补一轮围绕 `market-data-service` 与 `trend-trading-backtest-service` 的关键回归测试
+3. 再决定是否把 `third-part-index-data-project` 进一步迁为纯 `fixtures/` 目录
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

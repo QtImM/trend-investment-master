@@ -2877,6 +2877,57 @@
 2. 开始继续收缩 `index-codes-service` 和 `index-data-service` 的默认入口地位
 3. 让文档进一步反映当前市场数据主线已经完成“新模块承接 + 旧同步模块退到主构建外”
 
+### 2026-03-18 - 阶段 52：删除旧同步模块源码目录
+
+#### 本阶段目标
+
+- 在旧同步模块已经移出主构建后，继续完成真正的物理退场
+- 删除 `index-gather-store-service` 源码目录，避免旧实现继续滞留在仓库主线里
+- 让当前市场数据主线彻底收敛到 `market-data-service`
+
+#### 已完成事项
+
+1. 删除了旧同步模块源码文件
+   - 删除 `index-gather-store-service/pom.xml`
+   - 删除启动类、Quartz 配置、Redis 配置、同步任务类
+   - 删除控制器、服务类、实体类、工具类和测试占位文件
+
+2. 清理了旧模块目录
+   - 删除 `index-gather-store-service` 目录下遗留的 `.iml` 和本地构建产物目录
+   - 让仓库主线不再保留这个旧模块的源码空壳
+
+3. 更新了迁移矩阵
+   - 将 `index-gather-store-service` 状态更新为“已退场”
+   - 明确当前旧同步职责已经由 `market-data-service` 开始承接
+
+4. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在市场数据相关旧模块的退场已经继续向前推进：
+
+- `market-data-service` 已承接查询主线
+- `market-data-service` 已开始承接同步主线
+- `index-gather-store-service` 已完成“移出主构建 + 源码目录删除”的阶段性退场
+
+这意味着后续就可以继续把注意力放到 `index-codes-service`、`index-data-service` 的默认入口压缩上。
+
+#### 这一步为什么重要
+
+- 如果只是移出主构建但继续留目录，仓库状态仍然和真实架构不完全一致
+- 直接删除旧同步模块，能让当前主线更清楚地表达“市场数据收敛已经开始”
+- 这一步也减少了旧 Quartz/Hystrix 同步实现继续干扰后续判断的成本
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 开始弱化 `index-codes-service` 和 `index-data-service` 的主构建地位
+2. 让网关和文档进一步明确市场数据默认主线已经转向 `market-data-service`
+3. 在确认兼容入口不再需要后，再决定何时删除旧查询模块
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

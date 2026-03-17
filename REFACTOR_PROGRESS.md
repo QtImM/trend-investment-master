@@ -3454,6 +3454,56 @@
 2. 再继续收缩 `RestTemplate` 与 `OpenFeign`
 3. 最后处理 `bootstrap` 残留与更深层的 Boot 3 配置兼容问题
 
+### 2026-03-18 - 阶段 62：移除 market-data-service 的 Redis DefaultTyping 配置
+
+#### 本阶段目标
+
+- 优先拆掉 `Boot 3 / Java 21` 升级前最明显的 Jackson 兼容阻塞点
+- 让 `market-data-service` 的 Redis 缓存序列化不再依赖已过时的 `enableDefaultTyping`
+- 在不扩大改动面的前提下，先把高风险旧 API 从主线模块中移除
+
+#### 已完成事项
+
+1. 调整了 Redis 缓存值序列化实现
+   - 更新 `market-data-service/src/main/java/bupt/config/RedisCacheConfig.java`
+   - 删除 `Jackson2JsonRedisSerializer + ObjectMapper.enableDefaultTyping`
+   - 改为使用 `GenericJackson2JsonRedisSerializer`
+
+2. 保持了现有缓存管理结构
+   - 保留 `CacheManager` 入口不变
+   - 保留当前 key/value 序列化策略边界不变
+   - 避免这一步顺手扩散到业务读写逻辑
+
+3. 更新了迁移清单
+   - 更新 `MIGRATION_CHECKLIST.md`
+   - 将 Redis `DefaultTyping` 兼容阻塞点标记为已完成
+
+4. 完成了本地验证
+   - 使用本机 Maven 对 `market-data-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在 `market-data-service` 已经先拆掉了一个最直接的版本升级障碍：
+
+- Redis 缓存序列化不再依赖 `enableDefaultTyping`
+- `Boot 3 / Java 21` 前置兼容问题又少了一项
+- 后续可以继续把注意力集中到 `RestTemplate`、`OpenFeign` 和 `bootstrap` 残留上
+
+#### 这一步为什么重要
+
+- `enableDefaultTyping` 是 Jackson 升级里最容易出问题的一类旧 API
+- 先把这个点拿掉，能明显降低后续版本升级时的失败概率
+- 这一步也符合当前“大步推进，但优先保证正确”的节奏
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续处理 `market-data-service` 的 `RestTemplate`
+2. 或直接开始拆 `trend-trading-backtest-service` 中的 `OpenFeign`
+3. 再处理 `trend-trading-backtest-view` 的 `bootstrap` 残留
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

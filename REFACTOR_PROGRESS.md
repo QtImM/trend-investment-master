@@ -3282,6 +3282,62 @@
 2. 或补一轮围绕 `market-data-service` 与 `backtest-service` 的关键回归测试
 3. 再决定是否把 `third-part-index-data-project` 进一步迁为纯 `fixtures/` 目录
 
+### 2026-03-18 - 阶段 59：收口父工程中的主线依赖版本
+
+#### 本阶段目标
+
+- 在正式推进更深层版本升级前，先把主线模块里分散的版本号收回父工程
+- 减少各模块各自维护 `Nacos` 和 `Resilience4j` 版本的重复成本
+- 为后续统一升级 `Spring / Java / 依赖栈` 降低改动面
+
+#### 已完成事项
+
+1. 调整了父工程版本属性
+   - 更新根 `pom.xml`
+   - 新增 `spring-cloud-alibaba.version`
+   - 新增 `resilience4j.version`
+
+2. 调整了父工程依赖管理
+   - 在根 `pom.xml` 的 `dependencyManagement` 中新增：
+     - `spring-cloud-starter-alibaba-nacos-discovery`
+     - `spring-cloud-starter-alibaba-nacos-config`
+     - `resilience4j-circuitbreaker`
+   - 让主线模块统一继承这些版本
+
+3. 精简了主线模块 POM
+   - 更新 `gateway-service/pom.xml`
+   - 更新 `market-data-service/pom.xml`
+   - 更新 `trend-trading-backtest-service/pom.xml`
+   - 更新 `trend-trading-backtest-view/pom.xml`
+   - 删除各模块中重复定义的 `spring-cloud-alibaba.version`、`resilience4j.version`
+   - 删除各模块里对应依赖上的显式 `version`
+
+4. 完成了本地验证
+   - 使用本机 Maven 对主线模块执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在主线模块里的关键依赖版本已经开始向父工程收口：
+
+- `Nacos` 相关版本不再散落在多个子模块里
+- `Resilience4j` 版本也不再由单个业务模块单独维护
+- 后续继续推进版本现代化时，改动入口会更集中
+
+#### 这一步为什么重要
+
+- 如果版本号继续散落在子模块里，后面做 Boot/Java 升级时会出现很多重复改动
+- 先把父工程变成真正的版本收口入口，能明显降低下一阶段升级成本
+- 这一步也让当前主线更接近现代化父工程的组织方式
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 开始推进父 POM 的更深层现代化准备，例如 Java 21 / Boot 3.5.x / Cloud 2024.x 的升级分层计划
+2. 或补一轮围绕 `market-data-service` 与 `trend-trading-backtest-service` 的关键回归测试
+3. 再决定是否把 `third-part-index-data-project` 进一步迁为纯 `fixtures/` 目录
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

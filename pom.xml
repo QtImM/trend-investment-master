@@ -36,6 +36,8 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
+    <spring-cloud-alibaba.version>0.2.2.RELEASE</spring-cloud-alibaba.version>
+    <resilience4j.version>1.7.1</resilience4j.version>
     <hutool.version>4.3.1</hutool.version>
 
     <!-- modernization target notes -->
@@ -69,6 +71,21 @@
         <groupId>cn.hutool</groupId>
         <artifactId>hutool-all</artifactId>
         <version>${hutool.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        <version>${spring-cloud-alibaba.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        <version>${spring-cloud-alibaba.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.resilience4j</groupId>
+        <artifactId>resilience4j-circuitbreaker</artifactId>
+        <version>${resilience4j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

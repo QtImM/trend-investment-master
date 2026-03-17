@@ -10,12 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>trend-trading-backtest-service</artifactId>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-cloud-alibaba.version>0.2.2.RELEASE</spring-cloud-alibaba.version>
-        <resilience4j.version>1.7.1</resilience4j.version>
-    </properties>
-
 
     <dependencies>
         <!-- springboot web -->
@@ -46,17 +40,14 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-            <version>${spring-cloud-alibaba.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-            <version>${spring-cloud-alibaba.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-circuitbreaker</artifactId>
-            <version>${resilience4j.version}</version>
         </dependency>
     </dependencies>
 

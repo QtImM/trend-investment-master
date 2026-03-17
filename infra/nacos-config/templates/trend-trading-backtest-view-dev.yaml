@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: trend-trading-backtest-view
+
+  thymeleaf:
+    mode: LEGACYHTML5
+    encoding: UTF-8
+    cache: false
+    servlet:
+      content-type: text/html
+
+  zipkin:
+    base-url: http://localhost:9411
+
+server:
+  port: 8041
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+app:
+  version: dev
+
+nacos:
+  discovery:
+    server-addr: 127.0.0.1:8848
+  config:
+    server-addr: 127.0.0.1:8848
+    file-extension: yaml

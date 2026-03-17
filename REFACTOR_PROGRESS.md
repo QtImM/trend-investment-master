@@ -126,6 +126,59 @@
 2. 再梳理 `Config Server -> Nacos Config`
 3. 然后开始准备 `gateway-service`
 
+### 2026-03-17 - 阶段 3：Nacos Config 模板入库
+
+#### 本阶段目标
+
+- 为 `Config Server -> Nacos Config` 迁移铺路
+- 不直接冒险改运行时依赖，而是先把配置模板整理出来
+- 让后续每个服务都有清晰的配置落点
+
+#### 已完成事项
+
+1. 新增 `infra/nacos-config` 目录
+   - 用于集中管理未来迁移到 Nacos 的配置模板
+
+2. 新增中文说明文档
+   - 说明了目录目的
+   - 说明了推荐的 Data ID 命名方式
+   - 说明了为什么当前阶段先做模板入库，而不是直接切运行时依赖
+
+3. 新增服务配置模板
+   - `index-codes-service-dev.yaml`
+   - `index-data-service-dev.yaml`
+   - `trend-trading-backtest-service-dev.yaml`
+   - `trend-trading-backtest-view-dev.yaml`
+
+4. 明确了当前迁移策略
+   - 先整理配置模板
+   - 再继续升级版本底座
+   - 最后再把服务正式切到 `Nacos Config`
+
+#### 当前结果
+
+当前仓库已经不再只是“知道要迁到 Nacos Config”，而是已经开始把未来配置中心里的内容结构化沉淀到仓库中。
+
+这意味着后续迁移时：
+
+- 不需要临时从各服务配置里东拼西凑
+- 可以按照模板逐个导入 Nacos
+- 每个服务的配置迁移会更可控
+
+#### 这一步为什么重要
+
+- 配置中心迁移最怕“边迁边找配置”
+- 先把模板沉淀下来，可以显著降低后续切换风险
+- 对简历来说，这一步也能体现你不是只会换依赖，而是能做完整的迁移规划与配置治理
+
+#### 下一步计划
+
+下一步准备开始“服务接入试点”，优先顺序如下：
+
+1. 先从 `eureka-server` 和 `index-config-server` 的退场策略入手
+2. 再开始梳理第一个试点服务的 `Nacos Discovery` 接入
+3. 然后进入 `gateway-service` 的新模块建设
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

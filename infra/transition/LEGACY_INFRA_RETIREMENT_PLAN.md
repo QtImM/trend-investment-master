@@ -81,6 +81,22 @@
 
 当前不要直接删除 `eureka-server`，应先保留，作为旧体系的兜底基础设施。
 
+### 当前阶段性结论
+
+结合当前仓库状态，可以确认：
+
+1. `index-codes-service`、`index-data-service`、`gateway-service`
+   已具备 `Nacos Discovery` 试点能力
+2. `trend-trading-backtest-service` 与 `trend-trading-backtest-view`
+   已具备面向 `Nacos` 的试点入口
+3. 当前新的主入口和关键业务链路已经不再只依赖 `Eureka`
+
+因此本轮先执行了一个更轻量、也更符合当前阶段的退场动作：
+
+1. 从父工程 `pom.xml` 中移除了 `eureka-server`
+2. 当前先保留模块源码目录本身，作为旧体系参考与必要时回退依据
+3. 后续再视 `index-gather-store-service`、`index-zuul-service` 等旧模块收缩情况，决定何时物理删除
+
 ## 四、index-config-server 退场方案
 
 ### 当前职责

@@ -8,7 +8,7 @@
 
 | 当前模块 | 类型 | 当前状态 | 目标状态 | 处理方式 |
 |---|---|---|---|---|
-| `eureka-server` | 基础设施 | 保留 | 删除 | 待 Nacos Discovery 接管后退场 |
+| `eureka-server` | 基础设施 | 已停止纳入主构建 | 删除 | Nacos Discovery 试点已覆盖关键链路，先退出主构建 |
 | `index-config-server` | 基础设施 | 保留 | 删除 | 待 Nacos Config 接管后退场 |
 | `index-zuul-service` | 基础设施 | 保留 | 删除 | 待 `gateway-service` 验证完成后退场 |
 | `index-hystrix-dashboard` | 基础设施 | 已退场 | 删除 | 已从主构建移除且源码目录已删除 |

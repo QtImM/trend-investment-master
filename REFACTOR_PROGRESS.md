@@ -2062,6 +2062,62 @@
 2. 评估是否要继续把最小指标入口推广到 `trend-trading-backtest-view`
 3. 再决定是否继续推进其他旧基础设施模块的源码退场
 
+### 2026-03-18 - 阶段 38：将 eureka-server 移出主构建
+
+#### 本阶段目标
+
+- 开始推进核心旧基础设施模块的阶段性退场
+- 先选择替代条件相对更成熟的 `eureka-server` 做主构建收缩
+- 不急着物理删目录，先让当前主工程默认不再把它纳入构建主线
+
+#### 已完成事项
+
+1. 调整了父工程模块列表
+   - 从根 `pom.xml` 中移除了 `eureka-server`
+   - 让它不再参与当前主构建
+
+2. 更新了迁移矩阵
+   - 将 `eureka-server` 标记为“已停止纳入主构建”
+   - 明确当前动作属于“核心旧基础设施开始退出主构建”的阶段
+
+3. 更新了退场方案文档
+   - 补充当前可支撑该动作的前提：
+     - `index-codes-service`
+     - `index-data-service`
+     - `gateway-service`
+     - `trend-trading-backtest-service`
+     - `trend-trading-backtest-view`
+     已具备不同程度的 `Nacos Discovery` 试点路径
+   - 明确本轮先执行“移出主构建、保留源码目录”的轻量退场动作
+
+4. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在核心旧基础设施退场已经从监控模块扩展到了注册中心模块：
+
+- `index-hystrix-dashboard` 已退场
+- `index-turbine` 已退场
+- `eureka-server` 已停止纳入主构建
+
+这意味着当前主工程的默认构建主线，已经进一步向新注册中心和新入口样板倾斜。
+
+#### 这一步为什么重要
+
+- 如果一直把 `eureka-server` 保留在主构建里，迁移会长期停留在“新旧都在，但默认仍偏旧体系”
+- 先把它摘出主构建，比直接删目录更稳，也能减少当前主线的构建噪音
+- 这一步也为后续处理 `index-config-server` 和 `index-zuul-service` 提供了类似操作样板
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续整理 `index-config-server` 的主构建退场条件
+2. 评估 `trend-trading-backtest-view` 对旧配置中心的剩余依赖是否还能再压缩一步
+3. 再决定何时把 `eureka-server` 物理删除
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

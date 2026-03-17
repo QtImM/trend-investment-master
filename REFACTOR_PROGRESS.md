@@ -1603,6 +1603,64 @@
 2. 继续评估是否要同步补 `Grafana` 本地样板
 3. 再决定何时开始正式弱化 `index-hystrix-dashboard` 与 `index-turbine` 的存在感
 
+### 2026-03-18 - 阶段 30：为 gateway-service 补最小 Prometheus 指标入口
+
+#### 本阶段目标
+
+- 把监控替代样板从单个业务服务扩展到入口层
+- 让 `gateway-service` 具备与回测服务一致的最小 `Prometheus` 暴露能力
+- 同步把本地抓取配置扩展到网关入口，增强 `Hystrix Dashboard / Turbine` 退场前的替代可见性
+
+#### 已完成事项
+
+1. 增加了 `Prometheus` registry 依赖
+   - 在 `gateway-service/pom.xml` 中引入 `micrometer-registry-prometheus`
+
+2. 调整了网关监控配置
+   - 更新 `gateway-service/src/main/resources/application.yml`
+   - 更新 `gateway-service/src/main/resources/application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/gateway-service-dev.yaml`
+   - 开启 `management.endpoint.prometheus.enabled=true`
+   - 将暴露端点收口为 `health,info,prometheus`
+   - 增加统一的 `application` 指标标签
+
+3. 扩展了本地抓取样板
+   - 更新 `infra/docker-compose/prometheus/prometheus.yml`
+   - 新增对 `gateway-service` 的抓取目标 `host.docker.internal:8032`
+   - 让本地 `Prometheus` 样板同时覆盖入口层和核心业务服务
+
+4. 更新了迁移记录
+   - 在退场方案文档中补充 `gateway-service` 已具备最小 `Prometheus` 暴露能力
+   - 明确它已经成为入口层的监控替代试点
+
+5. 完成了本地验证
+   - 使用本机 Maven 对 `gateway-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在仓库里的监控替代路径已经不再只覆盖单个业务服务，而是开始形成一条最小观察链：
+
+- `gateway-service` 暴露 `/actuator/prometheus`
+- `trend-trading-backtest-service` 暴露 `/actuator/prometheus`
+- `infra/docker-compose/prometheus/prometheus.yml` 已同时具备两个抓取目标
+
+这意味着后续如果继续推进 `Prometheus / Grafana`，已经可以从“入口层 + 核心业务服务”两个关键位置开始做联动观察。
+
+#### 这一步为什么重要
+
+- 只抓业务服务还不够，入口层指标同样是网关替代和熔断体系退场的重要观测面
+- 先把 `gateway-service` 补齐，后续扩展其他服务时能更有样板价值
+- 这一步也让 `gateway-service` 从“新网关试点”进一步走向“新网关 + 新观测入口试点”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续评估是否要补最小 `Grafana` 本地样板
+2. 开始整理 `index-hystrix-dashboard` 与 `index-turbine` 的阶段性退场条件
+3. 再决定是否把同类指标暴露入口推广到 `index-data-service` 或 `index-codes-service`
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

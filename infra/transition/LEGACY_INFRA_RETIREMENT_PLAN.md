@@ -226,8 +226,16 @@
 2. 本地 `Prometheus` 抓取方案
    - 已新增 `infra/docker-compose/prometheus/docker-compose.yml`
    - 已新增 `infra/docker-compose/prometheus/prometheus.yml`
-   - 当前默认抓取 `trend-trading-backtest-service` 的 `http://host.docker.internal:8051/actuator/prometheus`
-   - 后续可以继续在同一配置里扩展 `gateway-service` 或其他业务服务抓取目标
+   - 当前默认抓取：
+     - `trend-trading-backtest-service` 的 `http://host.docker.internal:8051/actuator/prometheus`
+     - `gateway-service` 的 `http://host.docker.internal:8032/actuator/prometheus`
+   - 后续可以继续在同一配置里扩展其他业务服务抓取目标
+
+3. `gateway-service`
+   - 已补最小 `Prometheus` 指标暴露入口
+   - 已引入 `micrometer-registry-prometheus`
+   - 已在配置中暴露 `/actuator/prometheus`
+   - 当前可作为入口层的监控替代试点
 
 ## 七、推荐执行顺序
 

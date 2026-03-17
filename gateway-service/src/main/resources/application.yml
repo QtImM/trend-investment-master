@@ -31,7 +31,13 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 
 management:
+  endpoint:
+    prometheus:
+      enabled: true
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health,info,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}

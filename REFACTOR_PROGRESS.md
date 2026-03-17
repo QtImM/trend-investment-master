@@ -511,6 +511,57 @@
 2. 联动验证 `index-codes-service` 的 `nacos` profile 配置加载行为
 3. 继续梳理 `index-config-server` 中可迁移的首批配置项
 
+### 2026-03-17 - 阶段 10：index-data-service 接入 Nacos Config 试点入口
+
+#### 本阶段目标
+
+- 复用 `index-codes-service` 已验证过的配置中心试点模式
+- 让 `index-data-service` 在保留旧配置路径的同时，具备 `Nacos Config` 试点入口
+- 让市场数据链路的两个服务在注册中心与配置中心两条迁移线上保持一致
+
+#### 已完成事项
+
+1. 调整了 `index-data-service` 的依赖
+   - 增加兼容当前 `Spring Boot 2.0.x / Finchley` 的 `Nacos Config` 依赖
+   - 保留原有依赖结构，不影响默认运行方式
+
+2. 增加了 Nacos Config 引导文件
+   - 新增 `bootstrap-nacos.yml`
+   - 在 `nacos` profile 下配置 `Nacos Config` 地址
+   - 指定读取 `index-data-service-dev.yaml` 作为试点 Data ID
+
+3. 调整了配置模板
+   - 修改 `infra/nacos-config/templates/index-data-service-dev.yaml`
+   - 去掉不应放在 Data ID 内容里的 `Nacos` 连接地址
+   - 保留服务自身运行配置，并在模板中显式关闭 `Eureka client`
+
+4. 完成了本地编译验证
+   - 使用本地临时 Maven 工具对 `index-data-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在市场数据链路里的两个核心查询服务都已经具备：
+
+- `Nacos Discovery` 试点能力
+- `Nacos Config` 试点入口
+
+这意味着后续再扩展到其他服务时，可以直接沿用同一套“application + bootstrap + template”的迁移样板。
+
+#### 这一步为什么重要
+
+- 配置中心迁移如果只停留在单个服务，样板价值有限
+- 现在 `index-codes-service` 和 `index-data-service` 已经形成成对样板，更适合后续横向复制
+- 这也让 `index-config-server` 的退场前提进一步接近可验证状态
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 联动验证 `index-codes-service` 与 `index-data-service` 的 `nacos` profile 配置加载行为
+2. 让 `gateway-service` 继续补齐 `Nacos Config` 试点入口
+3. 开始梳理 `index-config-server` 中首批可迁移的配置项
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

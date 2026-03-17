@@ -2528,6 +2528,62 @@
 2. 继续扩展 `trend-web` 的页面结构，逐步形成真正的独立前端
 3. 评估是否开始推进市场数据服务合并或 Java 版本升级主线
 
+### 2026-03-18 - 阶段 46：将旧视图服务收缩为纯跳转壳层
+
+#### 本阶段目标
+
+- 继续压缩 `trend-trading-backtest-view` 的遗留负担
+- 在确认新前端已能接管入口后，移除旧 Thymeleaf 页面和静态资源
+- 让视图服务只保留最小跳转职责，不再继续承载旧页面实现
+
+#### 已完成事项
+
+1. 收缩了视图服务依赖
+   - 从 `trend-trading-backtest-view/pom.xml` 中移除了 `spring-boot-starter-thymeleaf`
+   - 让该模块不再需要服务端模板渲染能力
+
+2. 精简了入口控制器
+   - 更新 `trend-trading-backtest-view/src/main/java/bupt/web/ViewController.java`
+   - 让 `/` 与 `/legacy` 都统一重定向到 `trend-web`
+   - 移除了旧页面渲染相关的 `Model`、`version` 和 `RefreshScope` 依赖
+
+3. 清理了旧视图配置与资源
+   - 更新 `trend-trading-backtest-view/src/main/resources/application.yml`
+   - 更新 `trend-trading-backtest-view/src/main/resources/application-nacos.yml`
+   - 移除了 Thymeleaf 和旧页面版本展示相关配置
+   - 删除了 `templates/` 和 `static/` 下的旧页面模板、Vue2/jQuery/Bootstrap/Chart.js/Datepicker 静态资源
+
+4. 更新了迁移记录
+   - 在迁移矩阵中把 `trend-trading-backtest-view` 更新为“纯跳转壳层”
+
+5. 完成了本地验证
+   - 使用本机 Maven 对 `trend-trading-backtest-view` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在 `trend-trading-backtest-view` 已经不再保留旧页面实现：
+
+- 旧模板和静态资源已移除
+- 服务端模板依赖已移除
+- 模块只负责把入口跳转到 `trend-web`
+
+这意味着前端迁移主线已经从“新前端接管入口”进一步推进到了“旧页面实现退场”。
+
+#### 这一步为什么重要
+
+- 如果旧页面模板和静态资源继续长期保留，前端迁移仍然会被两套实现并存拖慢
+- 先把视图服务压成纯跳转壳层，仓库状态会和当前真实入口保持一致
+- 这一步也为后续彻底删除 `trend-trading-backtest-view` 模块打下了基础
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续扩展 `trend-web` 的页面结构，逐步形成真正独立的前端应用
+2. 评估是否开始推进市场数据服务合并主线
+3. 评估 `trend-trading-backtest-view` 是否已接近整体退场条件
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

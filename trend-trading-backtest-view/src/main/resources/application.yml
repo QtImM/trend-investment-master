@@ -3,16 +3,8 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:nacos}
   application:
     name: trend-trading-backtest-view
-  thymeleaf:
-    mode: LEGACYHTML5
-    encoding: UTF-8
-    cache: false
-    servlet:
-      content-type: text/html
   zipkin:
     base-url: http://localhost:9411
-
-version: ${TREND_VIEW_VERSION:how2j trend trading backtest view version 1.5}
 
 trend:
   web:

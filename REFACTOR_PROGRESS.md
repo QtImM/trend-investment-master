@@ -3613,6 +3613,61 @@
 2. 统一清理主线模块中的 `@EnableDiscoveryClient`
 3. 再评估是否需要顺手收缩主线应用中的交互式端口输入逻辑
 
+### 2026-03-18 - 阶段 65：将主线 HTTP 调用从 RestTemplate 收口到 WebClient
+
+#### 本阶段目标
+
+- 继续拆掉 `Boot 3 / Java 21` 升级前的旧 HTTP 客户端阻塞点
+- 让 `market-data-service` 和回测服务的主线 HTTP 调用都不再依赖 `RestTemplate`
+- 为后续进一步靠近现代调用栈打下更统一的基础
+
+#### 已完成事项
+
+1. 为主线模块补充了 `WebClient` 依赖
+   - 更新 `market-data-service/pom.xml`
+   - 更新 `trend-trading-backtest-service/pom.xml`
+   - 新增 `spring-boot-starter-webflux`
+
+2. 收口了市场数据服务的上游调用实现
+   - 更新 `MarketDataApplication`
+   - 删除 `RestTemplate` Bean
+   - 更新 `ThirdPartIndexClient`
+   - 将第三方数据读取改为基于 `WebClient` 的实现
+
+3. 收口了回测服务的 HTTP 调用实现
+   - 更新 `HttpIndexDataGateway`
+   - 将读取 `market-data-service` 的实现从 `RestTemplateBuilder` 改为 `WebClient`
+
+4. 更新了迁移清单
+   - 更新 `MIGRATION_CHECKLIST.md`
+   - 将 `RestTemplate` 阻塞点标记为已完成
+
+5. 完成了本地验证
+   - 使用本机 Maven 对 `market-data-service` 与 `trend-trading-backtest-service` 执行了 `test`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在主线 HTTP 调用又进一步现代化了一步：
+
+- `market-data-service` 不再依赖 `RestTemplate`
+- 回测服务的 HTTP 调用门面也不再依赖 `RestTemplate`
+- 当前主线调用栈已经更接近后续 Boot 3 时代的实现方式
+
+#### 这一步为什么重要
+
+- `RestTemplate` 是这条升级主线里最典型的旧客户端痕迹之一
+- 一次性把两个主线模块都收掉，后面继续升级时会轻很多
+- 这一步也让当前主线调用方式更统一，后续继续演进到 `RestClient` 或更强约束的客户端会更顺
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 统一清理主线模块中的 `@EnableDiscoveryClient`
+2. 收缩主线应用里的交互式端口输入逻辑
+3. 再决定是否把当前迁移阶段标记为基本完成
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

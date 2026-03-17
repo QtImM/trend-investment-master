@@ -20,7 +20,7 @@
 | `index-data-service` | 业务 | 保留 | 合并 | 未来并入 `market-data-service` |
 | `trend-trading-backtest-service` | 业务 | 保留 | 保留 | 作为核心服务持续演进 |
 | `trend-trading-backtest-view` | 前端/服务端混合 | 保留 | 删除 | 当前作为纯跳转壳层，旧页面资源已移除 |
-| `trend-web` | 前端 | 新增 | 保留 | Vue 3 + Vite + TypeScript 前端试点 |
+| `trend-web` | 前端 | 新增 | 保留 | 已形成多页面应用壳层，继续接管旧视图入口 |
 
 ## 当前阶段结论
 

@@ -21,7 +21,7 @@ management:
       exposure:
         include: "*"
 
-version: dev
+version: how2j trend trading backtest view version 1.5
 
 eureka:
   client:

@@ -137,6 +137,22 @@
    - 当前仓库中记录的是远程 Git 地址 `https://github.com/how2j/trendConfig/`
    - 后续需要把其中仍被消费的关键配置项转写为 `infra/nacos-config/templates/*.yaml`
 
+### 当前远程 Git 配置仓盘点结果
+
+本轮已对 `https://github.com/how2j/trendConfig/` 做了实际盘点，当前确认结果如下：
+
+1. 远程仓库的配置目录为 `respo/`
+2. 当前实际存在的配置文件只有：
+   - `trend-trading-backtest-view-dev.properties`
+3. 当前已确认的配置项只有：
+   - `version = how2j trend trading backtest view version 1.5`
+
+这说明截至当前仓库状态：
+
+- `index-config-server` 仍在承载的远程 Git 配置范围非常小
+- 首批需要转写到 `Nacos Config` 的关键项已经可以明确落到 `trend-trading-backtest-view-dev.yaml`
+- `trend-trading-backtest-service-dev.properties` 等其他服务配置文件在当前远程仓库中并不存在，后续若需要迁移，应先确认是否来自别的配置来源
+
 ### 当前建议
 
 当前不要直接删除 `index-config-server`，应先把它视作“旧配置体系”的兼容保底模块。

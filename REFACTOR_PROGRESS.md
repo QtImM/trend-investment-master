@@ -683,6 +683,56 @@
 2. 继续梳理远程 Git 配置仓中仍被 `index-config-server` 承载的关键配置项
 3. 再决定是否继续让该模块进入 `Nacos Discovery` 试点
 
+### 2026-03-17 - 阶段 13：远程 Git 配置仓盘点并回填视图服务模板
+
+#### 本阶段目标
+
+- 核实 `index-config-server` 当前到底还在承载哪些远程 Git 配置
+- 避免后续配置中心迁移基于猜测推进
+- 把已确认的关键配置项回填到仓库内的 `Nacos Config` 模板
+
+#### 已完成事项
+
+1. 拉取并盘点了远程 Git 配置仓
+   - 根据 `index-config-server` 的配置地址，实际拉取了 `https://github.com/how2j/trendConfig/`
+   - 确认其配置目录为 `respo/`
+
+2. 确认了当前远程配置范围
+   - 当前仅发现 `trend-trading-backtest-view-dev.properties`
+   - 其中当前已确认的配置项只有：
+     - `version = how2j trend trading backtest view version 1.5`
+
+3. 回填了本仓库模板
+   - 将 `infra/nacos-config/templates/trend-trading-backtest-view-dev.yaml` 中的 `version`
+     从占位值更新为远程配置仓中的真实值
+
+4. 更新了退场方案文档
+   - 在 `infra/transition/LEGACY_INFRA_RETIREMENT_PLAN.md` 中补充远程 Git 配置仓的实际盘点结果
+   - 明确当前首批需要迁移到 `Nacos Config` 的关键项范围很小
+
+#### 当前结果
+
+现在关于 `index-config-server` 的迁移不再只是“知道它还没退场”，而是已经进一步确认：
+
+- 它当前远程 Git 配置来源的范围很小
+- 已确认的关键业务配置项已经能映射到仓库内模板
+
+这会显著降低后续真正切换配置来源时的不确定性。
+
+#### 这一步为什么重要
+
+- 配置中心退场的难点常常不在依赖，而在“不知道旧配置到底承载了什么”
+- 现在先把远程配置内容盘点清楚，后面做联调和切换会更稳
+- 这一步也说明 `index-config-server` 的退场阻力可能比预期更小
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 联动验证 `trend-trading-backtest-view` 在 `nacos` profile 下是否能读取回填后的 `version` 配置
+2. 再决定是否继续为 `trend-trading-backtest-view` 补齐 `Nacos Discovery` 试点能力
+3. 评估是否可以开始弱化 `index-config-server` 与 `RabbitMQ` 的本地依赖地位
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

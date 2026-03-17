@@ -14,10 +14,11 @@ public class ResilientIndexDataGatewayTest {
     @Test
     public void shouldReturnTransportResultWhenRemoteCallSucceeds() {
         List<IndexData> expected = Collections.singletonList(createIndexData("2024-01-02", 123.45f));
+        IndexDataCallGuard callGuard = new DirectIndexDataCallGuard();
         IndexDataTransportGateway transportGateway = code -> expected;
         IndexDataFallbackGateway fallbackGateway = new IndexDataFallbackGateway();
 
-        ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(transportGateway, fallbackGateway, true);
+        ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(callGuard, transportGateway, fallbackGateway, true);
 
         List<IndexData> actual = gateway.getIndexData("000300");
 
@@ -26,12 +27,13 @@ public class ResilientIndexDataGatewayTest {
 
     @Test
     public void shouldUseFallbackWhenRemoteCallFailsAndFallbackEnabled() {
+        IndexDataCallGuard callGuard = new DirectIndexDataCallGuard();
         IndexDataTransportGateway transportGateway = code -> {
             throw new IllegalStateException("remote service unavailable");
         };
         IndexDataFallbackGateway fallbackGateway = new IndexDataFallbackGateway();
 
-        ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(transportGateway, fallbackGateway, true);
+        ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(callGuard, transportGateway, fallbackGateway, true);
 
         List<IndexData> actual = gateway.getIndexData("000300");
 
@@ -42,12 +44,13 @@ public class ResilientIndexDataGatewayTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldRethrowWhenRemoteCallFailsAndFallbackDisabled() {
+        IndexDataCallGuard callGuard = new DirectIndexDataCallGuard();
         IndexDataTransportGateway transportGateway = code -> {
             throw new IllegalStateException("remote service unavailable");
         };
         IndexDataFallbackGateway fallbackGateway = new IndexDataFallbackGateway();
 
-        ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(transportGateway, fallbackGateway, false);
+        ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(callGuard, transportGateway, fallbackGateway, false);
 
         gateway.getIndexData("000300");
     }

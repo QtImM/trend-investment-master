@@ -1276,6 +1276,70 @@
 2. 在统一降级门面保持不变的前提下，尝试为 `http` 模式补充更贴近真实调用的测试
 3. 再决定是否开始弱化模块中的 `Hystrix` 注解与依赖存在感
 
+### 2026-03-18 - 阶段 24：为回测服务预留 Resilience4j 试点入口
+
+#### 本阶段目标
+
+- 在不移除现有 `Hystrix` 依赖的前提下，为回测服务增加新的容错试点入口
+- 保持当前默认运行行为不变，只把 `Resilience4j` 作为可按配置启用的并行保护层
+- 继续遵循“先并行、再对照、最后替换”的渐进式迁移方式
+
+#### 已完成事项
+
+1. 增加了最小 `Resilience4j` 依赖
+   - 在 `trend-trading-backtest-service/pom.xml` 中引入 `resilience4j-circuitbreaker`
+   - 当前只使用其核心库，不引入更大范围的框架替换
+
+2. 提炼了远程调用保护层接口
+   - 新增 `IndexDataCallGuard`
+   - 让回测服务里的调用保护方式与具体远程调用实现进一步解耦
+
+3. 增加了两种可切换的保护层实现
+   - 新增 `DirectIndexDataCallGuard`
+   - 新增 `Resilience4jIndexDataCallGuard`
+   - 默认仍走直接调用保护层
+   - 仅在 `backtest.remote.index-data.resilience4j.enabled=true` 时启用 `Resilience4j`
+
+4. 调整了统一降级门面
+   - `ResilientIndexDataGateway` 不再直接调用传输层
+   - 改为先经过新的调用保护层，再进入现有统一兜底逻辑
+   - 让后续切换容错方式时不需要再改业务使用入口
+
+5. 同步了配置与测试
+   - 更新 `application.yml`
+   - 更新 `application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/trend-trading-backtest-service-dev.yaml`
+   - 调整现有统一降级门面测试以适配新的保护层接口
+
+6. 完成了本地验证
+   - 使用本机 Maven 对 `trend-trading-backtest-service` 执行了 `test`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在回测服务已经具备了更完整的并行迁移结构：
+
+- 远程调用实现可在 `feign/http` 之间切换
+- 旧 `Hystrix` 开关可按配置渐退
+- 新 `Resilience4j` 保护层可按配置试点启用
+- 统一降级门面继续承接异常后的 fallback 逻辑
+
+这意味着后续如果要比较旧容错路径和新容错路径，不需要再直接重写业务调用入口，只需要围绕保护层配置与行为做对照验证。
+
+#### 这一步为什么重要
+
+- `Hystrix -> Resilience4j` 最怕一步硬切，因为那会同时影响调用包装、异常行为和兜底路径
+- 先让 `Resilience4j` 以最小方式并行接入，可以把风险压缩在一个更小的边界内
+- 这一步也让“远程调用实现切换”和“容错机制切换”继续保持独立推进
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 为 `Resilience4j` 保护层补一组最小行为测试，验证开关开启时的异常包装行为
+2. 继续弱化回测服务中对 `Hystrix` 注解和依赖的存在感
+3. 再决定是否开始为监控侧补 Prometheus 指标暴露入口
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

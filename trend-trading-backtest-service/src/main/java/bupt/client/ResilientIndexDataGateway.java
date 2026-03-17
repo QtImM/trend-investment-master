@@ -14,13 +14,16 @@ import java.util.List;
 public class ResilientIndexDataGateway implements IndexDataGateway {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResilientIndexDataGateway.class);
 
+    private final IndexDataCallGuard indexDataCallGuard;
     private final IndexDataTransportGateway indexDataTransportGateway;
     private final IndexDataFallbackGateway indexDataFallbackGateway;
     private final boolean fallbackEnabled;
 
-    public ResilientIndexDataGateway(IndexDataTransportGateway indexDataTransportGateway,
+    public ResilientIndexDataGateway(IndexDataCallGuard indexDataCallGuard,
+                                     IndexDataTransportGateway indexDataTransportGateway,
                                      IndexDataFallbackGateway indexDataFallbackGateway,
                                      @Value("${backtest.remote.index-data.fallback.enabled:true}") boolean fallbackEnabled) {
+        this.indexDataCallGuard = indexDataCallGuard;
         this.indexDataTransportGateway = indexDataTransportGateway;
         this.indexDataFallbackGateway = indexDataFallbackGateway;
         this.fallbackEnabled = fallbackEnabled;
@@ -29,7 +32,7 @@ public class ResilientIndexDataGateway implements IndexDataGateway {
     @Override
     public List<IndexData> getIndexData(String code) {
         try {
-            return indexDataTransportGateway.getIndexData(code);
+            return indexDataCallGuard.execute(code, () -> indexDataTransportGateway.getIndexData(code));
         } catch (RuntimeException exception) {
             if (!fallbackEnabled) {
                 throw exception;

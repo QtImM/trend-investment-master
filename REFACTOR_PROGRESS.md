@@ -462,6 +462,55 @@
 2. 为一个服务启动 `Nacos Config` 配置读取试点
 3. 开始梳理 `index-config-server` 的首批可迁移配置项
 
+### 2026-03-17 - 阶段 9：index-codes-service 接入 Nacos Config 试点入口
+
+#### 本阶段目标
+
+- 在不切断旧配置路径的前提下，为 `index-codes-service` 增加首个 `Nacos Config` 试点入口
+- 继续沿用“先试点、可切换、保留旧体系”的迁移方式
+- 同时把 `infra/nacos-config` 的模板使用方式和实际目录结构对齐
+
+#### 已完成事项
+
+1. 调整了 `index-codes-service` 的依赖
+   - 增加兼容当前 `Spring Boot 2.0.x / Finchley` 的 `Nacos Config` 依赖
+   - 保留原有依赖结构，不影响默认运行模式
+
+2. 增加了 Nacos Config 引导文件
+   - 新增 `bootstrap-nacos.yml`
+   - 在 `nacos` profile 下配置 `Nacos Config` 地址
+   - 指定读取 `index-codes-service-dev.yaml` 作为首个试点 Data ID
+
+3. 校正了配置模板的职责边界
+   - 调整 `infra/nacos-config/templates/index-codes-service-dev.yaml`
+   - 去掉不应放在 Data ID 内容里的 `Nacos` 连接地址
+   - 保留服务自身运行配置，并在模板中显式关闭 `Eureka client`
+
+4. 更新了配置模板说明
+   - 明确模板目录位于 `infra/nacos-config/templates`
+   - 明确 `bootstrap-*.yml` 负责连接 Nacos
+   - 明确模板文件负责承载未来导入到 Nacos 的服务运行配置
+
+#### 当前结果
+
+现在 `index-codes-service` 不仅具备 `Nacos Discovery` 试点能力，也已经具备了 `Nacos Config` 的最小引导入口。
+
+这意味着配置中心迁移已经从“只有模板”推进到了“首个服务开始具备真实接入点”的阶段。
+
+#### 这一步为什么重要
+
+- `index-config-server` 的退场前提之一，就是至少一个服务可以从 `Nacos` 读取配置
+- 先把试点入口补齐，再去做联调和导入验证，会比一上来大规模切换更稳
+- 这一步也让后续复制到 `index-data-service` 或 `gateway-service` 时有了统一样板
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 让 `index-data-service` 按同样方式补齐 `Nacos Config` 试点入口
+2. 联动验证 `index-codes-service` 的 `nacos` profile 配置加载行为
+3. 继续梳理 `index-config-server` 中可迁移的首批配置项
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

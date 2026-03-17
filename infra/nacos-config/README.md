@@ -15,12 +15,12 @@
 
 - `${spring.application.name}-dev.yaml`
 
-例如：
+当前模板文件位于 `templates/` 目录，例如：
 
-- `index-codes-service-dev.yaml`
-- `index-data-service-dev.yaml`
-- `trend-trading-backtest-service-dev.yaml`
-- `trend-trading-backtest-view-dev.yaml`
+- `templates/index-codes-service-dev.yaml`
+- `templates/index-data-service-dev.yaml`
+- `templates/trend-trading-backtest-service-dev.yaml`
+- `templates/trend-trading-backtest-view-dev.yaml`
 
 ## 当前处理策略
 
@@ -30,6 +30,12 @@
 - 直接接入现代版本的 Nacos 有较高兼容风险
 
 因此这一步先做“配置模板入库”，后续待版本底座继续升级后，再正式接入 Nacos Config。
+
+当前补充约定如下：
+
+- 服务运行配置优先放到 `templates/*.yaml` 中，作为未来导入 Nacos 的 Data ID 内容
+- `server-addr`、`file-extension` 这类连接 Nacos 本身的引导配置，不放在模板内，而是放在服务自己的 `bootstrap-*.yml`
+- 这样可以把“如何连到 Nacos”和“从 Nacos 里读取什么配置”拆开，后续扩展到其他服务时更清晰
 
 ## 迁移顺序建议
 

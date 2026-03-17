@@ -1773,6 +1773,68 @@
 2. 评估是否要为 `Grafana` 补一份最小 dashboard provisioning 样板
 3. 再决定何时物理删除 `index-hystrix-dashboard` 与 `index-turbine` 目录
 
+### 2026-03-18 - 阶段 33：删除旧监控模块源码目录
+
+#### 本阶段目标
+
+- 在两个旧监控模块已经移出主构建后，完成物理退场
+- 删除 `index-hystrix-dashboard` 与 `index-turbine` 的源码与模块文件
+- 让仓库状态与当前真实替代方案保持一致，避免继续保留失效模块造成误导
+
+#### 已完成事项
+
+1. 删除了 `index-hystrix-dashboard` 模块文件
+   - 删除模块 `pom.xml`
+   - 删除启动类与工具类
+   - 删除 `application.yml`
+   - 删除测试占位文件
+   - 删除模块级 `.iml`
+
+2. 删除了 `index-turbine` 模块文件
+   - 删除模块 `pom.xml`
+   - 删除启动类与工具类
+   - 删除 `application.yml`
+   - 删除测试占位文件
+   - 删除模块级 `.iml`
+
+3. 更新了迁移矩阵与退场方案
+   - 将 `index-hystrix-dashboard` 标记为“已退场”
+   - 将 `index-turbine` 标记为“已退场”
+   - 明确当前已经完成“从主构建移除 + 源码目录删除”的阶段性退场
+
+4. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在旧监控体系在仓库中的状态已经进一步收口为：
+
+- `index-hystrix-dashboard` 已退场
+- `index-turbine` 已退场
+- 替代路径已由：
+  - `trend-trading-backtest-service`
+  - `gateway-service`
+  - `Prometheus`
+  - `Grafana`
+  组成最小替代样板
+
+这意味着后续围绕监控替代继续推进时，仓库主线已经不再被旧监控模块干扰。
+
+#### 这一步为什么重要
+
+- 既然旧模块已经不进主构建，再继续保留源码目录只会增加认知噪音
+- 直接删掉失效模块，能让当前架构状态更清晰
+- 这一步也和你这轮的要求一致：原服务没有启用，优先保证替代不出错即可
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续把最小 `Prometheus` 指标入口推广到 `index-data-service` 或 `index-codes-service`
+2. 评估是否要为 `Grafana` 补最小 dashboard provisioning 样板
+3. 再决定是否继续推进其他旧基础设施模块的主构建退场
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

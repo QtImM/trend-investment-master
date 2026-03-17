@@ -36,6 +36,10 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-zipkin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
         <!-- nacos discovery trial for Spring Cloud Finchley -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

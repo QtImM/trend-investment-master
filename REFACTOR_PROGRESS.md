@@ -1893,6 +1893,65 @@
 2. 评估是否要为 `Grafana` 补最小 dashboard provisioning 样板
 3. 再决定是否继续推进其他旧基础设施模块的退场动作
 
+### 2026-03-18 - 阶段 35：为 index-codes-service 补最小 Prometheus 指标入口
+
+#### 本阶段目标
+
+- 继续把监控替代样板推广到市场数据链路中的另一条基础服务
+- 让 `index-codes-service` 具备与 `index-data-service` 一致的最小 `Prometheus` 暴露能力
+- 让当前本地 `Prometheus` 抓取样板覆盖完整的市场数据查询链路
+
+#### 已完成事项
+
+1. 增加了 `Prometheus` registry 依赖
+   - 在 `index-codes-service/pom.xml` 中引入 `micrometer-registry-prometheus`
+
+2. 调整了服务监控配置
+   - 更新 `index-codes-service/src/main/resources/application.yml`
+   - 更新 `index-codes-service/src/main/resources/application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/index-codes-service-dev.yaml`
+   - 开启 `management.endpoint.prometheus.enabled=true`
+   - 将暴露端点收口为 `health,info,prometheus`
+   - 增加统一的 `application` 指标标签
+
+3. 扩展了本地抓取样板
+   - 更新 `infra/docker-compose/prometheus/prometheus.yml`
+   - 新增对 `index-codes-service` 的抓取目标 `host.docker.internal:8011`
+   - 让市场元数据服务也进入当前最小抓取范围
+
+4. 更新了迁移记录
+   - 在退场方案文档中补充 `index-codes-service` 已具备最小 `Prometheus` 暴露能力
+   - 明确它已成为市场元数据链路的监控替代试点
+
+5. 完成了本地验证
+   - 使用本机 Maven 对 `index-codes-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在仓库里的最小监控替代样板已经覆盖：
+
+- 入口层：`gateway-service`
+- 核心业务：`trend-trading-backtest-service`
+- 市场数据链路：`index-data-service`
+- 市场元数据链路：`index-codes-service`
+
+这意味着当前最小替代观察面已经不再是单点，而是覆盖了主要查询链路上的关键服务。
+
+#### 这一步为什么重要
+
+- 市场数据链路通常成对出现，只有 `index-data-service` 进入观察范围还不够完整
+- 把 `index-codes-service` 也补齐后，后续无论做 `Grafana` dashboard 还是继续删旧基础设施，依据都会更充分
+- 这一步也让当前“替代不出错”的验证进一步从回测链路扩展到上游服务
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 评估是否要为 `Grafana` 补最小 dashboard provisioning 样板
+2. 继续推进其他旧基础设施模块的阶段性退场判断
+3. 再决定是否把最小指标入口继续推广到 `index-gather-store-service`
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

@@ -1661,6 +1661,60 @@
 2. 开始整理 `index-hystrix-dashboard` 与 `index-turbine` 的阶段性退场条件
 3. 再决定是否把同类指标暴露入口推广到 `index-data-service` 或 `index-codes-service`
 
+### 2026-03-18 - 阶段 31：为 Grafana 补最小本地运行样板
+
+#### 本阶段目标
+
+- 在已有 `Prometheus` 抓取样板的基础上，补最小 `Grafana` 可视化入口
+- 继续复用 `infra/docker-compose` 目录结构，不新增独立说明文档
+- 让 `Hystrix Dashboard / Turbine` 的替代路径从“有指标、有抓取”进一步推进到“有基础可视化入口”
+
+#### 已完成事项
+
+1. 新增了本地 `Grafana` 运行目录
+   - 创建 `infra/docker-compose/grafana`
+
+2. 增加了最小 `docker-compose` 文件
+   - 新增 `infra/docker-compose/grafana/docker-compose.yml`
+   - 使用 `grafana/grafana` 官方镜像
+   - 暴露 `3000` 端口
+   - 预置默认账号密码 `admin/admin`
+   - 挂载本地数据目录与 provisioning 配置
+
+3. 增加了预置数据源配置
+   - 新增 `infra/docker-compose/grafana/provisioning/datasources/prometheus.yml`
+   - 默认预置 `Trend Prometheus` 数据源
+   - 指向 `http://host.docker.internal:9090`
+   - 让本地 `Grafana` 启动后能直接对接仓库内的 `Prometheus` 样板
+
+4. 更新了迁移记录
+   - 在退场方案文档中补充 `Grafana` 最小运行样板已入库
+   - 明确当前阶段先提供可视化入口，后续再补 dashboard 模板
+
+#### 当前结果
+
+现在仓库里的监控替代路径已经具备三层最小样板：
+
+- 应用暴露 `/actuator/prometheus`
+- `Prometheus` 可抓取业务服务与入口层指标
+- `Grafana` 有可直接连接 `Prometheus` 的本地运行入口
+
+这意味着后续如果具备 Docker 环境，就可以直接从服务指标一路联通到基础可视化面板，而不需要再从零搭监控入口。
+
+#### 这一步为什么重要
+
+- 只有数据源而没有可视化入口，`Hystrix Dashboard` 的替代叙事还不完整
+- 先把最小 `Grafana` 样板落库，后续再补 dashboard 模板会更顺
+- 这一步也让监控替代路径第一次形成了“暴露-抓取-展示”的完整最小闭环
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 开始整理 `index-hystrix-dashboard` 与 `index-turbine` 的阶段性退场条件
+2. 评估是否要为 `Grafana` 补一份最小 dashboard provisioning 样板
+3. 再决定是否把同类指标暴露入口推广到 `index-data-service` 或 `index-codes-service`
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

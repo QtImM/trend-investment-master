@@ -237,6 +237,12 @@
    - 已在配置中暴露 `/actuator/prometheus`
    - 当前可作为入口层的监控替代试点
 
+4. 本地 `Grafana` 运行样板
+   - 已新增 `infra/docker-compose/grafana/docker-compose.yml`
+   - 已新增 `infra/docker-compose/grafana/provisioning/datasources/prometheus.yml`
+   - 当前默认预置 `Trend Prometheus` 数据源，指向 `http://host.docker.internal:9090`
+   - 当前先提供最小可视化入口，后续再按需补 dashboard 模板
+
 ## 七、推荐执行顺序
 
 建议按以下顺序推进：

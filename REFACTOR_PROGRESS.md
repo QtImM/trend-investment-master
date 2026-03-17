@@ -2289,6 +2289,63 @@
 2. 继续检查 `trend-trading-backtest-view` 是否还残留旧配置中心兼容代码
 3. 开始转入前端 `Vue 3 + Vite + TS` 或市场数据服务进一步现代化
 
+### 2026-03-18 - 阶段 42：删除旧注册中心与配置中心模块
+
+#### 本阶段目标
+
+- 直接完成 `eureka-server` 与 `index-config-server` 的物理退场
+- 让当前仓库主线不再保留未使用的旧基础设施源码空壳
+- 把旧基础设施退场状态从“移出主构建”推进到“源码目录删除”
+
+#### 已完成事项
+
+1. 删除了 `eureka-server` 模块源码目录
+   - 删除 `eureka-server/pom.xml`
+   - 删除 `eureka-server/src/main/java/bupt/EurekaServerApplication.java`
+   - 删除 `eureka-server/src/main/resources/application.yml`
+   - 删除 `eureka-server/src/test/java/bupt/AppTest.java`
+
+2. 删除了 `index-config-server` 模块源码目录
+   - 删除 `index-config-server/pom.xml`
+   - 删除 `index-config-server/src/main/java/bupt/IndexConfigServerApplication.java`
+   - 删除 `index-config-server/src/main/resources/application.yml`
+   - 删除 `index-config-server/src/test/java/bupt/AppTest.java`
+
+3. 更新了迁移矩阵与退场方案
+   - 将 `eureka-server` 标记为“已退场”
+   - 将 `index-config-server` 标记为“已退场”
+   - 明确这两个旧基础设施模块已完成“从主构建移除 + 源码目录删除”的阶段性退场
+
+4. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在旧基础设施退场已经进一步推进到注册中心和配置中心模块：
+
+- `index-hystrix-dashboard` 已退场
+- `index-turbine` 已退场
+- `index-zuul-service` 已退场
+- `eureka-server` 已退场
+- `index-config-server` 已退场
+
+这意味着当前仓库主线已经基本移除了旧基础设施模块本身，后续可以更专注地推进业务现代化和前端迁移。
+
+#### 这一步为什么重要
+
+- 既然旧注册中心和旧配置中心都已经不再参与主构建，继续保留源码目录只会增加判断成本
+- 直接删掉空壳模块，能让仓库状态与当前真实迁移进度保持一致
+- 这一步也让基础设施退场从“缩主构建”正式进入“清旧模块”的后期阶段
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续清理 `trend-trading-backtest-view` 残留的旧配置中心兼容代码
+2. 开始转入前端 `Vue 3 + Vite + TS` 迁移主线
+3. 或继续推进市场数据服务的现代化收敛
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

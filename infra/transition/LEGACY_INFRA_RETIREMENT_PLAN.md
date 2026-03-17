@@ -15,8 +15,8 @@
 
 | 当前模块 | 当前职责 | 目标替代方案 | 当前状态 |
 |---|---|---|---|
-| `eureka-server` | 服务注册与发现 | `Nacos Discovery` | 待退场 |
-| `index-config-server` | 配置中心 | `Nacos Config` | 已开始退场 |
+| `eureka-server` | 服务注册与发现 | `Nacos Discovery` | 已退场 |
+| `index-config-server` | 配置中心 | `Nacos Config` | 已退场 |
 | `index-zuul-service` | 网关入口 | `gateway-service` + Spring Cloud Gateway | 已退场 |
 | `index-hystrix-dashboard` | 熔断监控看板 | Prometheus + Grafana | 待退场 |
 | `index-turbine` | 熔断聚合监控 | Prometheus + Grafana | 待退场 |
@@ -77,10 +77,6 @@
 4. 确认旧的 Eureka 注册信息不再被依赖
 5. 最后删除 `eureka-server` 模块和相关依赖
 
-### 当前建议
-
-当前不要直接删除 `eureka-server`，应先保留，作为旧体系的兜底基础设施。
-
 ### 当前阶段性结论
 
 结合当前仓库状态，可以确认：
@@ -91,11 +87,11 @@
    已具备面向 `Nacos` 的试点入口
 3. 当前新的主入口和关键业务链路已经不再只依赖 `Eureka`
 
-因此本轮先执行了一个更轻量、也更符合当前阶段的退场动作：
+因此本轮继续完成了更彻底的退场动作：
 
-1. 从父工程 `pom.xml` 中移除了 `eureka-server`
-2. 当前先保留模块源码目录本身，作为旧体系参考与必要时回退依据
-3. 后续再视 `index-gather-store-service`、`index-zuul-service` 等旧模块收缩情况，决定何时物理删除
+1. 先前已从父工程 `pom.xml` 中移除了 `eureka-server`
+2. 当前已物理删除 `eureka-server` 模块源码目录
+3. 当前旧注册中心模块已完成“从主构建移除 + 源码目录删除”的阶段性退场
 
 ## 四、index-config-server 退场方案
 
@@ -182,10 +178,6 @@
 - 首批需要转写到 `Nacos Config` 的关键项已经可以明确落到 `trend-trading-backtest-view-dev.yaml`
 - `trend-trading-backtest-service-dev.properties` 等其他服务配置文件在当前远程仓库中并不存在，后续若需要迁移，应先确认是否来自别的配置来源
 
-### 当前建议
-
-当前不要直接物理删除 `index-config-server`，但已经可以先把它移出主构建，继续作为“旧配置体系”的兼容保底模块保留源码目录。
-
 ### 当前阶段性结论
 
 结合当前仓库状态，可以确认：
@@ -200,11 +192,11 @@
 4. 当前主工程已经先后把旧监控模块和 `eureka-server` 移出主构建，
    继续把 `index-config-server` 摘出主构建，能保持当前主线与迁移方向一致
 
-因此本轮先执行了一个更轻量、也更符合当前阶段的退场动作：
+因此本轮继续完成了更彻底的退场动作：
 
-1. 从父工程 `pom.xml` 中移除了 `index-config-server`
-2. 当前先保留模块源码目录本身，作为旧配置体系参考与必要时回退依据
-3. 后续再继续评估是否彻底删除 `trend-trading-backtest-view` 中遗留的旧配置中心兼容代码
+1. 先前已从父工程 `pom.xml` 中移除了 `index-config-server`
+2. 当前已物理删除 `index-config-server` 模块源码目录
+3. 当前旧配置中心模块已完成“从主构建移除 + 源码目录删除”的阶段性退场
 
 ## 五、index-zuul-service 退场方案
 

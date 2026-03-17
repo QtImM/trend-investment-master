@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @ConditionalOnProperty(prefix = "backtest.remote.index-data", name = "mode", havingValue = "http")
-public class HttpIndexDataGateway implements IndexDataGateway {
+public class HttpIndexDataGateway implements IndexDataTransportGateway {
     private final RestTemplate restTemplate;
     private final String baseUrl;
 

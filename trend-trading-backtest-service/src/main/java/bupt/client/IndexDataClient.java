@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(value = "INDEX-DATA-SERVICE",fallback = IndexDataClientFeignHystrix.class)
+@FeignClient(value = "INDEX-DATA-SERVICE")
 public interface IndexDataClient {
     @GetMapping("/data/{code}")
     public List<IndexData> getIndexData(@PathVariable("code") String code);

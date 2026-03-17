@@ -1106,6 +1106,64 @@
 2. 在环境具备后，验证 `feign` 与 `http` 两种模式的行为差异
 3. 再决定是否继续把同类接缝推广到其他调用方
 
+### 2026-03-18 - 阶段 21：为回测服务补齐 Hystrix 退场兼容门面
+
+#### 本阶段目标
+
+- 继续沿着 `trend-trading-backtest-service` 的通信层迁移推进
+- 不直接删除 `Hystrix`，先把“失败后如何兜底”从 `Feign` 专属 fallback 再向外提一层
+- 让当前已经存在的 `feign/http` 双实现都能复用同一套降级策略，为后续退出 `Hystrix` 减少耦合
+
+#### 已完成事项
+
+1. 调整了 `Feign` 客户端定义
+   - 去掉了 `IndexDataClient` 上对 `IndexDataClientFeignHystrix` 的绑定
+   - 不再把兜底逻辑固定在 `Feign + Hystrix` 适配层中
+
+2. 提炼了独立的传输层接口
+   - 新增 `IndexDataTransportGateway`
+   - 让 `Feign` 与并行 `HTTP` 实现都只负责“如何发起远程调用”
+
+3. 增加了统一的降级门面
+   - 新增 `ResilientIndexDataGateway`
+   - 由它统一包裹当前启用中的传输实现
+   - 远程调用异常时，统一委托给现有 `IndexDataFallbackGateway`
+   - 当前默认开启 `backtest.remote.index-data.fallback.enabled=true`
+
+4. 同步了配置模板
+   - 更新 `application.yml`
+   - 更新 `application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/trend-trading-backtest-service-dev.yaml`
+   - 让默认运行模式与未来 `Nacos Config` 模板保持一致
+
+5. 完成了本地编译验证
+   - 使用本机 Maven 对 `trend-trading-backtest-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在回测服务的远程调用链已经进一步演进为三层职责：
+
+- 传输实现负责调用远端
+- 统一门面负责异常兜底
+- 独立降级网关负责构造 fallback 返回值
+
+这意味着后续无论继续保留 `Feign`，还是切到并行 `HTTP` 实现，甚至逐步退出 `Hystrix`，都不需要再把兜底逻辑绑回某一个具体通信框架。
+
+#### 这一步为什么重要
+
+- 如果兜底能力继续绑在 `Feign` 的 `fallback` 上，后面去掉 `Hystrix` 时仍然会牵一发而动全身
+- 先把降级门面抽成调用方式无关的结构，后续替换 `Feign` 或 `Hystrix` 都可以分步进行
+- 这一步属于“保留旧体系可运行，同时继续削弱旧框架耦合”的典型渐进式迁移动作
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 为回测服务继续准备 `Hystrix` 退出后的最小开关路径，例如让旧熔断能力可按配置逐步弱化
+2. 在环境具备后，对比验证 `feign/http` 两种模式在统一降级门面下的行为
+3. 再决定是否把同类调用门面推广到其他存在远程依赖的服务
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

@@ -14,6 +14,8 @@ backtest:
   remote:
     index-data:
       mode: feign
+      fallback:
+        enabled: true
       http:
         base-url: http://localhost:8021
 

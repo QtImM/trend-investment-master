@@ -1550,6 +1550,59 @@
 2. 继续评估 `index-hystrix-dashboard` 与 `index-turbine` 的退场条件
 3. 再决定是否把同类指标暴露入口推广到 `gateway-service` 或其他业务服务
 
+### 2026-03-18 - 阶段 29：为 Prometheus 补最小抓取配置样板
+
+#### 本阶段目标
+
+- 把“服务已暴露 `/actuator/prometheus`”推进到“仓库里已有可运行的抓取样板”
+- 继续沿用现有 `infra/docker-compose` 目录结构，不额外引入新的文档层噪音
+- 为后续替代 `index-hystrix-dashboard` 与 `index-turbine` 提供第一个可落地的本地监控入口
+
+#### 已完成事项
+
+1. 新增了本地 `Prometheus` 运行目录
+   - 创建 `infra/docker-compose/prometheus`
+
+2. 增加了最小 `docker-compose` 文件
+   - 新增 `infra/docker-compose/prometheus/docker-compose.yml`
+   - 使用 `prom/prometheus` 官方镜像
+   - 暴露 `9090` 端口
+   - 挂载本地抓取配置与数据目录
+
+3. 增加了最小抓取配置
+   - 新增 `infra/docker-compose/prometheus/prometheus.yml`
+   - 当前先抓取 `trend-trading-backtest-service`
+   - 使用 `host.docker.internal:8051`
+   - 抓取路径为 `/actuator/prometheus`
+
+4. 更新了迁移记录
+   - 在退场方案文档中补充当前 `Prometheus` 本地抓取样板已入库
+   - 明确后续可以在同一配置里继续扩展更多服务抓取目标
+
+#### 当前结果
+
+现在仓库里关于监控替代路径已经从“只有服务端暴露指标”进一步推进到：
+
+- 服务具备 `/actuator/prometheus`
+- 本地 `Prometheus` 运行入口已入库
+- 最小抓取配置已能覆盖回测服务试点
+
+这意味着后续只要本机具备 Docker 环境，就可以直接验证从业务服务到 `Prometheus` 的指标抓取链路。
+
+#### 这一步为什么重要
+
+- 如果只有应用暴露指标而没有抓取配置，监控替代方案仍然停留在半成品阶段
+- 先把最小抓取样板落库，后续扩展其他服务就会更快
+- 这一步也让 `Hystrix Dashboard / Turbine` 的退场条件开始从“概念替代”转向“已有运行入口”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 为 `gateway-service` 或另一个已迁移服务补最小 `Prometheus` 指标暴露入口
+2. 继续评估是否要同步补 `Grafana` 本地样板
+3. 再决定何时开始正式弱化 `index-hystrix-dashboard` 与 `index-turbine` 的存在感
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

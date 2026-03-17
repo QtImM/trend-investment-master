@@ -223,6 +223,12 @@
    - 已在配置中暴露 `/actuator/prometheus`
    - 当前可作为后续 `Hystrix Dashboard / Turbine -> Prometheus / Grafana` 的第一个业务服务试点
 
+2. 本地 `Prometheus` 抓取方案
+   - 已新增 `infra/docker-compose/prometheus/docker-compose.yml`
+   - 已新增 `infra/docker-compose/prometheus/prometheus.yml`
+   - 当前默认抓取 `trend-trading-backtest-service` 的 `http://host.docker.internal:8051/actuator/prometheus`
+   - 后续可以继续在同一配置里扩展 `gateway-service` 或其他业务服务抓取目标
+
 ## 七、推荐执行顺序
 
 建议按以下顺序推进：

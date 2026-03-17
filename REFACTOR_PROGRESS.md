@@ -2004,6 +2004,64 @@
 2. 开始整理 `eureka-server` 与 `index-config-server` 的阶段性主构建退场条件
 3. 再决定是否继续推进其他旧基础设施模块的源码退场
 
+### 2026-03-18 - 阶段 37：为 index-gather-store-service 补最小 Prometheus 指标入口
+
+#### 本阶段目标
+
+- 继续把最小监控替代样板推广到市场数据采集链路
+- 让 `index-gather-store-service` 具备最基础的 `Prometheus` 暴露能力
+- 在不改动它当前老式同步与容错实现的前提下，先补齐新的观测出口
+
+#### 已完成事项
+
+1. 增加了 `Prometheus` registry 依赖
+   - 在 `index-gather-store-service/pom.xml` 中引入 `micrometer-registry-prometheus`
+
+2. 调整了服务监控配置
+   - 更新 `index-gather-store-service/src/main/resources/application.yml`
+   - 开启 `management.endpoint.prometheus.enabled=true`
+   - 将暴露端点收口为 `health,info,prometheus`
+   - 增加统一的 `application` 指标标签
+
+3. 扩展了本地抓取样板
+   - 更新 `infra/docker-compose/prometheus/prometheus.yml`
+   - 新增对 `index-gather-store-service` 的抓取目标 `host.docker.internal:8001`
+   - 让市场数据采集服务进入当前最小抓取范围
+
+4. 更新了迁移记录
+   - 在退场方案文档中补充 `index-gather-store-service` 已具备最小 `Prometheus` 暴露能力
+   - 明确它已成为市场数据采集链路的监控替代试点
+
+5. 完成了本地验证
+   - 使用本机 Maven 对 `index-gather-store-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在当前仓库内最小监控替代样板已经覆盖：
+
+- 入口层：`gateway-service`
+- 核心业务：`trend-trading-backtest-service`
+- 市场数据查询：`index-data-service`
+- 市场元数据查询：`index-codes-service`
+- 市场数据采集：`index-gather-store-service`
+
+这意味着从入口、核心业务到数据采集/查询链路，已经基本都有了新的最小观察出口。
+
+#### 这一步为什么重要
+
+- 只观察查询服务而不观察采集服务，市场数据链路还是不完整
+- 先补最小指标入口，不会干扰它当前还比较旧的实现方式
+- 这一步也让后续继续退场旧基础设施时，替代样板更有说服力
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 开始整理 `eureka-server` 与 `index-config-server` 的阶段性主构建退场条件
+2. 评估是否要继续把最小指标入口推广到 `trend-trading-backtest-view`
+3. 再决定是否继续推进其他旧基础设施模块的源码退场
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

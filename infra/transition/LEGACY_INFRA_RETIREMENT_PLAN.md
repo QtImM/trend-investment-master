@@ -261,6 +261,12 @@
    - 已在配置中暴露 `/actuator/prometheus`
    - 当前可作为市场元数据链路的监控替代试点
 
+7. `index-gather-store-service`
+   - 已补最小 `Prometheus` 指标暴露入口
+   - 已引入 `micrometer-registry-prometheus`
+   - 已在配置中暴露 `/actuator/prometheus`
+   - 当前可作为市场数据采集链路的监控替代试点
+
 ### 当前阶段性结论
 
 结合当前仓库状态，可以确认：

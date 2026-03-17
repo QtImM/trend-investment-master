@@ -3961,3 +3961,68 @@
 1. **Spring Cloud Alibaba版本适配** - 需要选择与Boot 3.2兼容的Alibaba版本，再恢复Nacos依赖
 3. **其他业务模块运行时验证** - 验证market-data-service, backtest-service等是否能正常启动
 4. **单元测试和集成测试** - 运行现有测试，修复因版本升级导致的测试失败
+
+### 2026-03-18 - 阶段 70：恢复 Java 17 基线下的 Nacos 兼容链路
+
+#### 本阶段目标
+
+- 明确当前版本升级基线固定为 `Java 17`
+- 处理 `Spring Boot 3` 主线下的 `Spring Cloud Alibaba / Nacos` 兼容问题
+- 让 `gateway-service`、`market-data-service`、`trend-trading-backtest-service`、`trend-trading-backtest-view` 重新具备可编译的 Nacos 接入能力
+
+#### 已完成事项
+
+1. 收口了父工程的版本组合
+   - 更新根 `pom.xml`
+   - 将版本组合调整为官方兼容区间：
+     - `Spring Boot 3.2.4`
+     - `Spring Cloud 2023.0.1`
+     - `Spring Cloud Alibaba 2023.0.1.0`
+   - 明确后续不再继续推进 `Java 21` 试跑，当前主线基线固定为 `Java 17`
+
+2. 恢复了主线模块的 Nacos 依赖
+   - 更新 `gateway-service/pom.xml`
+   - 更新 `market-data-service/pom.xml`
+   - 更新 `trend-trading-backtest-service/pom.xml`
+   - 更新 `trend-trading-backtest-view/pom.xml`
+   - 将 `Nacos Discovery / Nacos Config` 依赖恢复为 `com.alibaba.cloud` 坐标
+
+3. 把旧 `bootstrap-nacos.yml` 入口迁到 Boot 3 写法
+   - 删除 `gateway-service/src/main/resources/bootstrap-nacos.yml`
+   - 删除 `market-data-service/src/main/resources/bootstrap-nacos.yml`
+   - 删除 `trend-trading-backtest-service/src/main/resources/bootstrap-nacos.yml`
+   - 更新对应模块的 `application-nacos.yml`
+   - 改为使用 `spring.config.activate.on-profile=nacos`
+   - 改为使用 `spring.config.import=optional:nacos:...` 读取配置
+
+4. 修正了默认运行基线
+   - 更新 `gateway-service/src/main/resources/application.yml`
+   - 将默认 profile 恢复为 `nacos`
+   - 让当前主入口重新对齐已确立的迁移主线
+
+5. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `mvn clean test`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在主线工程已经不再只是“先把 Boot 3 编译过”：
+
+- `Java 17` 已被明确为当前最终升级基线
+- `Nacos Discovery / Nacos Config` 依赖已经恢复
+- `bootstrap` 时代的 Nacos 配置入口已收口到 `application-nacos.yml + spring.config.import`
+- 当前仓库重新回到“Boot 3 + Java 17 + Nacos 可接入”的状态
+
+#### 这一步为什么重要
+
+- 上一步只是验证了版本升级主线可编译、可测试
+- 如果 `Nacos` 依赖一直被注释，整个注册中心和配置中心迁移就会停在半完成状态
+- 先把官方兼容版本和配置加载路径收口，后面再做实际启动验证和联调才有意义
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 实际启动 `gateway-service` 与 `market-data-service`，验证 `Nacos Discovery` 运行时链路
+2. 验证 `Nacos Config` 的 Data ID 加载是否与 `infra/nacos-config/templates` 对齐
+3. 再决定是否继续补充 `LoadBalancer`、链路追踪或运行时观测细节

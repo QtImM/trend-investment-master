@@ -1,8 +1,15 @@
 spring:
+  config:
+    activate:
+      on-profile: nacos
+    import: optional:nacos:gateway-service-dev.yaml
   application:
     name: gateway-service
   cloud:
     nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
       discovery:
         server-addr: 127.0.0.1:8848
     gateway:

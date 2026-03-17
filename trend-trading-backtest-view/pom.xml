@@ -21,11 +21,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        <!-- Nacos and Zipkin dependencies temporarily commented for Spring Boot 3 compatibility testing -->
-        <!-- <dependency>
-            <groupId>org.springframework.cloud</groupId>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-        </dependency> -->
+        </dependency>
     </dependencies>
 
 </project>

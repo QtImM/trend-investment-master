@@ -1,5 +1,7 @@
 spring:
-  profiles: nacos
+  config:
+    activate:
+      on-profile: nacos
   application:
     name: trend-trading-backtest-view
   zipkin:

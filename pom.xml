@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.5</version>
+    <version>3.2.4</version>
     <relativePath/>
   </parent>
 
@@ -36,16 +36,16 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.parameters>true</maven.compiler.parameters>
-    <spring-cloud.version>2023.0.5</spring-cloud.version>
-    <spring-cloud-alibaba.version>2023.0.0.0</spring-cloud-alibaba.version>
+    <spring-cloud.version>2023.0.1</spring-cloud.version>
+    <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
     <resilience4j.version>2.0.2</resilience4j.version>
     <hutool.version>5.8.16</hutool.version>
 
     <!-- modernization target notes -->
-    <target.java.version>21</target.java.version>
-    <target.spring-boot.version>3.5.x</target.spring-boot.version>
-    <target.spring-cloud.version>2024.0.x</target.spring-cloud.version>
-    <target.spring-cloud-alibaba.version>2023.x</target.spring-cloud-alibaba.version>
+    <target.java.version>17</target.java.version>
+    <target.spring-boot.version>3.2.x</target.spring-boot.version>
+    <target.spring-cloud.version>2023.0.x</target.spring-cloud.version>
+    <target.spring-cloud-alibaba.version>2023.0.1.x</target.spring-cloud-alibaba.version>
     <target.spring-cloud-stack>nacos-gateway-resilience4j-http-clients</target.spring-cloud-stack>
   </properties>
 
@@ -77,12 +77,19 @@
         <version>${hutool.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework.cloud</groupId>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+        <version>${spring-cloud-alibaba.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.alibaba.cloud</groupId>
         <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         <version>${spring-cloud-alibaba.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework.cloud</groupId>
+        <groupId>com.alibaba.cloud</groupId>
         <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         <version>${spring-cloud-alibaba.version}</version>
       </dependency>
@@ -143,16 +150,4 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <profiles>
-    <profile>
-      <id>modernization-java21-preview</id>
-      <properties>
-        <java.version>${target.java.version}</java.version>
-        <maven.compiler.source>${target.java.version}</maven.compiler.source>
-        <maven.compiler.target>${target.java.version}</maven.compiler.target>
-      </properties>
-    </profile>
-  </profiles>
-
 </project>

@@ -134,6 +134,10 @@
    - 目标是让它在 `nacos` profile 下绕过 `Config Server + Bus + RabbitMQ`
    - 当前已具备 `Nacos Config` 试点入口，下一步是继续验证其 `Nacos Discovery` 路径
 
+2. `trend-trading-backtest-service`
+   - 当前已补齐 `Nacos Discovery` 与 `Nacos Config` 试点入口
+   - 仍保留 `Feign + Hystrix` 旧调用链，后续应单独推进通信与容错能力替换
+
 2. `index-config-server` 自身的 Git 配置来源
    - 当前仓库中记录的是远程 Git 地址 `https://github.com/how2j/trendConfig/`
    - 后续需要把其中仍被消费的关键配置项转写为 `infra/nacos-config/templates/*.yaml`

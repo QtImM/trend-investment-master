@@ -832,6 +832,69 @@
 2. 如果暂时无法补齐环境，则继续把 `trend-trading-backtest-service` 纳入同类试点样板
 3. 继续弱化 `index-config-server` 与 `RabbitMQ` 在本地联调中的必要性
 
+### 2026-03-17 - 阶段 16：trend-trading-backtest-service 接入 Nacos 双试点入口
+
+#### 本阶段目标
+
+- 在当前环境仍无法完成真实联调的情况下，继续把核心业务服务纳入同类迁移样板
+- 让 `trend-trading-backtest-service` 同时具备 `Nacos Discovery` 与 `Nacos Config` 试点入口
+- 保持本阶段只处理注册中心与配置中心，不把 `Feign/Hystrix` 迁移混进来
+
+#### 已完成事项
+
+1. 调整了 `trend-trading-backtest-service` 的依赖
+   - 增加兼容当前 `Spring Boot 2.0.x / Finchley` 的 `Nacos Discovery` 依赖
+   - 增加兼容当前 `Spring Boot 2.0.x / Finchley` 的 `Nacos Config` 依赖
+   - 保留原有 `Feign`、`Hystrix`、`Eureka` 依赖，确保默认模式不受影响
+
+2. 增加了 Nacos 运行配置
+   - 新增 `application-nacos.yml`
+   - 在 `nacos` profile 下配置 `Nacos Discovery` 地址
+   - 在 `nacos` profile 下关闭 `Eureka client`
+   - 保留当前 `Feign + Hystrix` 开关与 Actuator 配置
+
+3. 增加了 Nacos Config 引导文件
+   - 新增 `bootstrap-nacos.yml`
+   - 指定读取 `trend-trading-backtest-service-dev.yaml` 作为试点 Data ID
+
+4. 调整了启动类
+   - 增加 `nacos` profile 启动识别逻辑
+   - 默认模式下仍检查 `Eureka` 端口
+   - `nacos` 模式下改为检查 `Nacos` 端口
+
+5. 调整了服务模板
+   - 修改 `infra/nacos-config/templates/trend-trading-backtest-service-dev.yaml`
+   - 去掉不应放在 Data ID 内容里的 `Nacos` 连接配置
+   - 在模板中显式关闭 `Eureka client`
+
+6. 更新了迁移记录
+   - 在退场方案文档中补充 `trend-trading-backtest-service` 的当前试点状态
+   - 明确它后续仍需单独处理 `Feign -> HTTP Service Clients` 与 `Hystrix -> Resilience4j`
+
+7. 完成了本地编译验证
+   - 使用本地临时 Maven 工具对 `trend-trading-backtest-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在除了市场数据链路和视图服务之外，核心回测服务也已经具备了面向 `Nacos` 的双试点入口。
+
+这意味着当前仓库中的主要业务路径，已经基本都有了“默认旧体系可运行、`nacos` profile 可切换”的代码基础。
+
+#### 这一步为什么重要
+
+- `trend-trading-backtest-service` 是核心业务服务，不能等到最后才开始补迁移入口
+- 先把注册中心和配置中心入口补齐，后面再处理远程调用和容错替换会更清晰
+- 这也让后续真实联调时，不需要再回头补这个服务的基础接入能力
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 在具备 `Nacos + Redis` 环境后，优先验证关键链路服务的 `nacos` profile 启动行为
+2. 继续评估 `trend-trading-backtest-service` 的 `Feign + Hystrix` 替换切入点
+3. 开始考虑 `index-config-server` 与 `eureka-server` 的“弱依赖运行”策略
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

@@ -1,0 +1,10 @@
+spring:
+  profiles: nacos
+  application:
+    name: trend-trading-backtest-service
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+        name: trend-trading-backtest-service-dev

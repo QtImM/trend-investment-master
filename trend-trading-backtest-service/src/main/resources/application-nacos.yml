@@ -15,12 +15,14 @@ eureka:
 
 feign:
   hystrix:
-    enabled: true
+    enabled: ${backtest.remote.index-data.feign.hystrix-enabled:true}
 
 backtest:
   remote:
     index-data:
       mode: feign
+      feign:
+        hystrix-enabled: true
       fallback:
         enabled: true
       http:

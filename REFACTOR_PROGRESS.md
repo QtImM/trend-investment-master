@@ -1164,6 +1164,61 @@
 2. 在环境具备后，对比验证 `feign/http` 两种模式在统一降级门面下的行为
 3. 再决定是否把同类调用门面推广到其他存在远程依赖的服务
 
+### 2026-03-18 - 阶段 22：为回测服务增加 Hystrix 渐退开关
+
+#### 本阶段目标
+
+- 把回测服务当前仍保留的 `Feign + Hystrix` 调用链继续收口
+- 不直接移除 `Hystrix` 依赖，而是先补一个可配置的渐退开关
+- 让后续关闭旧熔断能力时，仍能复用前一步已经提炼出的统一降级门面
+
+#### 已完成事项
+
+1. 收口了 `Hystrix` 开关配置
+   - 将 `feign.hystrix.enabled` 改为引用
+     `backtest.remote.index-data.feign.hystrix-enabled`
+   - 默认值仍保持为 `true`
+   - 确保当前默认运行行为不变
+
+2. 同步了多套运行配置
+   - 更新 `application.yml`
+   - 更新 `application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/trend-trading-backtest-service-dev.yaml`
+   - 让本地默认模式、`nacos` 模式和未来导入 `Nacos Config` 的模板保持一致
+
+3. 固化了迁移意图
+   - 在退场方案文档中补充说明
+   - 明确后续可以先按配置关闭 `Feign` 的 `Hystrix` 包装，再继续推进容错框架替换
+
+4. 完成了本地编译验证
+   - 使用本机 Maven 对 `trend-trading-backtest-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在回测服务已经具备了更清晰的两层渐进式开关：
+
+- `backtest.remote.index-data.mode`
+  控制远程调用实现走 `feign` 还是 `http`
+- `backtest.remote.index-data.feign.hystrix-enabled`
+  控制旧 `Feign` 路径是否继续启用 `Hystrix` 包装
+
+这意味着后续即使先关闭 `Hystrix`，回测服务仍然可以通过统一降级门面维持当前兜底策略，而不需要立刻同步切换到新的容错框架。
+
+#### 这一步为什么重要
+
+- 渐进式迁移里，最稳的方式不是“一次删掉旧能力”，而是先把旧能力变成可控开关
+- 现在先把 `Hystrix` 是否启用收口到服务自身配置里，后面做对照验证会更容易
+- 这一步也把“通信实现切换”和“熔断能力切换”拆成了两个独立维度，减少后续联调耦合
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 为回测服务补一组最小回归测试，验证统一降级门面在异常场景下的行为
+2. 在具备环境后，对比验证 `Hystrix` 开关打开/关闭时的运行差异
+3. 再决定是否开始引入 `Resilience4j` 的最小试点入口
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

@@ -12,6 +12,8 @@ backtest:
   remote:
     index-data:
       mode: feign
+      feign:
+        hystrix-enabled: true
       fallback:
         enabled: true
       http:

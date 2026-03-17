@@ -1952,6 +1952,58 @@
 2. 继续推进其他旧基础设施模块的阶段性退场判断
 3. 再决定是否把最小指标入口继续推广到 `index-gather-store-service`
 
+### 2026-03-18 - 阶段 36：为 Grafana 补最小 Dashboard 样板
+
+#### 本阶段目标
+
+- 在已有 `Grafana` 运行样板基础上，补齐最小 dashboard provisioning 配置
+- 让当前已经接入 `Prometheus` 的关键服务有一个可直接打开的总览面板
+- 把监控替代路径从“有数据源”推进到“有基础看板”
+
+#### 已完成事项
+
+1. 增加了 dashboard provider 配置
+   - 新增 `infra/docker-compose/grafana/provisioning/dashboards/dashboard-provider.yml`
+   - 将 `Trend Invest` 文件夹下的 dashboard 文件纳入自动加载
+
+2. 增加了最小总览面板
+   - 新增 `infra/docker-compose/grafana/provisioning/dashboards/json/trend-overview.json`
+   - 当前先用 `stat` 面板展示基础存活状态
+   - 覆盖服务包括：
+     - `gateway-service`
+     - `trend-trading-backtest-service`
+     - `index-data-service`
+     - `index-codes-service`
+
+3. 更新了退场方案文档
+   - 补充当前 `Grafana` 已具备 dashboard provisioning 能力
+   - 明确最小可视化面板已能覆盖入口层、核心业务和市场数据链路
+
+#### 当前结果
+
+现在仓库里的监控替代样板已经形成更完整的最小闭环：
+
+- 应用暴露 `/actuator/prometheus`
+- `Prometheus` 抓取关键服务指标
+- `Grafana` 自动加载 `Prometheus` 数据源
+- `Grafana` 自动加载服务总览 dashboard
+
+这意味着后续一旦具备 Docker 环境，就可以直接从服务指标进入一个基础可视化总览，而不需要手工创建数据源和面板。
+
+#### 这一步为什么重要
+
+- 只有数据源没有面板，`Grafana` 样板仍然不够“可直接使用”
+- 先把最小 dashboard 也预置好，后续继续加更细的业务图表会更顺
+- 这一步让旧监控体系的替代路径第一次具备了“开箱即看”的雏形
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续评估是否把最小指标入口推广到 `index-gather-store-service`
+2. 开始整理 `eureka-server` 与 `index-config-server` 的阶段性主构建退场条件
+3. 再决定是否继续推进其他旧基础设施模块的源码退场
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

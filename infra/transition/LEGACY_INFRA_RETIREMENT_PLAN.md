@@ -241,7 +241,13 @@
    - 已新增 `infra/docker-compose/grafana/docker-compose.yml`
    - 已新增 `infra/docker-compose/grafana/provisioning/datasources/prometheus.yml`
    - 当前默认预置 `Trend Prometheus` 数据源，指向 `http://host.docker.internal:9090`
-   - 当前先提供最小可视化入口，后续再按需补 dashboard 模板
+   - 已新增 dashboard provisioning 配置与最小总览面板样板
+   - 当前可直接展示：
+     - `gateway-service`
+     - `trend-trading-backtest-service`
+     - `index-data-service`
+     - `index-codes-service`
+     的基础存活状态
 
 5. `index-data-service`
    - 已补最小 `Prometheus` 指标暴露入口

@@ -14,7 +14,7 @@
 | `index-hystrix-dashboard` | 基础设施 | 已退场 | 删除 | 已从主构建移除且源码目录已删除 |
 | `index-turbine` | 基础设施 | 已退场 | 删除 | 已从主构建移除且源码目录已删除 |
 | `gateway-service` | 基础设施 | 新增 | 保留 | 新网关试点模块 |
-| `third-part-index-data-project` | 业务 | 保留 | 待定 | 未来可能转为 fixture / mock-provider |
+| `third-part-index-data-project` | 业务 | 已收口 | 保留 | 当前作为本地 fixture / mock-provider，为 `market-data-service` 提供静态样例数据 |
 | `market-data-service` | 业务 | 新增 | 保留 | 市场数据读能力收敛试点模块 |
 | `index-gather-store-service` | 业务 | 已退场 | 合并 | 同步能力已开始并入 `market-data-service`，旧模块源码目录已删除 |
 | `index-codes-service` | 业务 | 已退场 | 合并 | 默认查询链路已切到 `market-data-service`，旧模块源码目录已删除 |

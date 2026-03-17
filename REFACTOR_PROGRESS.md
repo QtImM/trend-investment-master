@@ -3099,6 +3099,61 @@
 2. 评估 `third-part-index-data-project` 是否收敛为 fixture / mock-provider
 3. 再决定是否继续推进更深层的版本现代化主线
 
+### 2026-03-18 - 阶段 56：将第三方数据模块收口为本地 mock-provider
+
+#### 本阶段目标
+
+- 继续压缩市场数据链路中的旧微服务痕迹
+- 保留 `third-part-index-data-project` 的静态 JSON 数据能力，但不再让它继续承担旧微服务注册职责
+- 让这个模块明确回到“本地 fixture / mock-provider”角色
+
+#### 已完成事项
+
+1. 收缩了模块依赖
+   - 更新 `third-part-index-data-project/pom.xml`
+   - 移除了 `spring-cloud-starter-netflix-eureka-client`
+
+2. 精简了启动逻辑
+   - 更新 `third-part-index-data-project/src/main/java/bupt/ThirdPartIndexDataApplication.java`
+   - 移除了 `@EnableEurekaClient`
+   - 移除了启动前必须检查 `Eureka` 的逻辑
+   - 当前模块只保留本地 `8090` 端口静态数据服务能力
+
+3. 收敛了模块配置与迁移文档
+   - 更新 `third-part-index-data-project/src/main/resources/application.yml`
+   - 明确固定使用 `8090`
+   - 更新 `SERVICE_TRANSITION_MATRIX.md`
+   - 更新 `MIGRATION_CHECKLIST.md`
+   - 明确当前该模块已经收口为本地 `mock-provider`
+
+4. 完成了本地验证
+   - 使用本机 Maven 对 `third-part-index-data-project` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在 `third-part-index-data-project` 已经不再属于旧式基础设施链路的一部分：
+
+- 不再依赖 `Eureka`
+- 仍保留本地静态样例数据能力
+- 明确作为 `market-data-service` 的本地 fixture / mock-provider 使用
+
+这意味着市场数据主线已经从“多个旧查询/同步微服务”继续收口到了“一个聚合服务 + 一个本地样例数据提供器”。
+
+#### 这一步为什么重要
+
+- 如果这个模块继续保留旧微服务注册逻辑，就会和当前已经收敛后的市场数据主线脱节
+- 先把角色收口清楚，后面无论保留它做演示数据，还是再进一步迁到 `fixtures/`，都会更顺
+- 这一步也让文档和当前实际架构更加一致
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续收缩监控样板与文档中已经退场的旧市场数据模块痕迹
+2. 评估是否把 `third-part-index-data-project` 再进一步迁为更纯粹的 `fixtures/` 目录
+3. 再决定是否开始推进更深层的版本现代化主线
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

@@ -3400,6 +3400,60 @@
 2. 或补一轮围绕 `market-data-service` 与 `trend-trading-backtest-service` 的关键回归测试
 3. 再决定是否把 `third-part-index-data-project` 进一步迁为纯 `fixtures/` 目录
 
+### 2026-03-18 - 阶段 61：梳理 Boot 3 与 Java 21 升级阻塞点
+
+#### 本阶段目标
+
+- 在正式切换 `Boot 3 / Java 21` 之前，先把主线模块里的主要兼容风险点显式整理出来
+- 避免后续升级时一边改版本、一边临时排雷
+- 为下一步选择“先拆哪一个兼容点”提供明确依据
+
+#### 已完成事项
+
+1. 重新扫描了主线模块中的兼容风险
+   - 检查了 `gateway-service`
+   - 检查了 `market-data-service`
+   - 检查了 `trend-trading-backtest-service`
+   - 检查了 `trend-trading-backtest-view`
+   - 检查了 `third-part-index-data-project`
+
+2. 确认了当前最主要的升级阻塞点
+   - `market-data-service` 仍使用 `ObjectMapper.enableDefaultTyping`
+   - `trend-trading-backtest-service` 仍保留 `OpenFeign`
+   - `market-data-service` 与部分回测链路仍使用 `RestTemplate`
+   - `trend-trading-backtest-view` 仍保留 `bootstrap.yml / bootstrap-nacos.yml`
+   - 主线模块仍残留 `@EnableDiscoveryClient`
+
+3. 把阻塞点回填到了迁移清单
+   - 更新 `MIGRATION_CHECKLIST.md`
+   - 明确这些问题属于 `Boot 3 / Java 21` 之前需要优先拆掉的兼容项
+
+4. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在版本现代化主线已经不再只是“知道要升到哪里”，而是开始明确“先拆哪些兼容点”：
+
+- 升级风险已经收口到少数几个明确位置
+- 下一步可以直接从 `Redis DefaultTyping` 这类高风险点开始动手
+- 后续每一步会更接近真正可执行的 `Boot 3 / Java 21` 切换
+
+#### 这一步为什么重要
+
+- 如果不先把阻塞点写清楚，后面升级时很容易在多个模块来回试错
+- 先做一次集中排雷，能让后面的版本升级改动更聚焦
+- 这一步也让当前文档从“目标描述”进一步变成“升级执行清单”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 先改掉 `market-data-service` 的 Redis `DefaultTyping` 序列化配置
+2. 再继续收缩 `RestTemplate` 与 `OpenFeign`
+3. 最后处理 `bootstrap` 残留与更深层的 Boot 3 配置兼容问题
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

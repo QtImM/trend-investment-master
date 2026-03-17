@@ -2346,6 +2346,69 @@
 2. 开始转入前端 `Vue 3 + Vite + TS` 迁移主线
 3. 或继续推进市场数据服务的现代化收敛
 
+### 2026-03-18 - 阶段 43：创建 trend-web 前端试点工程
+
+#### 本阶段目标
+
+- 把前端迁移从文档计划推进到真实工程落库
+- 创建独立的 `Vue 3 + Vite + TypeScript` 前端项目 `trend-web`
+- 先完成首个回测工作台页面骨架，并继续复用当前网关与后端接口
+
+#### 已完成事项
+
+1. 新建了 `trend-web` 工程
+   - 新增 `package.json`
+   - 新增 `tsconfig.json`
+   - 新增 `vite.config.ts`
+   - 配置了 `Vue 3 + Vite + TypeScript`
+   - 配置了 `Pinia`、`Vue Router`、`Axios`、`ECharts`
+
+2. 落地了首个回测工作台页面
+   - 新增 `src/views/BacktestWorkbench.vue`
+   - 新增参数面板、指标卡片、收益曲线图、年度收益图、交易明细表等组件
+   - 用原有 `/api-codes/**` 与 `/api-backtest/**` 路径继续对接现有后端
+   - 用原生日期输入替代旧的 jQuery datepicker 依赖方式
+
+3. 补齐了前端基础组织结构
+   - 新增 `src/router`
+   - 新增 `src/stores`
+   - 新增 `src/services`
+   - 新增 `src/types`
+   - 明确新前端将通过 `store + service + component` 结构继续演进
+
+4. 调整了仓库忽略规则与迁移矩阵
+   - 在 `.gitignore` 中补充了 `node_modules/` 与 `dist/`
+   - 在迁移矩阵中登记 `trend-web` 为新增前端试点
+
+5. 完成了本地前端验证
+   - 使用本机 `npm install`
+   - 使用本机 `npm run build`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在前端迁移主线已经不再只是“未来要做”：
+
+- `trend-web` 工程已经真实存在
+- 新前端已经有可继续演进的回测工作台页面
+- 旧的 `trend-trading-backtest-view` 可以开始逐步退到对照和兼容角色
+
+这意味着后续可以正式从“旧页面收缩”进入“新前端逐步接管”的阶段。
+
+#### 这一步为什么重要
+
+- 如果一直只保留 Thymeleaf 页面，前端迁移就会长期停留在口头目标
+- 先把新前端工程和首个业务页面建起来，后续拆组件、接状态管理、补交互才有真正落点
+- 这一步也让 `Thymeleaf + Vue2 + jQuery -> Vue 3 + Vite + TS` 首次从规划变成工程资产
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续把 `trend-trading-backtest-view` 压缩为纯兼容壳层
+2. 给 `trend-web` 补接口错误态、加载态和更多交互细节
+3. 开始考虑让新前端通过独立部署或静态托管接入当前网关体系
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

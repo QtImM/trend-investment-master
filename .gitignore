@@ -35,3 +35,9 @@ target/
 # Local temporary tooling / investigation
 .tools/
 .temp-config-repo/
+
+# Frontend build output
+node_modules/
+dist/
+**/node_modules/
+**/dist/

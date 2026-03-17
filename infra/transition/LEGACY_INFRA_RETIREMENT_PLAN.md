@@ -81,11 +81,13 @@
 
 结合当前仓库状态，可以确认：
 
-1. `index-codes-service`、`index-data-service`、`gateway-service`
+1. `gateway-service`
    已具备 `Nacos Discovery` 试点能力
-2. `trend-trading-backtest-service` 与 `trend-trading-backtest-view`
+2. 历史上的 `index-codes-service`、`index-data-service`
+   已完成试点验证，并已在后续阶段退场
+3. `trend-trading-backtest-service` 与 `trend-trading-backtest-view`
    已具备面向 `Nacos` 的试点入口
-3. 当前新的主入口和关键业务链路已经不再只依赖 `Eureka`
+4. 当前新的主入口和关键业务链路已经不再只依赖 `Eureka`
 
 因此本轮继续完成了更彻底的退场动作：
 
@@ -126,12 +128,14 @@
 
 截至当前仓库状态，可以先确认以下事实：
 
-1. `index-codes-service`、`index-data-service`、`gateway-service`
+1. `gateway-service`
    - 已补齐 `bootstrap-nacos.yml`
    - 已具备 `Nacos Config` 试点入口
    - 已有对应的 `templates/*.yaml` 可作为未来导入 `Nacos` 的 Data ID 内容
-
-2. `trend-trading-backtest-view`
+2. 历史上的 `index-codes-service`、`index-data-service`
+   - 已完成 `Nacos Config` 试点验证
+   - 当前已退场，但其迁移经验已沉淀到 `market-data-service` 收敛路径
+3. `trend-trading-backtest-view`
    - 已保留 `bootstrap-nacos.yml` 作为默认配置入口
    - 已从模块依赖中移除 `spring-cloud-starter-config`
    - 已从模块依赖中移除 `spring-cloud-starter-bus-amqp`
@@ -182,14 +186,16 @@
 
 结合当前仓库状态，可以确认：
 
-1. `index-codes-service`、`index-data-service`、`gateway-service`
+1. `gateway-service`
    已具备 `Nacos Config` 试点入口与模板
 2. `trend-trading-backtest-service`
    已具备 `Nacos Config` 试点入口，且其现代化改造已明显脱离旧配置中心主线
 3. `trend-trading-backtest-view`
    已切换为默认优先走 `Nacos Config` 路径，
    旧的 `Config Server + Bus + RabbitMQ` 仅在显式非 `nacos` 模式下才保留兼容检查
-4. 当前主工程已经先后把旧监控模块和 `eureka-server` 移出主构建，
+4. `market-data-service`
+   已承接市场数据默认查询与同步主线
+5. 当前主工程已经先后把旧监控模块和 `eureka-server` 移出主构建，
    继续把 `index-config-server` 摘出主构建，能保持当前主线与迁移方向一致
 
 因此本轮继续完成了更彻底的退场动作：
@@ -227,8 +233,8 @@
 
 结合当前仓库状态，可以确认：
 
-1. `gateway-service` 已接管原 `Zuul` 的核心路由：
-   - `/api-codes/**`
+1. `gateway-service` 已接管当前主线所需的核心路由：
+   - `/api-market/**`
    - `/api-backtest/**`
    - `/api-view/**`
 2. `gateway-service` 已具备：
@@ -294,27 +300,8 @@
    - 当前可直接展示：
      - `gateway-service`
      - `trend-trading-backtest-service`
-     - `index-data-service`
-     - `index-codes-service`
+     - `market-data-service`
      的基础存活状态
-
-5. `index-data-service`
-   - 已补最小 `Prometheus` 指标暴露入口
-   - 已引入 `micrometer-registry-prometheus`
-   - 已在配置中暴露 `/actuator/prometheus`
-   - 当前可作为市场数据链路的监控替代试点
-
-6. `index-codes-service`
-   - 已补最小 `Prometheus` 指标暴露入口
-   - 已引入 `micrometer-registry-prometheus`
-   - 已在配置中暴露 `/actuator/prometheus`
-   - 当前可作为市场元数据链路的监控替代试点
-
-7. `index-gather-store-service`
-   - 已补最小 `Prometheus` 指标暴露入口
-   - 已引入 `micrometer-registry-prometheus`
-   - 已在配置中暴露 `/actuator/prometheus`
-   - 当前可作为市场数据采集链路的监控替代试点
 
 ### 当前阶段性结论
 

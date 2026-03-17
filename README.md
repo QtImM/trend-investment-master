@@ -1,40 +1,30 @@
 ### 基于spring cloud的趋势投资项目
 
-##### 存第三方数据到redis的顺序
-* 启动EurekaServerApplication
-* 启动ThirdPartIndexDataApplication
-* 启动 IndexGatherStoreApplication
+##### 当前本地样例数据链路
+* 启动 redis
+* 启动 ThirdPartIndexDataApplication
+* 启动 MarketDataApplication
 
-存到了redis中后可以关闭``ThirdPartIndexDataApplication``
-和``IndexGatherStoreApplication``  
-以后访问数据会直接访问redis
+当前第三方数据模块已经收口为本地样例数据提供器，`market-data-service` 会从 `http://127.0.0.1:8090/indexes` 拉取静态 JSON 样例数据。
 
 ##### 项目启动顺序
-* 启动 EurekaServerApplication
 * 启动 redis
-* 启动 IndexConfigServerApplication
-* 启动 IndexCodesApplication
-* 启动 IndexDataApplication
+* 启动 MarketDataApplication
+* 启动 GatewayServiceApplication
 * 启动 TrendTradingBackTestServiceApplication
 * 启动 TrendTradingBackTestViewApplication
-* 启动 IndexZuulServiceApplication
-* 访问http://127.0.0.1:8031/api-view/
+* 启动 trend-web
+* 访问 http://127.0.0.1:8032/trend-web/
 
 ##### 微服务端口
 
 微服务 | 项目名 |  端口  
 -|-|-
-注册中心|eureka-server | 8761 
 第三方数据中心|third-part-index-data-project | 8090 
-数据采集|index-gather-store-service | 8001 
-股票代号服务|index-codes-service | 8011,8012,8013 
-数据服务|index-data-service | 8021,8022,8023 
-路由|index-zuul-service | 8031 
-模拟回测服务|trend-trading-backtest-view | 8041,8042,8043 
-模拟回测视图服务|trend-trading-backtest-service | 8051,8052,8053 
-配置服务|index-config-server | 8060 
-断路器监控|index-hystrix-dashboard | 8070 
-断路器聚合监控|index-turbine | 8080 
+市场数据服务|market-data-service | 8061
+路由|gateway-service | 8032
+模拟回测视图服务|trend-trading-backtest-view | 8041,8042,8043 
+模拟回测服务|trend-trading-backtest-service | 8051,8052,8053 
 
 ##### 第三方工具端口
 

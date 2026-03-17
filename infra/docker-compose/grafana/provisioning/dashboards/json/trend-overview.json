@@ -237,88 +237,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "up{job=\"index-data-service\"}",
-          "legendFormat": "index-data-service",
+          "expr": "up{job=\"market-data-service\"}",
+          "legendFormat": "market-data-service",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Index Data Service",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "trend-prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "text": "Down"
-                },
-                "1": {
-                  "color": "green",
-                  "text": "Up"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 8
-      },
-      "id": 4,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "up{job=\"index-codes-service\"}",
-          "legendFormat": "index-codes-service",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Index Codes Service",
+      "title": "Market Data Service",
       "type": "stat"
     }
   ],

@@ -44,3 +44,8 @@
 1. 先整理配置模板
 2. 再升级服务版本底座
 3. 最后让服务从 `Config Server` 切换到 `Nacos Config`
+
+补充说明：
+
+- `index-codes-service-dev.yaml` 与 `index-data-service-dev.yaml` 当前主要保留为迁移过程留档
+- 当前默认市场数据主线已经收敛到 `templates/market-data-service-dev.yaml`

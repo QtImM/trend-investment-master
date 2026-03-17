@@ -3154,6 +3154,66 @@
 2. 评估是否把 `third-part-index-data-project` 再进一步迁为更纯粹的 `fixtures/` 目录
 3. 再决定是否开始推进更深层的版本现代化主线
 
+### 2026-03-18 - 阶段 57：清理监控样板与文档中的旧市场数据痕迹
+
+#### 本阶段目标
+
+- 让监控样板和中文文档继续与当前实际架构对齐
+- 移除已经退场的 `index-gather-store-service`、`index-codes-service`、`index-data-service` 监控目标
+- 让仓库里的说明文档明确围绕 `market-data-service` 这一条市场数据主线展开
+
+#### 已完成事项
+
+1. 收缩了 Prometheus 抓取样板
+   - 更新 `infra/docker-compose/prometheus/prometheus.yml`
+   - 删除：
+     - `index-gather-store-service`
+     - `index-codes-service`
+     - `index-data-service`
+     的抓取目标
+   - 保留 `market-data-service` 作为当前市场数据主线监控目标
+
+2. 收缩了 Grafana 总览面板
+   - 更新 `infra/docker-compose/grafana/provisioning/dashboards/json/trend-overview.json`
+   - 将旧的 `Index Data Service` 卡片切换为 `Market Data Service`
+   - 删除了 `Index Codes Service` 卡片
+
+3. 更新了迁移与配置文档
+   - 更新 `infra/transition/LEGACY_INFRA_RETIREMENT_PLAN.md`
+   - 更新 `infra/nacos-config/README.md`
+   - 更新根 `README.md`
+   - 明确当前默认市场数据主线已经收敛到：
+     - `market-data-service`
+     - `third-part-index-data-project` 本地样例数据提供器
+
+4. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在仓库里的监控样板和主要文档已经更接近当前实际架构：
+
+- 市场数据默认主线只保留 `market-data-service`
+- 旧查询/同步模块不再继续出现在默认监控总览里
+- 项目说明文档也开始围绕新的运行链路展开
+
+这意味着当前市场数据收敛不只体现在代码上，也开始体现在观测面和文档层。
+
+#### 这一步为什么重要
+
+- 如果监控样板和文档还长期保留旧模块名称，会让仓库状态和实际架构脱节
+- 先把这些外围痕迹收干净，后面继续推进更深层的现代化时判断成本会更低
+- 这一步也让当前仓库对外表达更加统一，不再同时描述两套市场数据主线
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 评估是否把 `third-part-index-data-project` 进一步迁为更纯粹的 `fixtures/` 目录
+2. 或开始推进更深层的版本现代化主线，例如父 POM、Java 版本和 Spring 版本升级
+3. 再决定是否需要补更多围绕 `market-data-service` 的测试与监控样板
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

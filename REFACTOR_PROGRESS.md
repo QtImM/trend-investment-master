@@ -3040,6 +3040,65 @@
 2. 继续收缩监控样板与文档中旧查询模块的残余痕迹
 3. 再决定 `third-part-index-data-project` 是保留为 fixture 还是继续压缩
 
+### 2026-03-18 - 阶段 55：删除旧查询模块源码目录
+
+#### 本阶段目标
+
+- 在旧查询模块已经移出主构建后，继续完成真正的物理退场
+- 删除 `index-codes-service` 和 `index-data-service` 源码目录
+- 让当前市场数据主线彻底收敛到 `market-data-service`
+
+#### 已完成事项
+
+1. 删除了 `index-codes-service` 模块源码文件
+   - 删除 `pom.xml`
+   - 删除启动类、配置类、控制器、服务类、实体类
+   - 删除 `application.yml`、`application-nacos.yml`、`bootstrap-nacos.yml`
+   - 删除测试占位文件
+
+2. 删除了 `index-data-service` 模块源码文件
+   - 删除 `pom.xml`
+   - 删除启动类、配置类、控制器、服务类、实体类
+   - 删除 `application.yml`、`application-nacos.yml`、`bootstrap-nacos.yml`
+   - 删除测试占位文件
+
+3. 清理了旧模块目录
+   - 删除两个模块目录下遗留的 `.iml` 与本地构建产物目录
+   - 让仓库主线不再保留这两个旧查询模块的源码空壳
+
+4. 更新了迁移矩阵
+   - 将 `index-codes-service` 状态更新为“已退场”
+   - 将 `index-data-service` 状态更新为“已退场”
+   - 明确当前默认查询主线已由 `market-data-service` 承接
+
+5. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在市场数据服务收敛已经进入更彻底的阶段：
+
+- `market-data-service` 已承接默认查询主线
+- `market-data-service` 已开始承接默认同步主线
+- `index-gather-store-service`、`index-codes-service`、`index-data-service` 都已完成源码退场
+
+这意味着当前仓库里与市场数据相关的主线已经基本压缩为一个聚合服务。
+
+#### 这一步为什么重要
+
+- 如果旧查询模块继续留目录，仓库状态仍然和真实默认架构不一致
+- 直接删除这两个模块，能让当前主线更清楚地表达“市场数据已经完成一轮服务收敛”
+- 这一步也为后续继续压缩监控样板和文档中的旧痕迹铺平了路径
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续收缩监控样板与文档中旧市场数据模块的残余痕迹
+2. 评估 `third-part-index-data-project` 是否收敛为 fixture / mock-provider
+3. 再决定是否继续推进更深层的版本现代化主线
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

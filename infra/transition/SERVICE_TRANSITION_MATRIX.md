@@ -17,8 +17,8 @@
 | `third-part-index-data-project` | 业务 | 保留 | 待定 | 未来可能转为 fixture / mock-provider |
 | `market-data-service` | 业务 | 新增 | 保留 | 市场数据读能力收敛试点模块 |
 | `index-gather-store-service` | 业务 | 已退场 | 合并 | 同步能力已开始并入 `market-data-service`，旧模块源码目录已删除 |
-| `index-codes-service` | 业务 | 已移出主构建 | 合并 | 新前端默认链路已切到 `market-data-service`，旧模块不再纳入主构建 |
-| `index-data-service` | 业务 | 已移出主构建 | 合并 | 回测服务默认链路已切到 `market-data-service`，旧模块不再纳入主构建 |
+| `index-codes-service` | 业务 | 已退场 | 合并 | 默认查询链路已切到 `market-data-service`，旧模块源码目录已删除 |
+| `index-data-service` | 业务 | 已退场 | 合并 | 默认查询链路已切到 `market-data-service`，旧模块源码目录已删除 |
 | `trend-trading-backtest-service` | 业务 | 保留 | 保留 | 作为核心服务持续演进 |
 | `trend-trading-backtest-view` | 前端/服务端混合 | 保留 | 删除 | 当前作为纯跳转壳层，旧页面资源已移除 |
 | `trend-web` | 前端 | 新增 | 保留 | 已形成多页面应用壳层，继续接管旧视图入口 |
@@ -33,5 +33,5 @@
 - `index-zuul-service` 已从主构建移除且源码目录已删除
 - `market-data-service` 已作为市场数据收敛试点模块落库
 - `index-gather-store-service` 已从主构建移除且源码目录已删除，旧同步职责开始收敛到 `market-data-service`
-- `index-codes-service` 与 `index-data-service` 已从主构建移除，默认入口地位已被 `market-data-service` 取代
+- `index-codes-service` 与 `index-data-service` 已从主构建移除且源码目录已删除，默认入口地位已被 `market-data-service` 取代
 - 其余旧模块仍按“并行迁移、逐步退场”继续推进

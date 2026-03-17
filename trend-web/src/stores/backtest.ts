@@ -28,6 +28,7 @@ export const useBacktestStore = defineStore('backtest', () => {
   const initialized = ref(false);
   const error = ref('');
   const lastUpdatedAt = ref('');
+  const indexSource = ref<'market-data-service' | 'index-codes-service' | ''>('');
 
   const indexDatas = ref<IndexDataPoint[]>([]);
   const profits = ref<ProfitPoint[]>([]);
@@ -97,7 +98,9 @@ export const useBacktestStore = defineStore('backtest', () => {
     loading.value = true;
     error.value = '';
     try {
-      indexes.value = await fetchIndexes();
+      const marketIndexesResult = await fetchIndexes();
+      indexes.value = marketIndexesResult.indexes;
+      indexSource.value = marketIndexesResult.source;
       initialized.value = true;
       if (!indexes.value.some((item) => item.code === params.value.currentIndex) && indexes.value.length > 0) {
         params.value.currentIndex = indexes.value[0].code;
@@ -112,7 +115,7 @@ export const useBacktestStore = defineStore('backtest', () => {
 
   async function runSimulation(resetDate = false) {
     if (!hasIndexes.value) {
-      error.value = '当前没有可用指数数据，请先检查 market-data 链路。';
+      error.value = '当前没有可用指数数据，请先检查 /api-market/** 或 /api-codes/** 链路。';
       return;
     }
 
@@ -183,6 +186,7 @@ export const useBacktestStore = defineStore('backtest', () => {
     hasResults,
     hasIndexes,
     lastUpdatedAt,
+    indexSource,
     bootstrap,
     runSimulation,
     patchParams,

@@ -23,7 +23,7 @@ const store = useBacktestWorkspace();
       <div class="hero-badge">
         <span>当前视图</span>
         <strong>Overview</strong>
-        <small>默认入口页</small>
+        <small>{{ store.indexSource || '等待初始化' }}</small>
       </div>
     </section>
 

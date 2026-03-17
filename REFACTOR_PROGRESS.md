@@ -2711,6 +2711,62 @@
 2. 评估把 `index-gather-store-service` 的同步能力继续并入 `market-data-service`
 3. 在验证新链路可用后，再考虑把旧 `index-codes-service` 和 `index-data-service` 从入口链路中降级
 
+### 2026-03-18 - 阶段 49：让 trend-web 优先消费 market-data-service
+
+#### 本阶段目标
+
+- 不让 `market-data-service` 只停留在“新模块已创建”的状态
+- 让 `trend-web` 开始真实消费新的市场数据收敛试点入口
+- 同时保留一个最小兼容回退，确保当前前端链路可用
+
+#### 已完成事项
+
+1. 调整了前端市场数据读取入口
+   - 新增 `trend-web/src/services/market-data.ts`
+   - 当前前端会优先调用 `/api-market/codes`
+   - 如果新试点服务暂时不可用，再自动回退到 `/api-codes/codes`
+
+2. 同步更新了前端状态管理
+   - 更新 `trend-web/src/stores/backtest.ts`
+   - 增加 `indexSource` 状态
+   - 让页面可以明确展示当前实际命中的市场数据来源
+   - 同时把初始化失败提示收敛到新的市场数据链路表述
+
+3. 更新了新前端状态页与总览页
+   - 更新 `trend-web/src/views/OverviewView.vue`
+   - 更新 `trend-web/src/views/StatusView.vue`
+   - 当前可以直接看到：
+     - 新前端优先读取 `/api-market/**`
+     - 当前实际数据来源是 `market-data-service` 还是兼容回退链路
+
+4. 完成了本地验证
+   - 使用本机 `npm run build`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在 `market-data-service` 不再只是仓库里新增的一个试点模块：
+
+- `trend-web` 已开始优先走新的市场数据收敛入口
+- 如果新链路临时不可用，当前前端还能自动回退到旧 `index-codes-service`
+- 页面上也能直接看到当前命中的数据来源
+
+这意味着业务服务收敛主线已经从“模块落库”推进到了“新前端开始真实消费新模块”的阶段。
+
+#### 这一步为什么重要
+
+- 只有新模块没有消费者，收敛主线就还没有形成真实闭环
+- 先让新前端把市场数据入口切过去，后面继续降级旧服务入口时会更顺
+- 这一步也给后续继续并入 `index-gather-store-service` 提供了更明确的落点
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 评估把 `index-gather-store-service` 的同步能力继续并入 `market-data-service`
+2. 开始弱化 `trend-web` 对旧 `/api-codes/**` 回退链路的依赖
+3. 继续让状态页和入口文案反映新的业务服务收敛进度
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

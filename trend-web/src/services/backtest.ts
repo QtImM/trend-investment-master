@@ -1,14 +1,12 @@
 import { http } from './http';
-import type { BacktestParams, BacktestResponse, IndexOption } from '../types/backtest';
+import { fetchMarketIndexes } from './market-data';
+import type { BacktestParams, BacktestResponse } from '../types/backtest';
 
 function normalizePathValue(value: string | null): string {
   return value && value.trim().length > 0 ? value : 'null';
 }
 
-export async function fetchIndexes() {
-  const { data } = await http.get<IndexOption[]>('/api-codes/codes');
-  return data;
-}
+export const fetchIndexes = fetchMarketIndexes;
 
 export async function simulateBacktest(params: BacktestParams) {
   const path = [

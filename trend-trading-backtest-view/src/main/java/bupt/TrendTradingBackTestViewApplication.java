@@ -25,20 +25,8 @@ public class TrendTradingBackTestViewApplication {
     public static void main(String[] args) {
         int port = 0;
         int defaultPort = 8041;
-        int configServerPort=8060;
-        int rabbitMQPort = 5672;
         int nacosServerPort = 8848;
         boolean nacosProfileEnabled = isNacosProfileEnabled(args);
-
-        if(!nacosProfileEnabled && NetUtil.isUsableLocalPort(rabbitMQPort)) {
-            System.err.printf("检查到端口%d 未启用，判断 rabbitMQ 服务器没有启动，本服务无法使用，故退出%n", rabbitMQPort );
-            System.exit(1);
-        }
-
-        if(!nacosProfileEnabled && NetUtil.isUsableLocalPort(configServerPort)) {
-            System.err.printf("检查到端口%d 未启用，判断 配置服务器没有启动，本服务无法使用，故退出%n", configServerPort );
-            System.exit(1);
-        }
 
         if(nacosProfileEnabled && NetUtil.isUsableLocalPort(nacosServerPort)) {
             System.err.printf("检查到端口%d 未启用，判断 nacos 服务器没有启动，本服务无法使用，故退出%n", nacosServerPort );

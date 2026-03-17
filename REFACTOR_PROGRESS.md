@@ -3558,6 +3558,61 @@
 2. 处理 `trend-trading-backtest-view` 的 `bootstrap` 残留
 3. 再统一清理主线模块中的 `@EnableDiscoveryClient`
 
+### 2026-03-18 - 阶段 64：移除视图壳层中的 bootstrap 与旧配置链路残留
+
+#### 本阶段目标
+
+- 让 `trend-trading-backtest-view` 更接近纯壳层应用
+- 删除 `bootstrap` 时代遗留的配置入口
+- 清掉已经没有实际价值的 `Config Server / Bus / Nacos Config` 残留
+
+#### 已完成事项
+
+1. 收缩了视图壳层依赖
+   - 更新 `trend-trading-backtest-view/pom.xml`
+   - 删除 `spring-cloud-starter-alibaba-nacos-config`
+   - 让壳层不再承担外部配置中心职责
+
+2. 精简了启动前置检查
+   - 更新 `TrendTradingBackTestViewApplication`
+   - 删除对 `Config Server` 和 `RabbitMQ` 的旧端口检查
+   - 让当前壳层只保留 `nacos` 与自身端口的最小启动判断
+
+3. 删除了旧配置入口与无效模板
+   - 删除 `trend-trading-backtest-view/src/main/resources/bootstrap.yml`
+   - 删除 `trend-trading-backtest-view/src/main/resources/bootstrap-nacos.yml`
+   - 删除 `infra/nacos-config/templates/trend-trading-backtest-view-dev.yaml`
+
+4. 更新了迁移清单
+   - 更新 `MIGRATION_CHECKLIST.md`
+   - 将 `bootstrap` 残留阻塞点标记为已完成
+
+5. 完成了本地验证
+   - 使用本机 Maven 对 `trend-trading-backtest-view` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在 `trend-trading-backtest-view` 已经进一步收成轻壳层：
+
+- 不再依赖 `bootstrap` 配置加载方式
+- 不再依赖 `Nacos Config`
+- 不再保留 `Config Server + Bus` 时代的启动前置检查
+
+#### 这一步为什么重要
+
+- `bootstrap` 残留会持续拖慢后续 Boot 3 配置兼容收口
+- 先把这个壳层收干净，后面要不要彻底退掉它都会更容易
+- 这一步也让当前主线更一致，不再混着两代配置加载方式
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续处理 `market-data-service` 中的 `RestTemplate`
+2. 统一清理主线模块中的 `@EnableDiscoveryClient`
+3. 再评估是否需要顺手收缩主线应用中的交互式端口输入逻辑
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

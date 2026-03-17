@@ -14,6 +14,10 @@ spring:
 
 version: ${TREND_VIEW_VERSION:how2j trend trading backtest view version 1.5}
 
+trend:
+  web:
+    entry-url: ${TREND_WEB_ENTRY_URL:http://127.0.0.1:8032/trend-web/}
+
 management:
   endpoints:
     web:

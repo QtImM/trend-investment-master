@@ -11,8 +11,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ViewController {
     @Value("${version:how2j trend trading backtest view version 1.5}")
     String version;
+
+    @Value("${trend.web.entry-url:http://127.0.0.1:8032/trend-web/}")
+    String trendWebEntryUrl;
+
     @GetMapping("/")
-    public String view(Model model) throws Exception{
+    public String view() {
+        return "redirect:" + trendWebEntryUrl;
+    }
+
+    @GetMapping("/legacy")
+    public String legacyView(Model model) {
         model.addAttribute("version",version);
         return "view";
     }

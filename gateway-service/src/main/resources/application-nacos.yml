@@ -16,6 +16,10 @@ spring:
             allowedMethods: "*"
             allowedHeaders: "*"
       routes:
+        - id: trend-web
+          uri: ${trend.web.dev-server-url:http://127.0.0.1:5173}
+          predicates:
+            - Path=/trend-web/**
         - id: api-codes
           uri: lb://INDEX-CODES-SERVICE
           predicates:

@@ -2409,6 +2409,63 @@
 2. 给 `trend-web` 补接口错误态、加载态和更多交互细节
 3. 开始考虑让新前端通过独立部署或静态托管接入当前网关体系
 
+### 2026-03-18 - 阶段 44：让新前端接入当前入口链路
+
+#### 本阶段目标
+
+- 不再让 `trend-web` 只是一个能单独构建的试点工程
+- 让 `gateway-service` 能转发新前端入口
+- 把 `trend-trading-backtest-view` 收缩成默认跳转新前端、保留 `/legacy` 的兼容壳层
+
+#### 已完成事项
+
+1. 扩展了网关入口
+   - 更新 `gateway-service/src/main/resources/application.yml`
+   - 更新 `gateway-service/src/main/resources/application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/gateway-service-dev.yaml`
+   - 新增 `/trend-web/**` 路由，默认转发到 `http://127.0.0.1:5173`
+
+2. 收缩了旧视图服务入口
+   - 更新 `trend-trading-backtest-view/src/main/resources/application.yml`
+   - 新增 `trend.web.entry-url` 配置，默认指向 `http://127.0.0.1:8032/trend-web/`
+   - 更新 `ViewController`
+   - 让 `/` 默认重定向到新前端
+   - 保留 `/legacy` 继续承载旧 Thymeleaf 页面
+
+3. 调整了新前端基础路径
+   - 更新 `trend-web/vite.config.ts`
+   - 更新 `trend-web/src/router/index.ts`
+   - 让 `trend-web` 以 `/trend-web/` 作为基础访问路径，便于继续挂在 Gateway 下
+
+4. 完成了本地验证
+   - 使用本机 Maven 对 `gateway-service` 与 `trend-trading-backtest-view` 执行了 `compile`
+   - 使用本机 `npm run build` 验证 `trend-web`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在新前端已经开始真正接入当前入口链路：
+
+- `gateway-service` 可承接 `trend-web` 路径
+- `trend-trading-backtest-view` 默认跳转新前端
+- 旧页面被收缩到 `/legacy` 兼容入口
+
+这意味着前端迁移已经从“新工程试点”推进到了“新入口开始接管”的阶段。
+
+#### 这一步为什么重要
+
+- 只有前端工程但不接现有入口，迁移仍然停留在并排摆放代码的阶段
+- 先让入口链路和兼容壳层到位，后续替换页面内容时风险会明显更低
+- 这一步也让 `trend-trading-backtest-view` 的角色更清晰：逐步退场，而不是继续承载默认入口
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续给 `trend-web` 补错误态、空态和接口调用体验
+2. 继续压缩 `trend-trading-backtest-view` 内部的旧页面依赖
+3. 评估是否开始推进市场数据服务合并或 Java 版本升级主线
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

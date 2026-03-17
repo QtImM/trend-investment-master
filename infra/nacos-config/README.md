@@ -19,6 +19,7 @@
 
 - `templates/index-codes-service-dev.yaml`
 - `templates/index-data-service-dev.yaml`
+- `templates/gateway-service-dev.yaml`
 - `templates/trend-trading-backtest-service-dev.yaml`
 - `templates/trend-trading-backtest-view-dev.yaml`
 

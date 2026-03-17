@@ -562,6 +562,63 @@
 2. 让 `gateway-service` 继续补齐 `Nacos Config` 试点入口
 3. 开始梳理 `index-config-server` 中首批可迁移的配置项
 
+### 2026-03-17 - 阶段 11：gateway-service 接入 Nacos Config 试点入口
+
+#### 本阶段目标
+
+- 让 `gateway-service` 也具备 `Nacos Config` 试点入口
+- 让网关与市场数据服务在 `Nacos Discovery + Nacos Config` 两条线上保持一致的迁移结构
+- 为后续验证“新网关读取新配置并发现新服务”做好准备
+
+#### 已完成事项
+
+1. 调整了 `gateway-service` 的依赖
+   - 增加兼容当前 `Spring Boot 2.0.x / Finchley` 的 `Nacos Config` 依赖
+   - 保留原有 `Gateway`、`Eureka`、`Nacos Discovery` 依赖，不影响默认运行模式
+
+2. 增加了 Nacos Config 引导文件
+   - 新增 `bootstrap-nacos.yml`
+   - 在 `nacos` profile 下配置 `Nacos Config` 地址
+   - 指定读取 `gateway-service-dev.yaml` 作为试点 Data ID
+
+3. 新增了网关配置模板
+   - 新增 `infra/nacos-config/templates/gateway-service-dev.yaml`
+   - 把当前网关路由、跨域、Zipkin 与 Actuator 配置沉淀为未来可导入 `Nacos` 的模板
+   - 在模板中显式关闭 `Eureka client`
+
+4. 更新了配置模板说明
+   - 在 `infra/nacos-config/README.md` 中补充 `gateway-service` 模板入口
+   - 让当前模板清单与实际目录保持一致
+
+5. 完成了本地编译验证
+   - 使用本地临时 Maven 工具对 `gateway-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在 `gateway-service` 也已经具备了 `Nacos Config` 试点入口。
+
+这意味着当前试点范围已经覆盖：
+
+- 市场数据服务
+- 新网关入口
+
+并且这些试点模块都在沿用同一套 `application + application-nacos + bootstrap-nacos + templates/*.yaml` 的迁移样板。
+
+#### 这一步为什么重要
+
+- 网关是后续新调用链的入口，不能只做注册中心试点，不做配置中心试点
+- 现在入口层与下游服务的迁移结构已经统一，后续联调和扩展都会更顺
+- 这一步也让 `index-config-server` 的退场准备更完整
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 联动验证 `gateway-service`、`index-codes-service`、`index-data-service` 的 `nacos` profile 配置加载与注册行为
+2. 梳理 `index-config-server` 当前仍承载的配置项，准备首批迁移清单
+3. 再选择一个业务服务继续复制这套试点样板
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

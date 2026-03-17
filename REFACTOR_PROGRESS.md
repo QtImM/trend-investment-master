@@ -3668,6 +3668,54 @@
 2. 收缩主线应用里的交互式端口输入逻辑
 3. 再决定是否把当前迁移阶段标记为基本完成
 
+### 2026-03-18 - 阶段 66：清理主线模块中的显式 Discovery 注解
+
+#### 本阶段目标
+
+- 收掉主线模块里最后一批明显的旧时代显式发现注解
+- 让服务发现能力完全回到当前依赖栈自带的自动配置
+- 为这一轮迁移主线画上一个更干净的收尾
+
+#### 已完成事项
+
+1. 清理了主线模块启动类中的显式注解
+   - 更新 `gateway-service/src/main/java/bupt/GatewayServiceApplication.java`
+   - 更新 `market-data-service/src/main/java/bupt/MarketDataApplication.java`
+   - 更新 `trend-trading-backtest-service/src/main/java/bupt/TrendTradingBackTestServiceApplication.java`
+   - 更新 `trend-trading-backtest-view/src/main/java/bupt/TrendTradingBackTestViewApplication.java`
+   - 删除 `@EnableDiscoveryClient`
+
+2. 更新了迁移清单
+   - 更新 `MIGRATION_CHECKLIST.md`
+   - 将显式 Discovery 注解阻塞点标记为已完成
+
+3. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在这一轮主线迁移里显式列出的兼容阻塞点已经全部清掉：
+
+- `Redis DefaultTyping` 已移除
+- `OpenFeign` 已移除
+- `RestTemplate` 已收口到 `WebClient`
+- `bootstrap` 残留已移除
+- `@EnableDiscoveryClient` 已清理
+
+#### 这一步为什么重要
+
+- 这一步本身改动不大，但它让当前主线终于不再混着旧时代显式发现写法
+- 也意味着本轮“迁移主线收口”已经从大方向完成，进入可选择的收尾优化阶段
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 如需继续深挖，可收缩主线应用里的交互式端口输入逻辑
+2. 或开始真正的 `Spring Boot 3 / Java 21` 版本切换试跑
+3. 当前仓库层面的这一轮迁移主线可视为完成
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

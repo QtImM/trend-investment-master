@@ -4,14 +4,12 @@ import brave.sampler.Sampler;
 import cn.hutool.core.util.NetUtil;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 
 import java.util.Arrays;
 import java.util.Locale;
 
 @SpringBootApplication
-@EnableDiscoveryClient
 public class GatewayServiceApplication {
     public static void main(String[] args) {
         int port = 8032;

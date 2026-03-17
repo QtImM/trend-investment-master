@@ -243,6 +243,12 @@
    - 当前默认预置 `Trend Prometheus` 数据源，指向 `http://host.docker.internal:9090`
    - 当前先提供最小可视化入口，后续再按需补 dashboard 模板
 
+5. `index-data-service`
+   - 已补最小 `Prometheus` 指标暴露入口
+   - 已引入 `micrometer-registry-prometheus`
+   - 已在配置中暴露 `/actuator/prometheus`
+   - 当前可作为市场数据链路的监控替代试点
+
 ### 当前阶段性结论
 
 结合当前仓库状态，可以确认：

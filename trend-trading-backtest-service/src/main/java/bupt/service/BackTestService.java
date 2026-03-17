@@ -1,6 +1,6 @@
 package bupt.service;
 
-import bupt.client.IndexDataClient;
+import bupt.client.IndexDataGateway;
 import bupt.pojo.AnnualProfit;
 import bupt.pojo.IndexData;
 import bupt.pojo.Profit;
@@ -15,14 +15,14 @@ import java.util.*;
 
 @Service
 public class BackTestService {
-    private final IndexDataClient indexDataClient;
+    private final IndexDataGateway indexDataGateway;
 
-    public BackTestService(IndexDataClient indexDataClient) {
-        this.indexDataClient = indexDataClient;
+    public BackTestService(IndexDataGateway indexDataGateway) {
+        this.indexDataGateway = indexDataGateway;
     }
 
     public List<IndexData> listIndexData(String code){
-        List<IndexData> result=indexDataClient.getIndexData(code);
+        List<IndexData> result=indexDataGateway.getIndexData(code);
         Collections.reverse(result);
         for(IndexData indexData:result){
             System.out.println(indexData.getDate());

@@ -16,7 +16,7 @@
 | 当前模块 | 当前职责 | 目标替代方案 | 当前状态 |
 |---|---|---|---|
 | `eureka-server` | 服务注册与发现 | `Nacos Discovery` | 待退场 |
-| `index-config-server` | 配置中心 | `Nacos Config` | 待退场 |
+| `index-config-server` | 配置中心 | `Nacos Config` | 已开始退场 |
 | `index-zuul-service` | 网关入口 | `gateway-service` + Spring Cloud Gateway | 已开始并行迁移 |
 | `index-hystrix-dashboard` | 熔断监控看板 | Prometheus + Grafana | 待退场 |
 | `index-turbine` | 熔断聚合监控 | Prometheus + Grafana | 待退场 |
@@ -184,7 +184,27 @@
 
 ### 当前建议
 
-当前不要直接删除 `index-config-server`，应先把它视作“旧配置体系”的兼容保底模块。
+当前不要直接物理删除 `index-config-server`，但已经可以先把它移出主构建，继续作为“旧配置体系”的兼容保底模块保留源码目录。
+
+### 当前阶段性结论
+
+结合当前仓库状态，可以确认：
+
+1. `index-codes-service`、`index-data-service`、`gateway-service`
+   已具备 `Nacos Config` 试点入口与模板
+2. `trend-trading-backtest-service`
+   已具备 `Nacos Config` 试点入口，且其现代化改造已明显脱离旧配置中心主线
+3. `trend-trading-backtest-view`
+   虽然默认运行仍保留 `Config Server + Bus + RabbitMQ` 旧链路，
+   但已经具备 `bootstrap-nacos.yml`，可作为后续继续压缩旧依赖的切入点
+4. 当前主工程已经先后把旧监控模块和 `eureka-server` 移出主构建，
+   继续把 `index-config-server` 摘出主构建，能保持当前主线与迁移方向一致
+
+因此本轮先执行了一个更轻量、也更符合当前阶段的退场动作：
+
+1. 从父工程 `pom.xml` 中移除了 `index-config-server`
+2. 当前先保留模块源码目录本身，作为旧配置体系参考与必要时回退依据
+3. 后续再继续收缩 `trend-trading-backtest-view` 对 `Config Server + Bus + RabbitMQ` 的剩余依赖
 
 ## 五、index-zuul-service 退场方案
 
@@ -313,7 +333,7 @@
 4. 试点一个服务接入 Nacos Discovery
 5. 试点一个服务接入 Nacos Config
 6. 验证新网关基于新注册中心工作
-7. 再让 `eureka-server` 与 `index-config-server` 退场
+7. 再让 `index-zuul-service` 与其余旧基础设施继续退场
 8. 最后处理 Hystrix 体系退场
 
 ## 八、当前结论
@@ -321,7 +341,7 @@
 截至当前阶段，项目的基础设施迁移状态可以总结为：
 
 - 新基础设施已经开始进入仓库
-- 老基础设施仍保留运行价值
+- 老基础设施已开始分批退出主构建
 - 当前适合采用“并行迁移、逐步接管、最后退场”的策略
 
 这也是最适合在简历和面试中描述的方式：

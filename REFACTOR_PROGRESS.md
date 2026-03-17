@@ -2118,6 +2118,63 @@
 2. 评估 `trend-trading-backtest-view` 对旧配置中心的剩余依赖是否还能再压缩一步
 3. 再决定何时把 `eureka-server` 物理删除
 
+### 2026-03-18 - 阶段 39：将 index-config-server 移出主构建
+
+#### 本阶段目标
+
+- 继续推进核心旧基础设施模块的阶段性退场
+- 在保留旧配置体系源码目录的前提下，先把 `index-config-server` 从当前主构建中摘除
+- 让主工程默认构建主线进一步向 `Nacos Config` 试点路径收敛
+
+#### 已完成事项
+
+1. 调整了父工程模块列表
+   - 从根 `pom.xml` 中移除了 `index-config-server`
+   - 让它不再参与当前主构建
+
+2. 更新了迁移矩阵
+   - 将 `index-config-server` 标记为“已停止纳入主构建”
+   - 明确当前动作属于“旧配置中心开始退出主构建”的阶段
+
+3. 更新了退场方案文档
+   - 补充当前可支撑该动作的前提：
+     - `index-codes-service`
+     - `index-data-service`
+     - `gateway-service`
+     - `trend-trading-backtest-service`
+     已具备不同程度的 `Nacos Config` 试点入口
+   - 明确 `trend-trading-backtest-view` 仍保留旧配置链路，但不影响当前先执行主构建收缩
+   - 明确本轮先执行“移出主构建、保留源码目录”的轻量退场动作
+
+4. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在核心旧基础设施退场已经继续推进到了配置中心模块：
+
+- `index-hystrix-dashboard` 已退场
+- `index-turbine` 已退场
+- `eureka-server` 已停止纳入主构建
+- `index-config-server` 已停止纳入主构建
+
+这意味着当前主工程的默认构建主线，已经进一步减少了对旧注册中心和旧配置中心模块的直接依赖。
+
+#### 这一步为什么重要
+
+- 如果 `index-config-server` 长期留在主构建里，迁移会持续停留在“新旧并存但默认仍偏旧配置中心”的状态
+- 先把它摘出主构建，不会影响保留源码目录作为兜底参考，也能显著减少当前主线的构建噪音
+- 这一步也为后续继续处理 `trend-trading-backtest-view` 的旧配置链路提供了更明确的收敛方向
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续压缩 `trend-trading-backtest-view` 对 `Config Server + Bus + RabbitMQ` 的剩余依赖
+2. 开始评估 `index-zuul-service` 的主构建退场条件
+3. 再决定何时物理删除 `index-config-server` 目录
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

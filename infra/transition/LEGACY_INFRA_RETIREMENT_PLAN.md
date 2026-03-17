@@ -243,6 +243,24 @@
    - 当前默认预置 `Trend Prometheus` 数据源，指向 `http://host.docker.internal:9090`
    - 当前先提供最小可视化入口，后续再按需补 dashboard 模板
 
+### 当前阶段性结论
+
+结合当前仓库状态，可以确认：
+
+1. `trend-trading-backtest-service` 已退出 `Hystrix` 模块依赖
+2. `trend-trading-backtest-service` 与 `gateway-service` 已暴露最小 `Prometheus` 指标入口
+3. 本地 `Prometheus` 与 `Grafana` 的最小运行样板都已入库
+
+因此当前已具备把 `index-hystrix-dashboard` 与 `index-turbine` 从父工程主构建中摘除的条件。
+
+本轮已执行的阶段性退场动作如下：
+
+1. 从父工程 `pom.xml` 中移除了：
+   - `index-hystrix-dashboard`
+   - `index-turbine`
+2. 当前先保留模块目录本身，作为历史参考与必要时的回退依据
+3. 后续在确认不再需要保留源码参考后，再执行物理删除
+
 ## 七、推荐执行顺序
 
 建议按以下顺序推进：

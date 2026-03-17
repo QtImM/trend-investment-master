@@ -11,8 +11,8 @@
 | `eureka-server` | 基础设施 | 保留 | 删除 | 待 Nacos Discovery 接管后退场 |
 | `index-config-server` | 基础设施 | 保留 | 删除 | 待 Nacos Config 接管后退场 |
 | `index-zuul-service` | 基础设施 | 保留 | 删除 | 待 `gateway-service` 验证完成后退场 |
-| `index-hystrix-dashboard` | 基础设施 | 保留 | 删除 | 待 Prometheus/Grafana 接管后退场 |
-| `index-turbine` | 基础设施 | 保留 | 删除 | 待 Prometheus/Grafana 接管后退场 |
+| `index-hystrix-dashboard` | 基础设施 | 已停止纳入主构建 | 删除 | 已由 Prometheus/Grafana 最小样板接手退场准备 |
+| `index-turbine` | 基础设施 | 已停止纳入主构建 | 删除 | 已由 Prometheus/Grafana 最小样板接手退场准备 |
 | `gateway-service` | 基础设施 | 新增 | 保留 | 新网关试点模块 |
 | `third-part-index-data-project` | 业务 | 保留 | 待定 | 未来可能转为 fixture / mock-provider |
 | `index-gather-store-service` | 业务 | 保留 | 合并 | 未来并入 `market-data-service` |
@@ -23,8 +23,8 @@
 
 ## 当前阶段结论
 
-当前不是大规模删模块的阶段，而是：
+当前阶段已经开始进入“旧监控模块退出主构建”的状态：
 
-- 新模块开始落库
-- 新旧模块并行存在
-- 等新链路验证稳定后，再逐步让旧模块退场
+- 新监控替代样板已入库
+- `index-hystrix-dashboard` 与 `index-turbine` 已停止纳入主构建
+- 其余旧模块仍按“并行迁移、逐步退场”继续推进

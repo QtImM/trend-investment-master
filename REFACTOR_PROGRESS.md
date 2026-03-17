@@ -1715,6 +1715,64 @@
 2. 评估是否要为 `Grafana` 补一份最小 dashboard provisioning 样板
 3. 再决定是否把同类指标暴露入口推广到 `index-data-service` 或 `index-codes-service`
 
+### 2026-03-18 - 阶段 32：将旧监控模块移出主构建
+
+#### 本阶段目标
+
+- 在监控替代路径已经具备最小样板后，推进 `index-hystrix-dashboard` 与 `index-turbine` 的阶段性退场
+- 先把这两个旧监控模块从父工程主构建中摘除
+- 不急着物理删除目录，先保留源码参考和回退空间
+
+#### 已完成事项
+
+1. 调整了父工程模块列表
+   - 从根 `pom.xml` 中移除了 `index-hystrix-dashboard`
+   - 从根 `pom.xml` 中移除了 `index-turbine`
+   - 让这两个旧监控模块不再参与当前主构建
+
+2. 更新了服务迁移矩阵
+   - 将 `index-hystrix-dashboard` 标记为“已停止纳入主构建”
+   - 将 `index-turbine` 标记为“已停止纳入主构建”
+   - 明确当前退场动作已经从“仅有规划”进入“主构建层收缩”阶段
+
+3. 更新了退场方案文档
+   - 补充当前已具备的替代条件：
+     - 回测服务已退出 `Hystrix` 模块依赖
+     - 回测服务与网关已暴露最小 `Prometheus` 指标入口
+     - `Prometheus` 与 `Grafana` 最小运行样板已入库
+   - 明确本轮已执行“先摘出主构建、后视情况删目录”的阶段性退场动作
+
+4. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在项目里的旧监控体系已经进一步收缩为：
+
+- `index-hystrix-dashboard` 与 `index-turbine` 不再参与主构建
+- 新的监控替代样板已覆盖：
+  - `trend-trading-backtest-service`
+  - `gateway-service`
+  - `Prometheus`
+  - `Grafana`
+
+这意味着后续继续推进时，主工程已经不再默认依赖旧监控模块，新的替代路径也不再只是文档方案。
+
+#### 这一步为什么重要
+
+- 把旧模块留在父工程里，会持续增加构建噪音，也会让退场动作一直停留在“计划中”
+- 先从主构建摘掉，是比直接删目录更稳、但又足够实质的一步
+- 这一步也符合当前你的要求：原服务并没有真正启用，优先保证替代链路不出错即可
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续把同类最小 `Prometheus` 指标入口推广到 `index-data-service` 或 `index-codes-service`
+2. 评估是否要为 `Grafana` 补一份最小 dashboard provisioning 样板
+3. 再决定何时物理删除 `index-hystrix-dashboard` 与 `index-turbine` 目录
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

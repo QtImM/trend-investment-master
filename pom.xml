@@ -12,8 +12,6 @@
     <module>eureka-server</module>
     <module>index-config-server</module>
     <module>gateway-service</module>
-    <module>index-hystrix-dashboard</module>
-    <module>index-turbine</module>
     <module>index-zuul-service</module>
 
     <!-- business -->

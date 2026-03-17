@@ -1,7 +1,6 @@
 package bupt.client;
 
 import bupt.pojo.IndexData;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-@ConditionalOnProperty(prefix = "backtest.remote.index-data", name = "mode", havingValue = "http")
 public class HttpIndexDataGateway implements IndexDataTransportGateway {
     private final RestTemplate restTemplate;
     private final String baseUrl;

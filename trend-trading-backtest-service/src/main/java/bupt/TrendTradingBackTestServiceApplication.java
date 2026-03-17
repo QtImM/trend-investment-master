@@ -9,7 +9,6 @@ import cn.hutool.core.util.StrUtil;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 
 import java.util.Arrays;
@@ -22,7 +21,6 @@ import java.util.concurrent.TimeoutException;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients
 public class TrendTradingBackTestServiceApplication {
     public static void main(String[] args) {
         int port = 0;

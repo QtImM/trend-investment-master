@@ -3504,6 +3504,60 @@
 2. 或直接开始拆 `trend-trading-backtest-service` 中的 `OpenFeign`
 3. 再处理 `trend-trading-backtest-view` 的 `bootstrap` 残留
 
+### 2026-03-18 - 阶段 63：移除回测服务中的 OpenFeign 主线
+
+#### 本阶段目标
+
+- 直接拆掉 `trend-trading-backtest-service` 中残留的 `OpenFeign`
+- 让回测服务只保留已经验证过的 HTTP 传输门面
+- 为后续继续向 `Spring HTTP Service Clients` 靠拢先清掉旧依赖和旧注解
+
+#### 已完成事项
+
+1. 移除了 `OpenFeign` 依赖与启用入口
+   - 更新 `trend-trading-backtest-service/pom.xml`
+   - 删除 `spring-cloud-starter-openfeign`
+   - 更新 `TrendTradingBackTestServiceApplication`
+   - 删除 `@EnableFeignClients`
+
+2. 删除了旧 Feign 调用实现
+   - 删除 `IndexDataClient`
+   - 删除 `FeignIndexDataGateway`
+   - 让回测服务只保留 HTTP 传输实现
+
+3. 收口了回测服务远程调用配置
+   - 更新 `application.yml`
+   - 更新 `application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/trend-trading-backtest-service-dev.yaml`
+   - 删除 `backtest.remote.index-data.mode`
+   - 让当前默认链路直接收口到 `http.base-url`
+
+4. 完成了本地验证
+   - 使用本机 Maven 对 `trend-trading-backtest-service` 执行了 `test`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在回测服务已经进一步摆脱旧式服务调用栈：
+
+- 不再依赖 `OpenFeign`
+- 不再保留 Feign 模式切换分支
+- 当前远程调用主线已经收口为 HTTP 传输门面 + Resilience4j + 统一降级
+
+#### 这一步为什么重要
+
+- `OpenFeign` 是当前主线里最明显的旧调用栈残留之一
+- 先把它彻底拿掉，后续再收口到 `Spring HTTP Service Clients` 会更顺
+- 这一步也让回测服务的运行路径更单一，后面排查和升级都会更轻
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续处理 `market-data-service` 中的 `RestTemplate`
+2. 处理 `trend-trading-backtest-view` 的 `bootstrap` 残留
+3. 再统一清理主线模块中的 `@EnableDiscoveryClient`
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

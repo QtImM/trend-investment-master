@@ -9,7 +9,6 @@ spring:
 backtest:
   remote:
     index-data:
-      mode: feign
       fallback:
         enabled: true
       resilience4j:

@@ -9,17 +9,18 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class BackTestService {
-    @Qualifier("indexDataClientFeignHystrix")
-    @Autowired
-    IndexDataClient indexDataClient;
+    private final IndexDataClient indexDataClient;
+
+    public BackTestService(IndexDataClient indexDataClient) {
+        this.indexDataClient = indexDataClient;
+    }
+
     public List<IndexData> listIndexData(String code){
         List<IndexData> result=indexDataClient.getIndexData(code);
         Collections.reverse(result);

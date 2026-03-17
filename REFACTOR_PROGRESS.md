@@ -895,6 +895,49 @@
 2. 继续评估 `trend-trading-backtest-service` 的 `Feign + Hystrix` 替换切入点
 3. 开始考虑 `index-config-server` 与 `eureka-server` 的“弱依赖运行”策略
 
+### 2026-03-17 - 阶段 17：修正回测服务误用 Hystrix fallback 的问题
+
+#### 本阶段目标
+
+- 修正 `trend-trading-backtest-service` 中一个会影响真实调用行为的隐藏问题
+- 避免后续联调时，回测服务始终使用兜底假数据而不走真实远程调用
+- 为后续 `Feign -> HTTP Service Clients` 与 `Hystrix -> Resilience4j` 迁移打下正确的当前行为基线
+
+#### 已完成事项
+
+1. 调整了 `BackTestService` 的客户端注入方式
+   - 去掉了对 `indexDataClientFeignHystrix` fallback Bean 的显式 `@Qualifier`
+   - 改为通过构造器注入 `IndexDataClient`
+   - 让服务默认依赖真正的客户端代理，而不是直接依赖兜底实现
+
+2. 更新了迁移记录
+   - 在退场方案文档中补充该问题说明
+   - 明确这是一个当前行为修正，而不只是未来重构准备
+
+3. 完成了本地编译验证
+   - 使用本地临时 Maven 工具对 `trend-trading-backtest-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在回测服务的远程市场数据读取路径，已经不再默认绕过真实客户端。
+
+这意味着后续无论是做旧体系联调，还是做 `Nacos` 试点联调，观察到的调用行为都会更接近真实生产路径。
+
+#### 这一步为什么重要
+
+- 如果一直注入 fallback Bean，很多问题会被“假成功”掩盖掉
+- 先把当前行为修正到合理状态，后续替换通信组件时才有可信的比较基线
+- 这也是比继续堆新入口更优先的真实缺陷修复
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 在具备 `Nacos + Redis` 环境后，优先验证回测链路的真实远程调用行为
+2. 继续评估 `trend-trading-backtest-service` 的 `Feign + Hystrix` 替换切入点
+3. 开始考虑如何让旧 `Feign` 客户端与未来新客户端并行存在
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

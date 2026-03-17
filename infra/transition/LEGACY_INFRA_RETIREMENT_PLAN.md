@@ -136,6 +136,7 @@
 
 2. `trend-trading-backtest-service`
    - 当前已补齐 `Nacos Discovery` 与 `Nacos Config` 试点入口
+   - 已修正回测服务误注入 Hystrix fallback 的问题，避免默认命中兜底假数据
    - 仍保留 `Feign + Hystrix` 旧调用链，后续应单独推进通信与容错能力替换
 
 2. `index-config-server` 自身的 Git 配置来源

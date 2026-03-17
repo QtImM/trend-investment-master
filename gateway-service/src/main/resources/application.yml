@@ -1,10 +1,8 @@
 spring:
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:nacos}
+    active: ${SPRING_PROFILES_ACTIVE:default}
   application:
     name: gateway-service
-  zipkin:
-    base-url: http://localhost:9411
   cloud:
     gateway:
       globalcors:

@@ -1,16 +1,12 @@
 package bupt;
 
-import brave.sampler.Sampler;
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.NetUtil;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.annotation.Bean;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.net.ServerSocket;
+import java.io.IOException;
 
 @SpringBootApplication
 public class TrendTradingBackTestServiceApplication {
@@ -20,52 +16,76 @@ public class TrendTradingBackTestServiceApplication {
         boolean nacosProfileEnabled = isNacosProfileEnabled(args);
         int port = resolveServerPort(args, defaultPort);
 
-        if(nacosProfileEnabled && NetUtil.isUsableLocalPort(nacosServerPort)) {
+        if(nacosProfileEnabled && !isPortAvailable(nacosServerPort)) {
             System.err.printf("检查到端口%d 未启用，判断 nacos 服务器没有启动，本服务无法使用，故退出%n", nacosServerPort );
             System.exit(1);
         }
 
-        if(!NetUtil.isUsableLocalPort(port)) {
+        if(!isPortAvailable(port)) {
             System.err.printf("端口%d被占用了，无法启动%n", port );
             System.exit(1);
         }
         new SpringApplicationBuilder(TrendTradingBackTestServiceApplication.class).properties("server.port=" + port).run(args);
 
     }
-    @Bean
-    public Sampler defaultSampler() {
-        return Sampler.ALWAYS_SAMPLE;
+
+    private static boolean isPortAvailable(int port) {
+        try (ServerSocket socket = new ServerSocket(port)) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private static int resolveServerPort(String[] args, int defaultPort) {
         if (args != null) {
             for (String arg : args) {
                 if (arg != null && arg.startsWith("port=")) {
-                    String strPort = StrUtil.subAfter(arg, "port=", true);
-                    if (NumberUtil.isNumber(strPort)) {
-                        return Convert.toInt(strPort);
+                    String portStr = extractValue(arg, "port=");
+                    try {
+                        return Integer.parseInt(portStr);
+                    } catch (NumberFormatException e) {
+                        // Ignore, use default
                     }
                 }
                 if (arg != null && arg.contains("server.port=")) {
-                    String strPort = StrUtil.subAfter(arg, "server.port=", true);
-                    if (NumberUtil.isNumber(strPort)) {
-                        return Convert.toInt(strPort);
+                    String portStr = extractValue(arg, "server.port=");
+                    try {
+                        return Integer.parseInt(portStr);
+                    } catch (NumberFormatException e) {
+                        // Ignore, use default
                     }
                 }
             }
         }
 
         String systemPropertyPort = System.getProperty("server.port");
-        if (NumberUtil.isNumber(systemPropertyPort)) {
-            return Convert.toInt(systemPropertyPort);
+        if (systemPropertyPort != null && !systemPropertyPort.isEmpty()) {
+            try {
+                return Integer.parseInt(systemPropertyPort);
+            } catch (NumberFormatException e) {
+                // Ignore, use default
+            }
         }
 
         String envPort = System.getenv("SERVER_PORT");
-        if (NumberUtil.isNumber(envPort)) {
-            return Convert.toInt(envPort);
+        if (envPort != null && !envPort.isEmpty()) {
+            try {
+                return Integer.parseInt(envPort);
+            } catch (NumberFormatException e) {
+                // Ignore, use default
+            }
         }
 
         return defaultPort;
+    }
+
+    private static String extractValue(String arg, String prefix) {
+        int index = arg.indexOf(prefix);
+        if (index >= 0) {
+            return arg.substring(index + prefix.length());
+        }
+        return "";
     }
 
     private static boolean isNacosProfileEnabled(String[] args) {

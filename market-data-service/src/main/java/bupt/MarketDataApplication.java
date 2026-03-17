@@ -1,15 +1,14 @@
 package bupt;
 
-import brave.sampler.Sampler;
-import cn.hutool.core.util.NetUtil;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.net.ServerSocket;
+import java.io.IOException;
 
 @SpringBootApplication
 @EnableCaching
@@ -21,12 +20,12 @@ public class MarketDataApplication {
         int nacosServerPort = 8848;
         boolean nacosProfileEnabled = isNacosProfileEnabled(args);
 
-        if (nacosProfileEnabled && NetUtil.isUsableLocalPort(nacosServerPort)) {
+        if (nacosProfileEnabled && !isPortAvailable(nacosServerPort)) {
             System.err.printf("检查到端口%d 未启用，判断 nacos 服务器没有启动，本服务无法使用，故退出%n", nacosServerPort);
             System.exit(1);
         }
 
-        if (NetUtil.isUsableLocalPort(redisPort)) {
+        if (!isPortAvailable(redisPort)) {
             System.err.printf("检查到端口%d 未启用，判断 redis 服务器没有启动，本服务无法使用，故退出%n", redisPort);
             System.exit(1);
         }
@@ -36,9 +35,12 @@ public class MarketDataApplication {
                 .run(args);
     }
 
-    @Bean
-    public Sampler defaultSampler() {
-        return Sampler.ALWAYS_SAMPLE;
+    private static boolean isPortAvailable(int port) {
+        try (ServerSocket socket = new ServerSocket(port)) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private static boolean isNacosProfileEnabled(String[] args) {

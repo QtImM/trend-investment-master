@@ -1,14 +1,15 @@
 package bupt.client;
 
 import bupt.pojo.IndexData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ResilientIndexDataGatewayTest {
 
@@ -43,7 +44,7 @@ public class ResilientIndexDataGatewayTest {
         assertEquals(0.0f, actual.get(0).getClosePoint(), 0.0f);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldRethrowWhenRemoteCallFailsAndFallbackDisabled() {
         IndexDataCallGuard callGuard = new DirectIndexDataCallGuard();
         IndexDataTransportGateway transportGateway = code -> {
@@ -53,7 +54,8 @@ public class ResilientIndexDataGatewayTest {
 
         ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(callGuard, transportGateway, fallbackGateway, false);
 
-        gateway.getIndexData("000300");
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> gateway.getIndexData("000300"));
+        assertEquals("remote service unavailable", exception.getMessage());
     }
 
     @Test

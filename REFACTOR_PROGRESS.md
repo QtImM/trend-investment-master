@@ -3716,6 +3716,52 @@
 2. 或开始真正的 `Spring Boot 3 / Java 21` 版本切换试跑
 3. 当前仓库层面的这一轮迁移主线可视为完成
 
+### 2026-03-18 - 阶段 67：移除主线应用中的交互式端口输入
+
+#### 本阶段目标
+
+- 收掉主线应用里不适合现代部署方式的交互式端口输入逻辑
+- 让回测服务与视图壳层更适合本地脚本、容器和网关统一接入
+- 为当前迁移主线做最后一轮可部署性收尾
+
+#### 已完成事项
+
+1. 精简了回测服务启动逻辑
+   - 更新 `trend-trading-backtest-service/src/main/java/bupt/TrendTradingBackTestServiceApplication.java`
+   - 删除控制台 `Scanner` 输入与超时等待逻辑
+   - 改为按 `port=`、`server.port=`、系统属性、`SERVER_PORT` 环境变量和默认端口顺序解析
+
+2. 精简了视图壳层启动逻辑
+   - 更新 `trend-trading-backtest-view/src/main/java/bupt/TrendTradingBackTestViewApplication.java`
+   - 删除控制台 `Scanner` 输入与超时等待逻辑
+   - 改为按 `port=`、`server.port=`、系统属性、`SERVER_PORT` 环境变量和默认端口顺序解析
+
+3. 完成了本地验证
+   - 使用本机 Maven 对 `trend-trading-backtest-service` 与 `trend-trading-backtest-view` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在当前仓库主线已经完成了这一轮迁移收口：
+
+- 旧基础设施主线已经退场
+- 新前端已经接管入口
+- 市场数据服务已经完成收敛
+- 主线兼容阻塞点已经清掉
+- 主线应用也不再依赖交互式启动方式
+
+#### 这一步为什么重要
+
+- 交互式端口输入很不利于容器化、脚本化和稳定启动
+- 把这段逻辑去掉之后，当前仓库主线才更像真正可持续演进的现代化基线
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 如需继续推进，可开始真正的 `Spring Boot 3 / Java 21` 版本切换试跑
+2. 当前仓库层面的这一轮迁移主线可记为完成
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

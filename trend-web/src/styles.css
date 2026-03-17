@@ -137,6 +137,52 @@ select {
   padding: 12px 14px;
 }
 
+.action-row,
+.state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.action-button,
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(173, 188, 211, 0.18);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.action-button:hover,
+.action-link:hover {
+  transform: translateY(-1px);
+}
+
+.action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.action-button.primary {
+  background: linear-gradient(135deg, #64d2ff, #7cf0c3);
+  color: #071019;
+  border: none;
+  font-weight: 700;
+}
+
+.action-button.ghost,
+.action-link {
+  background: rgba(16, 26, 40, 0.9);
+  color: #edf2f7;
+}
+
 .status-banner {
   margin: 20px 0 0;
   padding: 14px 16px;
@@ -148,6 +194,37 @@ select {
 .status-banner.error {
   background: rgba(255, 123, 114, 0.18);
   color: #ffd3d0;
+}
+
+.state-card {
+  margin-top: 24px;
+  padding: 22px 24px;
+  border-radius: 24px;
+  border: 1px solid rgba(173, 188, 211, 0.14);
+  background: rgba(9, 16, 28, 0.74);
+}
+
+.state-card h3 {
+  margin: 0 0 8px;
+}
+
+.state-card p {
+  margin: 0;
+  color: #a9b5c8;
+  line-height: 1.7;
+}
+
+.state-card.error {
+  border-color: rgba(255, 123, 114, 0.28);
+  background: rgba(58, 17, 20, 0.32);
+}
+
+.state-card.loading {
+  border-color: rgba(100, 210, 255, 0.24);
+}
+
+.state-card.empty {
+  border-color: rgba(255, 184, 107, 0.24);
 }
 
 .metrics-grid {
@@ -272,5 +349,10 @@ tbody td {
 
   .chart-surface {
     height: 300px;
+  }
+
+  .action-row,
+  .state-actions {
+    flex-direction: column;
   }
 }

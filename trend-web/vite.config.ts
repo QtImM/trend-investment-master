@@ -7,6 +7,17 @@ const publicBase = process.env.VITE_PUBLIC_BASE ?? '/trend-web/';
 export default defineConfig({
   base: publicBase,
   plugins: [vue()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vue: ['vue', 'vue-router', 'pinia'],
+          echarts: ['echarts'],
+          axios: ['axios'],
+        },
+      },
+    },
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,

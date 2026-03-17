@@ -13,6 +13,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   patch: [payload: Partial<BacktestParams>];
   simulate: [resetDate?: boolean];
+  resetDateRange: [];
 }>();
 
 const maOptions = [5, 10, 20, 60];
@@ -125,6 +126,20 @@ function run(resetDate = false) {
           @change="patch({ endDate: ($event.target as HTMLInputElement).value || null }); run();"
         />
       </label>
+    </div>
+
+    <div class="action-row">
+      <button type="button" class="action-button primary" :disabled="disabled" @click="run()">
+        重新回测
+      </button>
+      <button
+        type="button"
+        class="action-button ghost"
+        :disabled="disabled || !canUseDateRange"
+        @click="emit('resetDateRange'); run(true);"
+      >
+        重置日期
+      </button>
     </div>
   </section>
 </template>

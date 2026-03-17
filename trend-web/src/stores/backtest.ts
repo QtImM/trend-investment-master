@@ -27,6 +27,7 @@ export const useBacktestStore = defineStore('backtest', () => {
   const loading = ref(false);
   const initialized = ref(false);
   const error = ref('');
+  const lastUpdatedAt = ref('');
 
   const indexDatas = ref<IndexDataPoint[]>([]);
   const profits = ref<ProfitPoint[]>([]);
@@ -47,6 +48,8 @@ export const useBacktestStore = defineStore('backtest', () => {
 
   const totalTrades = computed(() => winCount.value + lossCount.value);
   const winRatio = computed(() => (totalTrades.value ? winCount.value / totalTrades.value : 0));
+  const hasResults = computed(() => indexDatas.value.length > 0 && profits.value.length > 0);
+  const hasIndexes = computed(() => indexes.value.length > 0);
 
   const profitChartRows = computed(() =>
     indexDatas.value.map((point, index) => ({
@@ -80,6 +83,7 @@ export const useBacktestStore = defineStore('backtest', () => {
     lossCount.value = Number(result.lossCount ?? 0);
     avgWinRate.value = Number(result.avgWinRate ?? 0);
     avgLossRate.value = Number(result.avgLossRate ?? 0);
+    lastUpdatedAt.value = new Date().toLocaleString('zh-CN');
 
     if (!params.value.startDate) {
       params.value.startDate = result.indexStartDate ?? null;
@@ -94,11 +98,11 @@ export const useBacktestStore = defineStore('backtest', () => {
     error.value = '';
     try {
       indexes.value = await fetchIndexes();
+      initialized.value = true;
       if (!indexes.value.some((item) => item.code === params.value.currentIndex) && indexes.value.length > 0) {
         params.value.currentIndex = indexes.value[0].code;
       }
       await runSimulation(true);
-      initialized.value = true;
     } catch (err) {
       error.value = err instanceof Error ? err.message : '初始化失败';
     } finally {
@@ -107,6 +111,16 @@ export const useBacktestStore = defineStore('backtest', () => {
   }
 
   async function runSimulation(resetDate = false) {
+    if (!hasIndexes.value) {
+      error.value = '当前没有可用指数数据，请先检查 market-data 链路。';
+      return;
+    }
+
+    if (params.value.startDate && params.value.endDate && params.value.startDate > params.value.endDate) {
+      error.value = '开始日期不能晚于结束日期。';
+      return;
+    }
+
     loading.value = true;
     error.value = '';
     try {
@@ -128,6 +142,17 @@ export const useBacktestStore = defineStore('backtest', () => {
       ...params.value,
       ...nextParams,
     };
+  }
+
+  function resetDateRange() {
+    patchParams({
+      startDate: null,
+      endDate: null,
+    });
+  }
+
+  function clearError() {
+    error.value = '';
   }
 
   return {
@@ -155,8 +180,13 @@ export const useBacktestStore = defineStore('backtest', () => {
     winRatio,
     profitChartRows,
     annualChartRows,
+    hasResults,
+    hasIndexes,
+    lastUpdatedAt,
     bootstrap,
     runSimulation,
     patchParams,
+    resetDateRange,
+    clearError,
   };
 });

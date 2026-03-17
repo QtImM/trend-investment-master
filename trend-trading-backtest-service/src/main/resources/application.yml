@@ -1,8 +1,6 @@
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:nacos}
   application:
     name:  trend-trading-backtest-service
   zipkin:

@@ -3214,6 +3214,74 @@
 2. 或开始推进更深层的版本现代化主线，例如父 POM、Java 版本和 Spring 版本升级
 3. 再决定是否需要补更多围绕 `market-data-service` 的测试与监控样板
 
+### 2026-03-18 - 阶段 58：移除主线模块中的 Eureka 依赖与默认配置
+
+#### 本阶段目标
+
+- 在旧注册中心已经退场后，继续清理主线模块里残留的 `Eureka` 依赖、注解和默认配置
+- 让 `gateway-service`、`market-data-service`、`trend-trading-backtest-service`、`trend-trading-backtest-view` 默认按 `nacos` 路径运行
+- 为后续更深层的版本现代化减少旧栈包袱
+
+#### 已完成事项
+
+1. 移除了主线模块中的 `Eureka Client` 依赖
+   - 更新 `gateway-service/pom.xml`
+   - 更新 `market-data-service/pom.xml`
+   - 更新 `trend-trading-backtest-service/pom.xml`
+   - 更新 `trend-trading-backtest-view/pom.xml`
+   - 删除 `spring-cloud-starter-netflix-eureka-client`
+
+2. 清理了启动类中的 `Eureka` 注解与检查逻辑
+   - 更新 `GatewayServiceApplication`
+   - 更新 `MarketDataApplication`
+   - 更新 `TrendTradingBackTestServiceApplication`
+   - 更新 `TrendTradingBackTestViewApplication`
+   - 删除 `@EnableEurekaClient`
+   - 删除启动前对 `8761` 端口的依赖检查
+   - 让无显式 profile 时默认按 `nacos` 路径判断启动前置条件
+
+3. 调整了默认配置
+   - 更新 `gateway-service/src/main/resources/application.yml`
+   - 更新 `market-data-service/src/main/resources/application.yml`
+   - 更新 `trend-trading-backtest-service/src/main/resources/application.yml`
+   - 增加 `spring.profiles.active=${SPRING_PROFILES_ACTIVE:nacos}`
+   - 删除默认 `eureka.client.service-url.defaultZone`
+   - 更新 `trend-trading-backtest-view/src/main/resources/bootstrap.yml`
+   - 删除其中残留的 `eureka` 配置
+
+4. 更新了迁移记录
+   - 更新 `LEGACY_INFRA_RETIREMENT_PLAN.md`
+   - 更新 `REFACTOR_PROGRESS.md`
+   - 明确当前主线模块已不再默认依赖 `Eureka`
+
+5. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在主线模块已经进一步去掉了旧注册中心痕迹：
+
+- 默认启动路径已切到 `nacos`
+- 主线模块已不再携带 `Eureka Client` 依赖
+- 启动类和默认配置也不再假定 `8761` 必须存在
+
+这意味着当前仓库主线已经更接近真正的 “Nacos-only” 运行形态。
+
+#### 这一步为什么重要
+
+- 如果依赖和默认配置里还长期残留 `Eureka`，后续版本升级时会继续拖着旧栈包袱
+- 先把主线模块的默认运行方式收成 `nacos`，能显著降低后续现代化升级的判断成本
+- 这一步也让仓库状态和我们已经完成的基础设施退场结果保持一致
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 开始推进更深层的版本现代化主线，例如父 POM、Java 版本和 Spring 版本升级准备
+2. 或补一轮围绕 `market-data-service` 与 `backtest-service` 的关键回归测试
+3. 再决定是否把 `third-part-index-data-project` 进一步迁为纯 `fixtures/` 目录
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

@@ -6,15 +6,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 @SpringBootApplication
-@EnableEurekaClient
 @EnableDiscoveryClient
 @EnableCaching
 @EnableScheduling
@@ -22,14 +21,8 @@ public class MarketDataApplication {
 
     public static void main(String[] args) {
         int redisPort = 6379;
-        int eurekaServerPort = 8761;
         int nacosServerPort = 8848;
         boolean nacosProfileEnabled = isNacosProfileEnabled(args);
-
-        if (!nacosProfileEnabled && NetUtil.isUsableLocalPort(eurekaServerPort)) {
-            System.err.printf("检查到端口%d 未启用，判断 eureka 服务器没有启动，本服务无法使用，故退出%n", eurekaServerPort);
-            System.exit(1);
-        }
 
         if (nacosProfileEnabled && NetUtil.isUsableLocalPort(nacosServerPort)) {
             System.err.printf("检查到端口%d 未启用，判断 nacos 服务器没有启动，本服务无法使用，故退出%n", nacosServerPort);
@@ -57,11 +50,31 @@ public class MarketDataApplication {
     }
 
     private static boolean isNacosProfileEnabled(String[] args) {
-        if (args == null || args.length == 0) {
-            return false;
+        String activeProfiles = resolveActiveProfiles(args);
+        if (activeProfiles == null || activeProfiles.trim().isEmpty()) {
+            return true;
         }
 
-        return Arrays.stream(args)
-                .anyMatch(arg -> arg.contains("spring.profiles.active=nacos"));
+        return Arrays.stream(activeProfiles.split(","))
+                .map(String::trim)
+                .map(profile -> profile.toLowerCase(Locale.ROOT))
+                .anyMatch("nacos"::equals);
+    }
+
+    private static String resolveActiveProfiles(String[] args) {
+        if (args != null) {
+            for (String arg : args) {
+                if (arg != null && arg.contains("spring.profiles.active=")) {
+                    return arg.substring(arg.indexOf("spring.profiles.active=") + "spring.profiles.active=".length());
+                }
+            }
+        }
+
+        String systemPropertyProfiles = System.getProperty("spring.profiles.active");
+        if (systemPropertyProfiles != null && !systemPropertyProfiles.trim().isEmpty()) {
+            return systemPropertyProfiles;
+        }
+
+        return System.getenv("SPRING_PROFILES_ACTIVE");
     }
 }

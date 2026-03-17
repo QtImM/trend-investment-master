@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:nacos}
   application:
     name: market-data-service
   zipkin:
@@ -9,11 +11,6 @@ market:
     third-party-base-url: http://127.0.0.1:8090/indexes
     interval-ms: 60000
     initial-delay-ms: 15000
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
 
 management:
   endpoint:

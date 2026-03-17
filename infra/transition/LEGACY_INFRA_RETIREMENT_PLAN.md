@@ -82,12 +82,14 @@
 结合当前仓库状态，可以确认：
 
 1. `gateway-service`
-   已具备 `Nacos Discovery` 试点能力
-2. 历史上的 `index-codes-service`、`index-data-service`
-   已完成试点验证，并已在后续阶段退场
+   已切到默认 `Nacos Discovery` 路径
+2. `market-data-service`
+   已切到默认 `Nacos Discovery` 路径
 3. `trend-trading-backtest-service` 与 `trend-trading-backtest-view`
-   已具备面向 `Nacos` 的试点入口
-4. 当前新的主入口和关键业务链路已经不再只依赖 `Eureka`
+   已切到默认 `Nacos Discovery` / `Nacos Config` 路径
+4. 历史上的 `index-codes-service`、`index-data-service`
+   已完成试点验证，并已在后续阶段退场
+5. 当前新的主入口和关键业务链路已经不再依赖 `Eureka`
 
 因此本轮继续完成了更彻底的退场动作：
 

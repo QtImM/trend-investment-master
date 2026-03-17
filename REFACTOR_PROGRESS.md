@@ -2928,6 +2928,70 @@
 2. 让网关和文档进一步明确市场数据默认主线已经转向 `market-data-service`
 3. 在确认兼容入口不再需要后，再决定何时删除旧查询模块
 
+### 2026-03-18 - 阶段 53：将市场数据默认消费链路切到 market-data-service
+
+#### 本阶段目标
+
+- 不再只让 `market-data-service` 承担“新增试点模块”角色
+- 把新前端、网关和回测服务的默认市场数据链路统一切到 `market-data-service`
+- 为后续真正删除 `index-codes-service` 和 `index-data-service` 做准备
+
+#### 已完成事项
+
+1. 调整了回测服务的默认市场数据服务名
+   - 更新 `trend-trading-backtest-service/src/main/java/bupt/client/IndexDataClient.java`
+   - 将 Feign 调用目标从 `INDEX-DATA-SERVICE` 切换为 `MARKET-DATA-SERVICE`
+   - 同时将 HTTP 模式下的默认地址从 `http://localhost:8021` 更新为 `http://localhost:8061`
+   - 同步更新了 `application.yml`、`application-nacos.yml` 和 `trend-trading-backtest-service-dev.yaml`
+
+2. 收缩了网关中的旧查询入口
+   - 更新 `gateway-service/src/main/resources/application.yml`
+   - 更新 `gateway-service/src/main/resources/application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/gateway-service-dev.yaml`
+   - 移除了旧 `/api-codes/**` 默认路由
+   - 保留并继续使用 `/api-market/**` 作为市场数据默认入口
+
+3. 收缩了新前端中的旧回退路径
+   - 更新 `trend-web/src/services/market-data.ts`
+   - 移除了对 `/api-codes/codes` 的自动回退
+   - 更新 `trend-web/src/stores/backtest.ts` 和 `trend-web/src/views/StatusView.vue`
+   - 让页面状态文案明确当前市场数据默认链路已经切到 `market-data-service`
+   - 更新 `trend-web/vite.config.ts`，将开发代理从 `/api-codes` 调整为 `/api-market`
+
+4. 更新了迁移矩阵和网关说明
+   - 更新 `SERVICE_TRANSITION_MATRIX.md`
+   - 更新 `gateway-service/README.md`
+   - 明确 `index-codes-service` 与 `index-data-service` 已进入“默认地位弱化”状态
+
+5. 完成了本地验证
+   - 使用本机 Maven 对 `gateway-service` 与 `trend-trading-backtest-service` 执行了 `compile`
+   - 使用本机 `npm run build` 验证 `trend-web`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在市场数据主线已经进一步收敛：
+
+- 新前端默认读取 `market-data-service`
+- 回测服务默认读取 `market-data-service`
+- 网关默认暴露的市场数据入口也已经转向 `/api-market/**`
+
+这意味着旧的 `index-codes-service` 与 `index-data-service` 已经不再承载默认主线职责。
+
+#### 这一步为什么重要
+
+- 只有把真正的消费方切过去，旧查询模块才具备被摘出主构建甚至删除的条件
+- 先统一默认消费链路，后面删旧模块时就不会还被隐性依赖拖住
+- 这一步也让当前仓库状态更准确地反映“市场数据已经开始收敛为一个服务”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 评估并将 `index-codes-service` 与 `index-data-service` 从主构建中摘除
+2. 在确认没有残余默认入口后，再直接删除旧查询模块源码目录
+3. 继续把文档和监控样板中的旧查询模块痕迹压缩掉
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

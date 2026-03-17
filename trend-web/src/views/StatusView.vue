@@ -14,9 +14,6 @@ const marketSourceText = computed(() => {
   if (store.indexSource === 'market-data-service') {
     return 'market-data-service';
   }
-  if (store.indexSource === 'index-codes-service') {
-    return 'index-codes-service（兼容回退）';
-  }
   return '等待初始化';
 });
 </script>
@@ -70,11 +67,11 @@ const marketSourceText = computed(() => {
         <div class="status-list">
           <div class="status-item">
             <strong>{{ marketSourceText }}</strong>
-            <span>默认优先走新收敛模块，异常时自动回退旧 codes 服务</span>
+            <span>默认直接走 market-data-service，旧 codes 回退链路已从新前端默认路径移除</span>
           </div>
           <div class="status-item">
             <strong>/api-backtest/**</strong>
-            <span>回测计算链路保持不变，继续由 backtest-service 承接</span>
+            <span>回测计算链路继续由 backtest-service 承接，但其市场数据读取默认也已转向 market-data-service</span>
           </div>
         </div>
       </article>

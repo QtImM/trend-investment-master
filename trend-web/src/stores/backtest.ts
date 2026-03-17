@@ -28,7 +28,7 @@ export const useBacktestStore = defineStore('backtest', () => {
   const initialized = ref(false);
   const error = ref('');
   const lastUpdatedAt = ref('');
-  const indexSource = ref<'market-data-service' | 'index-codes-service' | ''>('');
+  const indexSource = ref<'market-data-service' | ''>('');
 
   const indexDatas = ref<IndexDataPoint[]>([]);
   const profits = ref<ProfitPoint[]>([]);
@@ -115,7 +115,7 @@ export const useBacktestStore = defineStore('backtest', () => {
 
   async function runSimulation(resetDate = false) {
     if (!hasIndexes.value) {
-      error.value = '当前没有可用指数数据，请先检查 /api-market/** 或 /api-codes/** 链路。';
+      error.value = '当前没有可用指数数据，请先检查 /api-market/** 链路。';
       return;
     }
 

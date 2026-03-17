@@ -12,7 +12,7 @@
 
 ## 当前路由
 
-- `/api-codes/**` -> `INDEX-CODES-SERVICE`
+- `/api-market/**` -> `MARKET-DATA-SERVICE`
 - `/api-backtest/**` -> `TREND-TRADING-BACKTEST-SERVICE`
 - `/api-view/**` -> `TREND-TRADING-BACKTEST-VIEW`
 

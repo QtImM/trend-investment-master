@@ -26,7 +26,7 @@ backtest:
         minimum-number-of-calls: 5
         wait-duration-in-open-state-ms: 10000
       http:
-        base-url: http://localhost:8021
+        base-url: http://localhost:8061
 
 management:
   endpoint:

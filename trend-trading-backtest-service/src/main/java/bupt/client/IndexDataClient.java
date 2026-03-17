@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(value = "INDEX-DATA-SERVICE")
+@FeignClient(value = "MARKET-DATA-SERVICE")
 public interface IndexDataClient {
     @GetMapping("/data/{code}")
     public List<IndexData> getIndexData(@PathVariable("code") String code);

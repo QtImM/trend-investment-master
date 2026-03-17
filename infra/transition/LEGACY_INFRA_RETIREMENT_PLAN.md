@@ -17,7 +17,7 @@
 |---|---|---|---|
 | `eureka-server` | 服务注册与发现 | `Nacos Discovery` | 待退场 |
 | `index-config-server` | 配置中心 | `Nacos Config` | 已开始退场 |
-| `index-zuul-service` | 网关入口 | `gateway-service` + Spring Cloud Gateway | 已开始并行迁移 |
+| `index-zuul-service` | 网关入口 | `gateway-service` + Spring Cloud Gateway | 已退场 |
 | `index-hystrix-dashboard` | 熔断监控看板 | Prometheus + Grafana | 待退场 |
 | `index-turbine` | 熔断聚合监控 | Prometheus + Grafana | 待退场 |
 
@@ -228,7 +228,28 @@
 
 - 已新增 `gateway-service`
 - 已平移核心路由
-- 当前处于“新旧网关并行”阶段
+- 已补齐 `Nacos Discovery / Nacos Config` 试点入口
+- 已补最小 `Prometheus` 指标暴露能力
+
+### 当前阶段性结论
+
+结合当前仓库状态，可以确认：
+
+1. `gateway-service` 已接管原 `Zuul` 的核心路由：
+   - `/api-codes/**`
+   - `/api-backtest/**`
+   - `/api-view/**`
+2. `gateway-service` 已具备：
+   - `Nacos Discovery` 试点能力
+   - `Nacos Config` 试点入口
+   - 最小 `Prometheus` 指标暴露能力
+3. `index-zuul-service` 当前只剩旧 `Eureka + Zuul` 壳层，不再承载新的迁移主线能力
+
+因此本轮直接执行了更彻底的退场动作：
+
+1. 从父工程 `pom.xml` 中移除了 `index-zuul-service`
+2. 物理删除了 `index-zuul-service` 模块源码目录
+3. 当前旧网关入口已完成“从主构建移除 + 源码目录删除”的阶段性退场
 
 ## 六、index-hystrix-dashboard / index-turbine 退场方案
 
@@ -341,7 +362,7 @@
 截至当前阶段，项目的基础设施迁移状态可以总结为：
 
 - 新基础设施已经开始进入仓库
-- 老基础设施已开始分批退出主构建
+- 老基础设施已开始分批退出主构建，并有部分旧模块完成源码退场
 - 当前适合采用“并行迁移、逐步接管、最后退场”的策略
 
 这也是最适合在简历和面试中描述的方式：

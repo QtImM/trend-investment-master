@@ -10,7 +10,7 @@
 |---|---|---|---|---|
 | `eureka-server` | 基础设施 | 已停止纳入主构建 | 删除 | Nacos Discovery 试点已覆盖关键链路，先退出主构建 |
 | `index-config-server` | 基础设施 | 已停止纳入主构建 | 删除 | Nacos Config 试点已覆盖关键链路，先退出主构建 |
-| `index-zuul-service` | 基础设施 | 保留 | 删除 | 待 `gateway-service` 验证完成后退场 |
+| `index-zuul-service` | 基础设施 | 已退场 | 删除 | 已由 `gateway-service` 接管且源码目录已删除 |
 | `index-hystrix-dashboard` | 基础设施 | 已退场 | 删除 | 已从主构建移除且源码目录已删除 |
 | `index-turbine` | 基础设施 | 已退场 | 删除 | 已从主构建移除且源码目录已删除 |
 | `gateway-service` | 基础设施 | 新增 | 保留 | 新网关试点模块 |
@@ -23,9 +23,10 @@
 
 ## 当前阶段结论
 
-当前阶段已经进入“旧监控模块退场、旧注册/配置中心开始退出主构建”的状态：
+当前阶段已经进入“旧监控模块退场、旧注册/配置/网关模块持续退场”的状态：
 
 - 新监控替代样板已入库
 - `index-hystrix-dashboard` 与 `index-turbine` 已从主构建移除且源码目录已删除
 - `eureka-server` 与 `index-config-server` 已停止纳入主构建
+- `index-zuul-service` 已从主构建移除且源码目录已删除
 - 其余旧模块仍按“并行迁移、逐步退场”继续推进

@@ -10,7 +10,6 @@
   <modules>
     <!-- infrastructure -->
     <module>gateway-service</module>
-    <module>index-zuul-service</module>
 
     <!-- business -->
     <module>third-part-index-data-project</module>

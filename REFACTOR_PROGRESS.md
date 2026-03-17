@@ -2234,6 +2234,61 @@
 2. 继续检查 `trend-trading-backtest-view` 是否还残留旧配置中心专属代码
 3. 再决定何时物理删除 `index-config-server` 目录
 
+### 2026-03-18 - 阶段 41：删除旧 Zuul 网关模块
+
+#### 本阶段目标
+
+- 直接推进旧网关入口的实质退场
+- 在确认 `gateway-service` 已承接核心路由和新迁移主线能力后，移除 `index-zuul-service`
+- 让当前仓库主线彻底摆脱 `Zuul` 模块噪音
+
+#### 已完成事项
+
+1. 调整了父工程模块列表
+   - 从根 `pom.xml` 中移除了 `index-zuul-service`
+   - 让它不再参与当前主构建
+
+2. 删除了旧网关模块源码目录
+   - 删除 `index-zuul-service/pom.xml`
+   - 删除 `index-zuul-service/src/main/java/bupt/IndexZuulServiceApplication.java`
+   - 删除 `index-zuul-service/src/main/resources/application.yml`
+   - 删除 `index-zuul-service/src/test/java/bupt/AppTest.java`
+
+3. 更新了迁移矩阵与退场方案
+   - 将 `index-zuul-service` 标记为“已退场”
+   - 明确当前旧网关入口已完成“从主构建移除 + 源码目录删除”的阶段性退场
+   - 明确当前由 `gateway-service` 承接核心路由与新迁移主线能力
+
+4. 完成了本地验证
+   - 使用本机 Maven 在根目录执行了 `validate`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在旧基础设施退场已经进一步推进到网关模块：
+
+- `index-hystrix-dashboard` 已退场
+- `index-turbine` 已退场
+- `index-zuul-service` 已退场
+- `eureka-server` 已停止纳入主构建
+- `index-config-server` 已停止纳入主构建
+
+这意味着当前仓库主线里的旧基础设施噪音已经继续减少，入口层默认方向已经完全收敛到 `gateway-service`。
+
+#### 这一步为什么重要
+
+- 既然旧网关已经不再使用，继续保留 `Zuul` 模块只会让主线状态和真实架构脱节
+- 直接删除旧网关，比继续保留一个不会再启用的空壳更符合当前迁移进度
+- 这一步也把 `Zuul -> Gateway` 从“新旧并行试点”真正推进到了“旧入口退场”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 评估是否物理删除 `index-config-server` 与 `eureka-server` 目录
+2. 继续检查 `trend-trading-backtest-view` 是否还残留旧配置中心兼容代码
+3. 开始转入前端 `Vue 3 + Vite + TS` 或市场数据服务进一步现代化
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

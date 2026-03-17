@@ -143,6 +143,7 @@
    - 已将远程调用失败后的兜底处理上提为通用门面，当前 `feign/http` 两种模式都可复用同一套降级策略
    - 已为 `feign.hystrix.enabled` 增加回测服务内部迁移开关，后续可在保持统一兜底门面的前提下逐步弱化旧熔断链路
    - 已为 `Resilience4j` 增加最小并行试点入口，可按配置启用新的调用保护层而不影响默认旧路径
+   - 已移除回测服务启动类中的 `@EnableCircuitBreaker`，继续弱化 `Hystrix` 时代的显式框架痕迹
    - 仍保留 `Feign + Hystrix` 旧调用链，后续应单独推进通信与容错能力替换
 
 2. `index-config-server` 自身的 Git 配置来源

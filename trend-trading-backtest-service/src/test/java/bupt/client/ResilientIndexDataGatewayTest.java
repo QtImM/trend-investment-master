@@ -8,6 +8,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 public class ResilientIndexDataGatewayTest {
 
@@ -53,6 +54,55 @@ public class ResilientIndexDataGatewayTest {
         ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(callGuard, transportGateway, fallbackGateway, false);
 
         gateway.getIndexData("000300");
+    }
+
+    @Test
+    public void shouldAllowFirstFailureThroughWhenResilience4jEnabled() {
+        IndexDataCallGuard callGuard = new Resilience4jIndexDataCallGuard(50, 2, 2, 10000);
+        IndexDataTransportGateway transportGateway = code -> {
+            throw new IllegalStateException("remote service unavailable");
+        };
+        IndexDataFallbackGateway fallbackGateway = new IndexDataFallbackGateway();
+
+        ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(callGuard, transportGateway, fallbackGateway, true);
+
+        List<IndexData> actual = gateway.getIndexData("000300");
+
+        assertEquals(1, actual.size());
+        assertEquals("0000-00-00", actual.get(0).getDate());
+        assertEquals(0.0f, actual.get(0).getClosePoint(), 0.0f);
+    }
+
+    @Test
+    public void shouldShortCircuitAfterFailureThresholdReachedWhenResilience4jEnabled() {
+        IndexDataCallGuard callGuard = new Resilience4jIndexDataCallGuard(50, 2, 2, 10000);
+        IndexDataTransportGateway transportGateway = code -> {
+            throw new IllegalStateException("remote service unavailable");
+        };
+        IndexDataFallbackGateway fallbackGateway = new IndexDataFallbackGateway();
+
+        ResilientIndexDataGateway gateway = new ResilientIndexDataGateway(callGuard, transportGateway, fallbackGateway, false);
+
+        try {
+            gateway.getIndexData("000300");
+            fail("first call should fail");
+        } catch (IllegalStateException expected) {
+            assertEquals("remote service unavailable", expected.getMessage());
+        }
+
+        try {
+            gateway.getIndexData("000300");
+            fail("second call should fail");
+        } catch (IllegalStateException expected) {
+            assertEquals("remote service unavailable", expected.getMessage());
+        }
+
+        try {
+            gateway.getIndexData("000300");
+            fail("third call should be short-circuited");
+        } catch (Exception expected) {
+            assertEquals("CallNotPermittedException", expected.getClass().getSimpleName());
+        }
     }
 
     private IndexData createIndexData(String date, float closePoint) {

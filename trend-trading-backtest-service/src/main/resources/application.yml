@@ -10,14 +10,14 @@ spring:
 
 feign:
   hystrix:
-    enabled: ${backtest.remote.index-data.feign.hystrix-enabled:true}
+    enabled: ${backtest.remote.index-data.feign.hystrix-enabled:false}
 
 backtest:
   remote:
     index-data:
       mode: feign
       feign:
-        hystrix-enabled: true
+        hystrix-enabled: false
       fallback:
         enabled: true
       resilience4j:

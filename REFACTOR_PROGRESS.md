@@ -1391,6 +1391,59 @@
 2. 在保持 `Feign` 可用的前提下，尝试进一步弱化 `feign.hystrix.enabled` 的默认地位
 3. 再决定是否开始补 Prometheus 指标暴露入口，为 `Hystrix Dashboard/Turbine` 退场铺路
 
+### 2026-03-18 - 阶段 26：弱化回测服务中 Hystrix 的默认地位
+
+#### 本阶段目标
+
+- 在不直接删除 `Hystrix` 依赖的前提下，继续降低它在回测服务中的默认存在感
+- 让旧 `Feign + Hystrix` 包装从“默认开启”退到“显式配置才开启”
+- 保持统一降级门面仍然可用，避免因为默认值调整而失去兜底能力
+
+#### 已完成事项
+
+1. 调整了默认开关方向
+   - 将 `feign.hystrix.enabled` 的默认值从引用 `true` 调整为引用 `false`
+   - 将 `backtest.remote.index-data.feign.hystrix-enabled` 在默认配置中改为 `false`
+   - 让回测服务默认更接近“无 Hystrix 包装”的新路径
+
+2. 同步了多套运行配置
+   - 更新 `application.yml`
+   - 更新 `application-nacos.yml`
+   - 更新 `infra/nacos-config/templates/trend-trading-backtest-service-dev.yaml`
+   - 确保本地默认模式、`nacos` 模式和未来 `Nacos Config` 模板保持一致
+
+3. 更新了迁移记录
+   - 在退场方案文档中补充“Hystrix 默认值已下调为关闭”的状态
+   - 明确旧熔断包装现在只在显式配置时启用
+
+4. 完成了本地验证
+   - 使用本机 Maven 对 `trend-trading-backtest-service` 执行了 `test`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在回测服务在容错迁移这条线上已经进一步变成：
+
+- 默认情况下不再优先依赖 `Hystrix` 包装
+- 需要时仍可通过配置显式打开旧路径
+- 新的统一降级门面与 `Resilience4j` 保护层继续保留
+
+这意味着后续如果要真正评估移除 `spring-cloud-starter-netflix-hystrix`，风险已经被进一步压缩到更小范围。
+
+#### 这一步为什么重要
+
+- 渐进式迁移里，默认值往往比代码注解更能体现真实架构方向
+- 先把默认开关从旧框架移开，能更早暴露潜在兼容问题，也能减少后续误用旧路径
+- 这一步比直接删依赖更稳，因为它保留了回退空间
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续评估 `spring-cloud-starter-netflix-hystrix` 在回测服务中的剩余必要性
+2. 尝试验证移除该依赖后，当前 `Feign` 与统一降级门面是否仍可成立
+3. 再决定是否开始为 Prometheus 指标暴露补基础接入
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

@@ -13,7 +13,7 @@ backtest:
     index-data:
       mode: feign
       feign:
-        hystrix-enabled: true
+        hystrix-enabled: false
       fallback:
         enabled: true
       resilience4j:

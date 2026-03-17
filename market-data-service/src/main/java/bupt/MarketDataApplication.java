@@ -8,6 +8,8 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 
@@ -15,6 +17,7 @@ import java.util.Arrays;
 @EnableEurekaClient
 @EnableDiscoveryClient
 @EnableCaching
+@EnableScheduling
 public class MarketDataApplication {
 
     public static void main(String[] args) {
@@ -46,6 +49,11 @@ public class MarketDataApplication {
     @Bean
     public Sampler defaultSampler() {
         return Sampler.ALWAYS_SAMPLE;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
     private static boolean isNacosProfileEnabled(String[] args) {

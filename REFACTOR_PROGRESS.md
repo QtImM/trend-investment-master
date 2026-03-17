@@ -2767,6 +2767,70 @@
 2. 开始弱化 `trend-web` 对旧 `/api-codes/**` 回退链路的依赖
 3. 继续让状态页和入口文案反映新的业务服务收敛进度
 
+### 2026-03-18 - 阶段 50：将市场数据同步能力并入 market-data-service
+
+#### 本阶段目标
+
+- 继续把 `market-data-service` 从“只合并查询接口”推进到“开始承接同步能力”
+- 不再沿用旧的 `Quartz + Hystrix` 组合，而是在新模块里先落最小可用的 `@Scheduled` 同步路径
+- 为后续真正弱化 `index-gather-store-service` 创造条件
+
+#### 已完成事项
+
+1. 扩展了 `market-data-service` 的同步能力
+   - 新增 `ThirdPartIndexClient`
+   - 新增 `MarketDataSyncService`
+   - 新增 `MarketDataSyncScheduler`
+   - 新增 `MarketDataSyncController`
+   - 当前新模块已经可以：
+     - 定时刷新指数代码
+     - 定时刷新所有指数历史数据
+     - 手动触发 `/sync/codes`
+     - 手动触发 `/sync/all`
+     - 手动触发 `/sync/data/{code}`
+
+2. 把查询服务从占位读取升级为“可同步 + 可缓存”
+   - 更新 `MarketIndexCodeService`
+   - 更新 `MarketIndexDataService`
+   - 当前已具备从第三方数据服务拉取、刷新 Redis 缓存、再对外读取的最小闭环
+
+3. 调整了新模块启动与配置
+   - 更新 `MarketDataApplication`
+   - 增加 `@EnableScheduling`
+   - 增加 `RestTemplate` Bean
+   - 在 `application.yml`、`application-nacos.yml` 和 `market-data-service-dev.yaml` 中补充：
+     - 第三方数据源地址
+     - 同步周期
+     - 首次延迟时间
+
+4. 完成了本地验证
+   - 使用本机 Maven 对 `market-data-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在 `market-data-service` 已经不再只是一个读接口聚合模块：
+
+- 读能力已存在
+- 同步能力也已经开始并入
+- 新模块内部已经形成“拉取第三方数据 -> 写缓存 -> 对外提供查询”的最小闭环
+
+这意味着市场数据服务合并主线已经从“接口层收敛”推进到了“数据同步能力也开始迁移”的阶段。
+
+#### 这一步为什么重要
+
+- 如果只合并查询接口，不合并同步入口，`market-data-service` 仍然只是半个服务
+- 先把同步最小闭环补进来，后面继续压缩 `index-gather-store-service` 就会更顺
+- 这一步也顺手把旧同步模块里最重的 `Quartz + Hystrix` 依赖路径，从新模块默认实现里绕开了
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 开始弱化 `index-gather-store-service` 的主构建地位
+2. 让 `trend-web` 和文档进一步明确当前市场数据主线已经转向 `market-data-service`
+3. 在确认新同步链路稳定后，再决定何时删除旧同步模块
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

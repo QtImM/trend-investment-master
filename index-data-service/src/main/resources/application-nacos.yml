@@ -1,0 +1,20 @@
+spring:
+  profiles: nacos
+  application:
+    name: index-data-service
+  zipkin:
+    base-url: http://localhost:9411
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

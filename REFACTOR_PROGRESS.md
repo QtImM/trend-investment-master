@@ -356,6 +356,61 @@
 1. 继续选一个服务做同类接入试点
 2. 开始考虑让 `gateway-service` 后续接入新注册中心
 
+### 2026-03-17 - 阶段 7：index-data-service 接入 Nacos Discovery 试点
+
+#### 本阶段目标
+
+- 复用 `index-codes-service` 已验证过的并行迁移方式
+- 让 `index-data-service` 在保留旧 `Eureka` 路径的同时，具备 `Nacos Discovery` 试点能力
+- 继续沿着市场数据链路推进第二个低风险试点服务
+
+#### 已完成事项
+
+1. 调整了 `index-data-service` 的依赖
+   - 引入兼容当前 `Spring Boot 2.0.x / Finchley` 的 `Nacos Discovery` 依赖
+   - 保留原有 `Eureka` 依赖，确保默认运行方式不受影响
+
+2. 增加了独立的 Nacos 配置文件
+   - 新增 `application-nacos.yml`
+   - 配置 `127.0.0.1:8848` 作为 `Nacos` 注册地址
+   - 在 `nacos` profile 下关闭 `Eureka client`
+   - 暴露基础 `Actuator` 端点，便于后续联调
+
+3. 调整了启动类
+   - 增加 `@EnableDiscoveryClient`
+   - 增加 `nacos` profile 启动识别逻辑
+   - 在 `nacos` 模式下，启动前改为检查 `Nacos` 端口
+   - 默认模式下仍保持原有 `Eureka` 启动校验
+
+4. 完成了本地编译验证
+   - 当前环境最初缺少 `Maven` 命令
+   - 已临时下载本地 `Maven 3.9.9` 工具用于验证
+   - 使用本地 Maven 对 `index-data-service` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在市场数据链路上已经有两个服务具备并行注册能力：
+
+- `index-codes-service` 可通过 `nacos` profile 接入 `Nacos Discovery`
+- `index-data-service` 可通过 `nacos` profile 接入 `Nacos Discovery`
+
+这意味着后续不再只是单点试验，而是开始形成一条可扩展的迁移样板。
+
+#### 这一步为什么重要
+
+- `index-data-service` 与 `index-codes-service` 同属市场数据服务，迁移方式相近
+- 先把这两个服务接入模式统一下来，后续扩展到 `gateway-service` 或其他业务服务会更顺畅
+- 这也进一步验证了“保留旧体系可运行、按 profile 渐进切换”的策略是可复制的
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 让 `gateway-service` 具备 `Nacos Discovery` 试点能力
+2. 开始准备第一个服务的 `Nacos Config` 读取试点
+3. 验证新网关是否能通过新注册中心发现已试点服务
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

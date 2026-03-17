@@ -38,7 +38,7 @@
         </dependency>
         <!-- nacos discovery trial for Spring Cloud Finchley -->
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
+            <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
             <version>${spring-cloud-alibaba.version}</version>
         </dependency>

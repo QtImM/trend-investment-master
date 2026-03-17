@@ -733,6 +733,63 @@
 2. 再决定是否继续为 `trend-trading-backtest-view` 补齐 `Nacos Discovery` 试点能力
 3. 评估是否可以开始弱化 `index-config-server` 与 `RabbitMQ` 的本地依赖地位
 
+### 2026-03-17 - 阶段 14：trend-trading-backtest-view 接入 Nacos Discovery 试点
+
+#### 本阶段目标
+
+- 在视图服务已经具备 `Nacos Config` 入口的基础上，继续补齐它的 `Nacos Discovery` 试点能力
+- 让 `trend-trading-backtest-view` 在 `nacos` profile 下逐步摆脱对旧 `Eureka + Config Server + Bus` 组合的强依赖
+- 在当前本地环境仍缺少联调基础设施的情况下，先把代码层迁移路径铺平
+
+#### 已完成事项
+
+1. 调整了 `trend-trading-backtest-view` 的依赖
+   - 增加兼容当前 `Spring Boot 2.0.x / Finchley` 的 `Nacos Discovery` 依赖
+   - 保留原有 `Eureka`、`Config Client` 与 `Bus` 依赖，确保默认运行模式不受影响
+
+2. 增加了独立的 Nacos 运行配置
+   - 新增 `application-nacos.yml`
+   - 在 `nacos` profile 下配置 `Nacos Discovery` 地址
+   - 在 `nacos` profile 下关闭 `Eureka client`
+   - 保留 `Thymeleaf`、`Zipkin` 与 `Actuator` 基础配置
+
+3. 调整了启动类
+   - 增加 `@EnableDiscoveryClient`
+   - 在 `nacos` profile 下，启动前不再强依赖 `Eureka` 端口
+   - 继续保留默认模式下的旧启动前置检查
+
+4. 明确了当前联调阻塞项
+   - 当前本机未检测到 `Nacos(8848)`、`Eureka(8761)`、`Redis(6379)` 监听
+   - 当前本机也没有可直接使用的 `Docker` 与 `redis-server`
+   - 因此本阶段先完成代码层试点接入，真实联调仍需等待基础设施环境具备
+
+5. 完成了本地编译验证
+   - 使用本地临时 Maven 工具对 `trend-trading-backtest-view` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在 `trend-trading-backtest-view` 已经同时具备：
+
+- `Nacos Config` 试点入口
+- `Nacos Discovery` 试点能力
+
+这意味着旧配置中心当前已确认的消费方，也开始具备向新注册中心和新配置中心双向迁移的代码基础。
+
+#### 这一步为什么重要
+
+- 如果视图服务只迁配置不迁注册，后续通过新网关或新注册中心联调时仍会受限
+- 先把代码层路径补齐，可以在环境恢复后更快进入真实验证
+- 这一步也把“当前卡点是环境而不是代码”明确写进了项目记录
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 在具备 `Nacos + Redis` 环境后，联动验证 `trend-trading-backtest-view` 的 `nacos` profile 启动与配置读取行为
+2. 继续评估 `index-config-server` 与 `RabbitMQ` 在本地联调中的降级策略
+3. 再决定是否继续向 `trend-trading-backtest-service` 扩展同类试点
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

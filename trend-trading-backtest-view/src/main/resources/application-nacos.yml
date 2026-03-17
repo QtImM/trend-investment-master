@@ -1,0 +1,29 @@
+spring:
+  profiles: nacos
+  application:
+    name: trend-trading-backtest-view
+  thymeleaf:
+    mode: LEGACYHTML5
+    encoding: UTF-8
+    cache: false
+    servlet:
+      content-type: text/html
+  zipkin:
+    base-url: http://localhost:9411
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "*"

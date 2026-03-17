@@ -132,6 +132,7 @@
 1. `trend-trading-backtest-view`
    - 优先迁移它的配置读取入口
    - 目标是让它在 `nacos` profile 下绕过 `Config Server + Bus + RabbitMQ`
+   - 当前已具备 `Nacos Config` 试点入口，下一步是继续验证其 `Nacos Discovery` 路径
 
 2. `index-config-server` 自身的 Git 配置来源
    - 当前仓库中记录的是远程 Git 地址 `https://github.com/how2j/trendConfig/`

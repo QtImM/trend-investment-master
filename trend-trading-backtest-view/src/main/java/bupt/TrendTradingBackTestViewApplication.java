@@ -8,6 +8,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeoutException;
 
 @SpringBootApplication
 @EnableEurekaClient
+@EnableDiscoveryClient
 public class TrendTradingBackTestViewApplication {
     public static void main(String[] args) {
         int port = 0;
@@ -45,7 +47,7 @@ public class TrendTradingBackTestViewApplication {
             System.exit(1);
         }
 
-        if(NetUtil.isUsableLocalPort(eurekaServerPort)) {
+        if(!nacosProfileEnabled && NetUtil.isUsableLocalPort(eurekaServerPort)) {
             System.err.printf("检查到端口%d 未启用，判断 eureka 服务器没有启动，本服务无法使用，故退出%n", eurekaServerPort );
             System.exit(1);
         }

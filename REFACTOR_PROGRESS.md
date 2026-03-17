@@ -2175,6 +2175,65 @@
 2. 开始评估 `index-zuul-service` 的主构建退场条件
 3. 再决定何时物理删除 `index-config-server` 目录
 
+### 2026-03-18 - 阶段 40：压缩 trend-trading-backtest-view 的旧配置链路
+
+#### 本阶段目标
+
+- 继续削弱 `trend-trading-backtest-view` 对 `Config Server + Bus + RabbitMQ` 的直接依赖
+- 让该模块默认启动路径进一步收敛到 `Nacos Config`
+- 在不影响页面基础功能编译通过的前提下，先完成依赖层和默认配置层减法
+
+#### 已完成事项
+
+1. 收缩了模块依赖
+   - 从 `trend-trading-backtest-view/pom.xml` 中移除了 `spring-cloud-starter-config`
+   - 从 `trend-trading-backtest-view/pom.xml` 中移除了 `spring-cloud-starter-bus-amqp`
+   - 保留 `Nacos Config` 与 `Nacos Discovery` 试点依赖
+
+2. 调整了默认配置入口
+   - 更新 `trend-trading-backtest-view/src/main/resources/application.yml`
+   - 将默认激活 profile 调整为 `nacos`
+   - 增加本地 `version` 默认值，避免因为远程配置未注入导致页面启动失败
+
+3. 弱化了旧配置链路
+   - 更新 `trend-trading-backtest-view/src/main/resources/bootstrap.yml`
+   - 关闭默认 `Config Client` 和 `Bus` 开关
+   - 移除旧的本地 `RabbitMQ` 连接配置
+   - 更新启动类中的 profile 识别逻辑，让无显式 profile 时默认按 `nacos` 路径做前置检查
+
+4. 处理了旧刷新入口
+   - 更新 `trend-trading-backtest-view/src/main/java/bupt/util/FreshConfigUtil.java`
+   - 不再调用 `/actuator/bus-refresh`
+   - 改为明确提示旧刷新入口已退役，当前应通过 `Nacos Config` 管理配置
+
+5. 完成了本地验证
+   - 使用本机 Maven 对 `trend-trading-backtest-view` 执行了 `compile`
+   - 当前结果为 `BUILD SUCCESS`
+
+#### 当前结果
+
+现在 `trend-trading-backtest-view` 已经不再把旧配置中心依赖放在默认路径上：
+
+- 默认启动优先走 `nacos`
+- `Config Client + Bus AMQP` 已从模块依赖中移除
+- 旧的 `bus-refresh` 工具入口已退役
+
+这意味着后续继续推进 `index-config-server` 物理退场时，当前主线阻力已经进一步降低。
+
+#### 这一步为什么重要
+
+- 如果 `view` 模块继续默认依赖 `Config Server + Bus + RabbitMQ`，旧配置中心即使退出主构建，也仍然会在运行习惯上拖住迁移
+- 先把默认入口切到 `nacos`，再逐步删除剩余兼容代码，比一次性硬删更稳
+- 这一步也让旧配置中心的退场从“主构建收缩”进一步进入“消费方默认路径收缩”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 开始评估 `index-zuul-service` 的主构建退场条件
+2. 继续检查 `trend-trading-backtest-view` 是否还残留旧配置中心专属代码
+3. 再决定何时物理删除 `index-config-server` 目录
+
 ### 2026-03-17 - 阶段 1：父工程迁移底座整理
 
 #### 本阶段目标

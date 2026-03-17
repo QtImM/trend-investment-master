@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 @RefreshScope
 public class ViewController {
-    @Value("${version}")
+    @Value("${version:how2j trend trading backtest view version 1.5}")
     String version;
     @GetMapping("/")
     public String view(Model model) throws Exception{

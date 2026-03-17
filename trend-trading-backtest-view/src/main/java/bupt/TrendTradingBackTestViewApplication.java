@@ -13,6 +13,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -103,11 +104,31 @@ public class TrendTradingBackTestViewApplication {
     }
 
     private static boolean isNacosProfileEnabled(String[] args) {
-        if (args == null || args.length == 0) {
-            return false;
+        String activeProfiles = resolveActiveProfiles(args);
+        if (StrUtil.isBlank(activeProfiles)) {
+            return true;
         }
 
-        return Arrays.stream(args)
-                .anyMatch(arg -> arg.contains("spring.profiles.active=nacos"));
+        return Arrays.stream(activeProfiles.split(","))
+                .map(String::trim)
+                .map(profile -> profile.toLowerCase(Locale.ROOT))
+                .anyMatch("nacos"::equals);
+    }
+
+    private static String resolveActiveProfiles(String[] args) {
+        if (args != null) {
+            for (String arg : args) {
+                if (arg != null && arg.contains("spring.profiles.active=")) {
+                    return StrUtil.subAfter(arg, "spring.profiles.active=", true);
+                }
+            }
+        }
+
+        String systemPropertyProfiles = System.getProperty("spring.profiles.active");
+        if (StrUtil.isNotBlank(systemPropertyProfiles)) {
+            return systemPropertyProfiles;
+        }
+
+        return System.getenv("SPRING_PROFILES_ACTIVE");
     }
 }

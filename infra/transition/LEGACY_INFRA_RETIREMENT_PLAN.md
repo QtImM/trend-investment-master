@@ -136,10 +136,10 @@
    - 已有对应的 `templates/*.yaml` 可作为未来导入 `Nacos` 的 Data ID 内容
 
 2. `trend-trading-backtest-view`
-   - 当前仍保留 `bootstrap.yml`
-   - 仍通过 `spring.cloud.config.discovery.serviceId=index-config-server` 读取旧配置
-   - 仍依赖 `spring-cloud-starter-bus-amqp`
-   - 仍依赖本地 `RabbitMQ` 作为旧配置刷新链路
+   - 已保留 `bootstrap-nacos.yml` 作为默认配置入口
+   - 已从模块依赖中移除 `spring-cloud-starter-config`
+   - 已从模块依赖中移除 `spring-cloud-starter-bus-amqp`
+   - 已把旧的 `Config Server + Bus + RabbitMQ` 启动前置检查降为非默认路径
 
 ### 当前建议的首批迁移清单
 
@@ -195,8 +195,8 @@
 2. `trend-trading-backtest-service`
    已具备 `Nacos Config` 试点入口，且其现代化改造已明显脱离旧配置中心主线
 3. `trend-trading-backtest-view`
-   虽然默认运行仍保留 `Config Server + Bus + RabbitMQ` 旧链路，
-   但已经具备 `bootstrap-nacos.yml`，可作为后续继续压缩旧依赖的切入点
+   已切换为默认优先走 `Nacos Config` 路径，
+   旧的 `Config Server + Bus + RabbitMQ` 仅在显式非 `nacos` 模式下才保留兼容检查
 4. 当前主工程已经先后把旧监控模块和 `eureka-server` 移出主构建，
    继续把 `index-config-server` 摘出主构建，能保持当前主线与迁移方向一致
 
@@ -204,7 +204,7 @@
 
 1. 从父工程 `pom.xml` 中移除了 `index-config-server`
 2. 当前先保留模块源码目录本身，作为旧配置体系参考与必要时回退依据
-3. 后续再继续收缩 `trend-trading-backtest-view` 对 `Config Server + Bus + RabbitMQ` 的剩余依赖
+3. 后续再继续评估是否彻底删除 `trend-trading-backtest-view` 中遗留的旧配置中心兼容代码
 
 ## 五、index-zuul-service 退场方案
 

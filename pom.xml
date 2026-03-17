@@ -14,8 +14,6 @@
     <!-- business -->
     <module>third-part-index-data-project</module>
     <module>market-data-service</module>
-    <module>index-codes-service</module>
-    <module>index-data-service</module>
     <module>trend-trading-backtest-service</module>
     <module>trend-trading-backtest-view</module>
   </modules>

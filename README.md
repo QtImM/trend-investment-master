@@ -35,6 +35,7 @@ python .tools\local_stack.py down
 
 ```bat
 python .tools\test_local_stack.py
+python .tools\test_verify_local_migration.py
 ```
 
 如果你只想单独执行验收，也可以直接使用：

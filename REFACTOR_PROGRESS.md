@@ -4511,3 +4511,58 @@
 1. 收口本地启动说明，明确当前推荐使用的 `Nacos 2.4.3 + Redis + 4 个核心服务` 启动顺序
 2. 评估是否需要把 `infra/nacos-config/templates` 中仍为空白或过时的 Data ID 模板补齐为当前真实运行配置
 3. 在完整链路已打通的前提下，再决定是否继续推进老基础设施模块的进一步退场
+
+### 2026-03-18 - 阶段 78：补齐并对齐 Nacos Config 模板资产
+
+#### 本阶段目标
+
+- 把当前已经跑通的本地链路，继续沉淀成与运行时一致的 `Nacos Config` 模板资产
+- 补齐 `trend-trading-backtest-view` 缺失的模板与引导配置
+- 清理 `gateway-service` 模板中已经过时的直连语义，避免后续导入 `Data ID` 时把系统重新带回临时兜底状态
+
+#### 已完成事项
+
+1. 补齐了视图服务的 `Nacos Config` 引导入口
+   - 更新 `trend-trading-backtest-view/src/main/resources/application-nacos.yml`
+   - 新增 `optional:nacos:trend-trading-backtest-view-dev.yaml`
+   - 显式补齐 `spring.cloud.nacos.config.enabled=true`
+   - 显式补齐 `server-addr` 与 `file-extension`
+
+2. 新增了视图服务的配置模板
+   - 新增 `infra/nacos-config/templates/trend-trading-backtest-view-dev.yaml`
+   - 将当前真实使用的：
+     - `trend.web.entry-url`
+     - `trend.web.dist-location`
+     - `management.endpoints`
+     - `zipkin`
+     等运行配置沉淀为未来可导入的 `Data ID`
+
+3. 收口了网关模板中的历史直连语义
+   - 更新 `infra/nacos-config/templates/gateway-service-dev.yaml`
+   - 将 `trend-web` 路由的默认目标改回 `lb://trend-trading-backtest-view`
+   - 删除模板底部遗留的 `trend.gateway.view-uri: http://127.0.0.1:8041`
+   - 让模板与当前已经验证通过的纯 `Nacos Discovery` 运行方式保持一致
+
+#### 当前结果
+
+当前 `infra/nacos-config/templates` 已经更接近当前真实可运行链路：
+
+- `trend-trading-backtest-view` 不再只有服务代码，没有对应的配置模板
+- `gateway-service` 模板不再把纯发现链路错误地写回成本地直连
+- 后续如果把这些模板真正导入本地 `Nacos`，不会再默认把系统拉回上一阶段的临时兜底状态
+
+这一步没有改动主链路业务逻辑，但补齐了当前联调闭环最缺的一层“配置资产一致性”。
+
+#### 这一步为什么重要
+
+- 当前主线虽然已经跑通，但如果模板资产滞后，后续重新导入 `Data ID` 时很容易把旧问题重新带回来
+- 补齐 `view` 模板后，`gateway/backtest/view/market-data` 四个核心服务的 `Nacos Config` 资产终于都具备了明确落点
+- 这能为后续真正把模板导入 `Nacos`、做更稳定的环境复现打下基础
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续校对 `market-data-service` 与 `trend-trading-backtest-service` 模板是否还存在与当前运行时不一致的字段
+2. 评估是否要将当前本地 `Nacos` 上的核心 `Data ID` 真正导入并验证读取结果
+3. 在配置资产收口后，再考虑继续推进老基础设施模块的退场动作

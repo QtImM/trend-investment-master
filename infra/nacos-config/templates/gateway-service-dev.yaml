@@ -13,7 +13,7 @@ spring:
             allowedHeaders: "*"
       routes:
         - id: trend-web
-          uri: ${trend.gateway.view-uri:http://127.0.0.1:8041}
+          uri: ${trend.gateway.view-uri:lb://trend-trading-backtest-view}
           predicates:
             - Path=/trend-web/**
         - id: api-market
@@ -50,7 +50,3 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
-
-trend:
-  gateway:
-    view-uri: http://127.0.0.1:8041

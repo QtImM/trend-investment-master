@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: trend-trading-backtest-view
+  zipkin:
+    base-url: http://localhost:9411
+
+trend:
+  web:
+    entry-url: http://127.0.0.1:8032/trend-web/
+    dist-location: trend-web/dist/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "*"
+
+eureka:
+  client:
+    enabled: false

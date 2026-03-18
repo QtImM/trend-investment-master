@@ -1,20 +1,31 @@
 ### 基于spring cloud的趋势投资项目
 
-##### 当前本地样例数据链路
-* 启动 redis
-* 启动 ThirdPartIndexDataApplication
-* 启动 MarketDataApplication
+##### 当前本地完整链路
+* 启动 Redis
+* 启动 Nacos 2.4.3 单机版
+* 启动 market-data-service
+* 启动 trend-trading-backtest-service
+* 启动 trend-trading-backtest-view
+* 启动 gateway-service
+* 访问 http://127.0.0.1:8032/trend-web/
 
-当前第三方数据模块已经收口为本地样例数据提供器，`market-data-service` 会从 `http://127.0.0.1:8090/indexes` 拉取静态 JSON 样例数据。
+当前推荐的本地 `Nacos` 路径为 `C:\Tools\nacos-2.4.3\nacos`，启动命令为：
+
+```bat
+cd /d C:\Tools\nacos-2.4.3\nacos\bin
+startup.cmd -m standalone
+```
+
+当前 `market-data-service` 已收口为优先使用仓库内样例数据，不再要求额外启动 `third-part-index-data-project` 或 `trend-web` 开发服务器即可完成主链路联调。
 
 ##### 项目启动顺序
-* 启动 redis
-* 启动 MarketDataApplication
-* 启动 GatewayServiceApplication
-* 启动 TrendTradingBackTestServiceApplication
-* 启动 TrendTradingBackTestViewApplication
-* 启动 trend-web
-* 访问 http://127.0.0.1:8032/trend-web/
+* 启动 Redis
+* 启动 Nacos：`C:\Tools\nacos-2.4.3\nacos\bin\startup.cmd -m standalone`
+* 以 `nacos` profile 启动 `market-data-service`
+* 以 `nacos` profile 启动 `trend-trading-backtest-service`
+* 以 `nacos` profile 启动 `trend-trading-backtest-view`
+* 以 `nacos` profile 启动 `gateway-service`
+* 访问 `http://127.0.0.1:8032/trend-web/`
 
 ##### 微服务端口
 

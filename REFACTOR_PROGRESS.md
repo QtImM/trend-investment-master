@@ -4442,3 +4442,72 @@
 1. 对照 `market-data-service` 与 `gateway/backtest/view` 的依赖与运行方式差异，继续追查为什么只有前者能出现在 `hosts` 中
 2. 评估是否需要降低 `Nacos` 版本、切换启动方式，或补专门的服务注册兼容配置
 3. 在不打断当前可用入口的前提下，再决定是否继续推进“彻底移除直连过渡配置”
+
+### 2026-03-18 - 阶段 77：切换本地 Nacos 运行时并收口纯 Discovery 完整链路
+
+#### 本阶段目标
+
+- 直接处理上一阶段已经被明确收缩出的运行时根因，不再继续在业务代码里反复兜底
+- 验证当前 `hosts: []` 现象是否由本地 `Nacos 3.1.1` 运行时引起
+- 一旦运行时层问题被排除，就彻底移除 `gateway-service` 对 `backtest/view` 的临时直连过渡配置
+
+#### 已完成事项
+
+1. 对本地 `Nacos` 运行时做了版本对照切换
+   - 保留原有 `C:\Tools\nacos` 目录不做破坏性处理
+   - 额外下载并解压官方 `Nacos 2.4.3` 单机运行包到 `C:\Tools\nacos-2.4.3\nacos`
+   - 停掉原本的 `Nacos 3.1.1`
+   - 使用 `startup.cmd -m standalone` 启动 `Nacos 2.4.3`
+   - 验证 `8848` 已由新的 `nacos-server.jar` 进程正常监听
+
+2. 重新验证了四个核心服务的实例可见性
+   - 使用本地查询脚本请求 `Nacos` 实例列表接口
+   - 验证 `market-data-service` 返回健康实例
+   - 验证 `trend-trading-backtest-service` 返回健康实例
+   - 验证 `trend-trading-backtest-view` 返回健康实例
+   - 验证 `gateway-service` 返回健康实例
+   - 当前四个服务都已不再出现 `valid: true` 且 `hosts: []` 的现象
+
+3. 正式移除了网关在 `nacos` 模式下的临时直连兜底
+   - 更新 `gateway-service/src/main/resources/application-nacos.yml`
+   - 删除 `trend.gateway.backtest-uri`
+   - 删除 `trend.gateway.view-uri`
+   - 让 `gateway-service` 在 `nacos` profile 下重新回到纯 `Nacos Discovery` 转发
+
+4. 完成了纯 `Nacos Discovery` 端到端联调验证
+   - 验证 `http://127.0.0.1:8032/trend-web/` 返回 `200`
+   - 验证 `http://127.0.0.1:8032/api-view/actuator/health` 返回 `200`
+   - 验证 `http://127.0.0.1:8032/api-backtest/actuator/health` 返回 `200`
+   - 验证 `http://127.0.0.1:8032/api-backtest/simulate/000300/5/1.01/0.95/0.001/2018-01-01/2019-05-09` 返回真实回测结果
+   - 说明当前已经不再依赖网关直连本机端口来维持主线入口可用
+
+#### 当前结果
+
+这一轮把前面长期悬而未决的关键问题彻底压实了：
+
+- 真正的阻塞点不是 `gateway-service`
+- 不是 `trend-trading-backtest-service`
+- 不是 `trend-trading-backtest-view`
+- 而是本地 `Nacos 3.1.1` 运行时与当前 `Spring Cloud Alibaba` 组合下的实例可见性兼容差异
+
+切换到官方 `Nacos 2.4.3` 后：
+
+- 四个核心服务都能稳定注册并出现在 `hosts` 列表中
+- `gateway-service` 已可以完全依赖 `Nacos Discovery` 转发
+- 页面入口、健康检查和回测主链路都已在纯发现模式下跑通
+
+这意味着当前本地重构主线已经从“混合兜底可用”推进到了“完整链路闭环可用”。
+
+#### 这一步为什么重要
+
+- 它把之前一直难以解释的 `hosts: []` 现象，最终收敛成了可复现、可替换、可验证的运行时兼容问题
+- 它让仓库代码不需要再背负额外的手工注册或直连兜底逻辑
+- 对整个重构主线来说，这一步意味着注册中心、网关、页面入口、业务回测三条主链路都已进入可演示、可复现的完整联调状态
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 收口本地启动说明，明确当前推荐使用的 `Nacos 2.4.3 + Redis + 4 个核心服务` 启动顺序
+2. 评估是否需要把 `infra/nacos-config/templates` 中仍为空白或过时的 Data ID 模板补齐为当前真实运行配置
+3. 在完整链路已打通的前提下，再决定是否继续推进老基础设施模块的进一步退场

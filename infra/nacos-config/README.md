@@ -39,6 +39,27 @@
 - `server-addr`、`file-extension` 这类连接 Nacos 本身的引导配置，不放在模板内，而是放在服务自己的 `bootstrap-*.yml`
 - 这样可以把“如何连到 Nacos”和“从 Nacos 里读取什么配置”拆开，后续扩展到其他服务时更清晰
 
+## 当前本地同步方式
+
+当前仓库已经提供了一个最小同步脚本：
+
+- `.tools/nacos_config_sync.py`
+
+常用用法如下：
+
+```bat
+python .tools\nacos_config_sync.py sync-core
+python .tools\nacos_config_sync.py get gateway-service-dev.yaml
+python .tools\nacos_config_sync.py put trend-trading-backtest-view-dev.yaml
+```
+
+其中 `sync-core` 会将当前主线联调所需的四个核心 `Data ID` 同步到本地 `Nacos`：
+
+- `gateway-service-dev.yaml`
+- `market-data-service-dev.yaml`
+- `trend-trading-backtest-service-dev.yaml`
+- `trend-trading-backtest-view-dev.yaml`
+
 ## 迁移顺序建议
 
 1. 先整理配置模板

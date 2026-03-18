@@ -4566,3 +4566,108 @@
 1. 继续校对 `market-data-service` 与 `trend-trading-backtest-service` 模板是否还存在与当前运行时不一致的字段
 2. 评估是否要将当前本地 `Nacos` 上的核心 `Data ID` 真正导入并验证读取结果
 3. 在配置资产收口后，再考虑继续推进老基础设施模块的退场动作
+
+### 2026-03-18 - 阶段 79：补齐本地 Nacos Config 同步工具
+
+#### 本阶段目标
+
+- 把“模板已经入库”继续推进到“模板可以稳定导入本地 Nacos”
+- 避免每次同步 `Data ID` 都临时手写接口请求或被 Windows `cmd` 转义问题卡住
+- 为后续验证核心服务的 `Nacos Config` 落地状态提供可复用工具
+
+#### 已完成事项
+
+1. 新增了本地 `Nacos Config` 同步脚本
+   - 新增 `.tools/nacos_config_sync.py`
+   - 支持：
+     - `get <dataId>`
+     - `put <dataId>`
+     - `sync-core`
+   - 统一面向本地 `http://127.0.0.1:8848` 与 `DEFAULT_GROUP`
+
+2. 固化了当前核心 `Data ID` 集合
+   - 在脚本中显式维护：
+     - `gateway-service-dev.yaml`
+     - `market-data-service-dev.yaml`
+     - `trend-trading-backtest-service-dev.yaml`
+     - `trend-trading-backtest-view-dev.yaml`
+   - 后续执行一次 `sync-core` 即可把主线联调所需模板同步到本地 `Nacos`
+
+3. 同步补充了模板目录说明
+   - 更新 `infra/nacos-config/README.md`
+   - 补充脚本位置
+   - 补充常用命令
+   - 补充当前四个核心 `Data ID` 的同步范围说明
+
+#### 当前结果
+
+现在本地 `Nacos Config` 这一层已经不再只是“仓库中有模板文件”：
+
+- 模板可以通过仓库内脚本直接同步到本地 `Nacos`
+- 查询和写入 `Data ID` 不再依赖手工拼接请求
+- 后续继续验证 `Config` 读取链路时，入口会明显稳定很多
+
+#### 这一步为什么重要
+
+- 之前模板和本地 `Nacos` 之间还缺一层真正可复用的同步工具
+- 如果没有这层工具，后续每次验证配置读取都容易退回到临时命令和环境差异问题
+- 把这一步补上后，当前重构链路的“配置资产 -> 本地运行时”路径终于具备了明确桥梁
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 使用同步脚本把四个核心 `Data ID` 真正写入本地 `Nacos`
+2. 验证 `gateway-service`、`market-data-service`、`trend-trading-backtest-service`、`trend-trading-backtest-view` 的配置读取结果
+3. 在 `Config` 路径也验证闭环后，再评估是否继续推进老基础设施退场
+
+### 2026-03-18 - 阶段 80：将核心 Data ID 实际写入本地 Nacos
+
+#### 本阶段目标
+
+- 不再停留在“仓库内有模板、仓库内有脚本”的状态
+- 直接把四个核心服务的 `Data ID` 真正写入当前本地 `Nacos 2.4.3`
+- 用实际读取结果验证“模板 -> Nacos Config -> 本地运行时”这条路径已经可用
+
+#### 已完成事项
+
+1. 使用同步脚本执行了核心模板写入
+   - 实际执行 `python .tools/nacos_config_sync.py sync-core`
+   - 成功写入：
+     - `gateway-service-dev.yaml`
+     - `market-data-service-dev.yaml`
+     - `trend-trading-backtest-service-dev.yaml`
+     - `trend-trading-backtest-view-dev.yaml`
+   - 当前写入结果均返回 `true`
+
+2. 验证了本地 `Nacos` 中的配置读取结果
+   - 实际执行：
+     - `python .tools/nacos_config_sync.py get gateway-service-dev.yaml`
+     - `python .tools/nacos_config_sync.py get market-data-service-dev.yaml`
+     - `python .tools/nacos_config_sync.py get trend-trading-backtest-view-dev.yaml`
+   - 验证读取内容与仓库内模板一致
+   - 说明脚本不仅能写入，也能稳定读取本地 `Nacos` 中的目标配置
+
+#### 当前结果
+
+当前本地 `Nacos Config` 这一层已经真正落地：
+
+- 核心模板不再只是存在于 Git 仓库
+- 四个核心 `Data ID` 已经实际进入本地 `Nacos`
+- 查询与同步路径都已经通过仓库内脚本验证
+
+这意味着当前主线的“配置模板资产”已经从静态文件推进到了真实运行环境。
+
+#### 这一步为什么重要
+
+- 没有真正写入 `Nacos` 的模板，仍然只能算半成品
+- 这一轮把模板、同步脚本和本地 `Nacos` 实际状态真正连成了一条线
+- 后续如果继续验证服务是否热加载或是否正确读取远端配置，就不再需要先补环境准备动作
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续验证 `trend-trading-backtest-service` 的远端配置是否也能通过脚本读取与模板保持一致
+2. 评估是否要让核心服务在重启后显式打印已加载的关键远端配置值
+3. 在 `Config` 路径已经可用的前提下，继续推进老基础设施模块退场方案的代码侧收口

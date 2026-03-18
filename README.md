@@ -18,6 +18,19 @@ startup.cmd -m standalone
 
 当前 `market-data-service` 已收口为优先使用仓库内样例数据，不再要求额外启动 `third-part-index-data-project` 或 `trend-web` 开发服务器即可完成主链路联调。
 
+当前还提供了一个本地链路验收脚本：
+
+```bat
+python .tools\verify_local_migration.py
+```
+
+这个脚本会统一检查：
+
+* 本地 `Nacos` 是否可达
+* 四个核心服务是否都已在 `Nacos` 中注册为健康实例
+* 四个核心 `Data ID` 是否已存在于本地 `Nacos Config`
+* 网关页面入口、健康检查、市场数据接口、回测接口是否都返回正常结果
+
 ##### 项目启动顺序
 * 启动 Redis
 * 启动 Nacos：`C:\Tools\nacos-2.4.3\nacos\bin\startup.cmd -m standalone`
@@ -26,6 +39,7 @@ startup.cmd -m standalone
 * 以 `nacos` profile 启动 `trend-trading-backtest-view`
 * 以 `nacos` profile 启动 `gateway-service`
 * 访问 `http://127.0.0.1:8032/trend-web/`
+* 如需一键验收，执行 `python .tools\verify_local_migration.py`
 
 ##### 微服务端口
 

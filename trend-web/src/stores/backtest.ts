@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
+import axios from 'axios';
 import { fetchIndexes, simulateBacktest } from '../services/backtest';
 import type {
   AnnualProfitRecord,
@@ -68,6 +69,18 @@ export const useBacktestStore = defineStore('backtest', () => {
     })),
   );
 
+  function isTransientSimulationError(err: unknown) {
+    if (!axios.isAxiosError(err)) {
+      return false;
+    }
+    const status = err.response?.status;
+    return status === 404 || status === 502 || status === 503 || status === 504;
+  }
+
+  async function wait(ms: number) {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   function applyResult(result: BacktestResponse) {
     indexDatas.value = result.indexDatas ?? [];
     profits.value = result.profits ?? [];
@@ -105,7 +118,7 @@ export const useBacktestStore = defineStore('backtest', () => {
       if (!indexes.value.some((item) => item.code === params.value.currentIndex) && indexes.value.length > 0) {
         params.value.currentIndex = indexes.value[0].code;
       }
-      await runSimulation(true);
+      await runSimulation(true, 1);
     } catch (err) {
       error.value = err instanceof Error ? err.message : '初始化失败';
     } finally {
@@ -113,7 +126,7 @@ export const useBacktestStore = defineStore('backtest', () => {
     }
   }
 
-  async function runSimulation(resetDate = false) {
+  async function runSimulation(resetDate = false, retryCount = 0) {
     if (!hasIndexes.value) {
       error.value = '当前没有可用指数数据，请先检查 /api-market/** 链路。';
       return;
@@ -131,8 +144,20 @@ export const useBacktestStore = defineStore('backtest', () => {
         params.value.startDate = null;
         params.value.endDate = null;
       }
-      const result = await simulateBacktest(params.value);
-      applyResult(result);
+      let attempts = 0;
+      while (true) {
+        try {
+          const result = await simulateBacktest(params.value);
+          applyResult(result);
+          break;
+        } catch (err) {
+          if (attempts >= retryCount || !isTransientSimulationError(err)) {
+            throw err;
+          }
+          attempts += 1;
+          await wait(400);
+        }
+      }
     } catch (err) {
       error.value = err instanceof Error ? err.message : '回测失败';
     } finally {

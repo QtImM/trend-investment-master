@@ -1,10 +1,32 @@
 ### 基于spring cloud的趋势投资项目
 
-##### 当前本地完整链路
-* 启动 Redis
-* 启动 Nacos 2.4.3 单机版
-* 启动四个核心服务
-* 访问 http://127.0.0.1:8032/trend-web/
+##### 当前项目定位
+
+当前仓库主线已经完成从老 Spring Cloud Netflix 技术栈向当前本地可运行链路的迁移收口。
+
+你现在真正会用到的主链路是：
+
+* `gateway-service`：统一入口网关
+* `market-data-service`：市场数据服务
+* `trend-trading-backtest-service`：回测计算服务
+* `trend-trading-backtest-view`：前端壳层与静态资源承载
+* `trend-web`：新的默认前端入口
+
+默认访问入口：
+
+```text
+http://127.0.0.1:8032/trend-web/
+```
+
+##### 运行项目顺序
+
+当前最推荐的本地运行顺序如下：
+
+1. 启动 Redis
+2. 启动 Nacos 2.4.3 单机版
+3. 启动四个核心服务
+4. 访问 `http://127.0.0.1:8032/trend-web/`
+5. 如需验收，执行 `python .tools\local_stack.py verify`
 
 当前推荐的本地 `Nacos` 路径为 `C:\Tools\nacos-2.4.3\nacos`，启动命令为：
 
@@ -31,6 +53,13 @@ python .tools\local_stack.py down
 * `verify`：执行整条迁移链路验收
 * `down`：先停止四个核心服务，再停止本地 `Nacos`
 
+如果你要按“从零开始”的顺序跑项目，最短命令路径就是：
+
+```bat
+python .tools\local_stack.py up
+python .tools\local_stack.py verify
+```
+
 如果你想快速验证统一脚本没有被后续改坏，当前还提供了配套单元测试：
 
 ```bat
@@ -51,13 +80,56 @@ python .tools\verify_local_migration.py
 * 四个核心 `Data ID` 是否已存在于本地 `Nacos Config`
 * 网关页面入口、健康检查、市场数据接口、回测接口是否都返回正常结果
 
-##### 项目启动顺序
-* 启动 Redis
-* 执行 `python .tools\local_stack.py up`
-* 访问 `http://127.0.0.1:8032/trend-web/`
-* 如需查看状态，执行 `python .tools\local_stack.py status`
-* 如需一键验收，执行 `python .tools\local_stack.py verify`
-* 如需停机，执行 `python .tools\local_stack.py down`
+##### 功能说明
+
+当前主线里每个核心服务的职责如下：
+
+* `gateway-service`
+  * 统一入口网关
+  * 对外暴露 `/trend-web/`、`/api-market/**`、`/api-backtest/**`、`/api-view/**`
+  * 当前默认对外访问都应优先经过它
+
+* `market-data-service`
+  * 提供指数列表和指数历史数据
+  * 当前优先使用仓库内样例数据，不再依赖额外的第三方数据进程
+  * 典型接口：
+    * `/codes`
+    * `/data/{code}`
+
+* `trend-trading-backtest-service`
+  * 接收策略参数并执行趋势回测
+  * 返回收益曲线、年度收益、交易记录和统计指标
+  * 典型接口：
+    * `/simulate/{code}/{ma}/{buyThreshold}/{sellThreshold}/{serviceCharge}/{startDate}/{endDate}`
+
+* `trend-trading-backtest-view`
+  * 当前主要承担前端壳层与静态资源承载职责
+  * 用于对接 `trend-web` 构建产物，并保留页面入口兼容层
+
+* `trend-web`
+  * 当前默认前端入口
+  * 提供：
+    * 回测参数表单
+    * 收益指标卡片
+    * 收益曲线
+    * 年度收益分布
+    * 交易明细
+    * 状态页调试面板
+
+##### 推荐使用方式
+
+日常开发或调试，建议优先按这个节奏使用：
+
+1. `python .tools\local_stack.py up`
+   作用：拉起当前本地主链路
+2. `python .tools\local_stack.py status`
+   作用：确认 Redis、Nacos、四个核心服务都在线
+3. 打开 `http://127.0.0.1:8032/trend-web/`
+   作用：进入新的默认前端入口
+4. `python .tools\local_stack.py verify`
+   作用：做整条主链路验收
+5. `python .tools\local_stack.py down`
+   作用：停止当前本地栈
 
 ##### 当前完成态说明
 

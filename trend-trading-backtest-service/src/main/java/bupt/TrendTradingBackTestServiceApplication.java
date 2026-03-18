@@ -5,6 +5,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.ServerSocket;
 import java.io.IOException;
 
@@ -16,7 +18,7 @@ public class TrendTradingBackTestServiceApplication {
         boolean nacosProfileEnabled = isNacosProfileEnabled(args);
         int port = resolveServerPort(args, defaultPort);
 
-        if(nacosProfileEnabled && !isPortAvailable(nacosServerPort)) {
+        if(nacosProfileEnabled && !isPortListening("127.0.0.1", nacosServerPort)) {
             System.err.printf("检查到端口%d 未启用，判断 nacos 服务器没有启动，本服务无法使用，故退出%n", nacosServerPort );
             System.exit(1);
         }
@@ -31,6 +33,15 @@ public class TrendTradingBackTestServiceApplication {
 
     private static boolean isPortAvailable(int port) {
         try (ServerSocket socket = new ServerSocket(port)) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private static boolean isPortListening(String host, int port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), 1000);
             return true;
         } catch (IOException e) {
             return false;

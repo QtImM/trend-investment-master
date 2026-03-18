@@ -4092,3 +4092,353 @@
 1. 在具备 `Nacos` 环境后，显式以 `nacos` profile 启动 `gateway-service` 与 `market-data-service`
 2. 验证 `Nacos Discovery` 注册与 `Nacos Config` Data ID 加载是否真正生效
 3. 视验证结果再决定是否补 `market-data-service` 的 `Actuator`，以便后续观测与联调
+
+### 2026-03-18 - 阶段 72：推进主线服务的 Nacos 运行时联调
+
+#### 本阶段目标
+
+- 在本机 `Nacos` 已启动的前提下，继续把主线运行时验证从“单服务可起”推进到“网关 + 下游服务联通”
+- 优先打通 `gateway-service -> market-data-service` 的真实 `Nacos Discovery` 链路
+- 顺手清理 `trend-trading-backtest-service` 与 `trend-trading-backtest-view` 中阻塞 `nacos` 启动的历史探活误判
+
+#### 已完成事项
+
+1. 修正了网关的服务发现目标名
+   - 更新 `gateway-service/src/main/resources/application.yml`
+   - 将 `lb://MARKET-DATA-SERVICE`
+     `lb://TREND-TRADING-BACKTEST-SERVICE`
+     `lb://TREND-TRADING-BACKTEST-VIEW`
+     统一改为与当前 `Nacos` 注册名一致的小写服务名
+
+2. 为网关补齐了负载均衡依赖
+   - 更新 `gateway-service/pom.xml`
+   - 新增 `spring-cloud-starter-loadbalancer`
+   - 让 `Spring Cloud Gateway` 真正启用基于注册中心的 `lb://` 转发能力
+
+3. 完成了 `gateway-service -> market-data-service` 的真实链路验证
+   - 在 `nacos` profile 下启动 `market-data-service`
+   - 在 `nacos` profile 下启动 `gateway-service`
+   - 验证 `market-data-service` 已注册到本机 `Nacos`
+   - 验证 `http://127.0.0.1:8032/api-market/codes` 返回 `200`
+   - 当前响应结果为 `[]`
+
+4. 修正了回测服务与视图壳层的 `Nacos` 启动前置检查
+   - 更新 `trend-trading-backtest-service/src/main/java/bupt/TrendTradingBackTestServiceApplication.java`
+   - 更新 `trend-trading-backtest-view/src/main/java/bupt/TrendTradingBackTestViewApplication.java`
+   - 将“端口可绑定”误判改为“端口可连接”
+   - 修复了 `8848` 明明已监听却被误判为“未启动”的问题
+
+5. 完成了回测服务与视图壳层的 `nacos` 模式启动验证
+   - 实际启动 `trend-trading-backtest-service`
+   - 实际启动 `trend-trading-backtest-view`
+   - 验证 `8051` 与 `8041` 均已成功监听
+   - 验证两个服务日志中都已出现 `register finished`
+   - 验证两个服务的 `Actuator health` 均返回 `UP`
+
+#### 当前结果
+
+当前主线里已经有一段真实的 `Nacos Discovery` 链路被验证通过：
+
+- `gateway-service` 可通过 `Nacos` 发现并转发到 `market-data-service`
+- 本机 `Nacos` 后端足以支撑当前主线服务联调
+- 当前已不再停留在“依赖恢复”和“配置改好”，而是进入了真实运行时联调阶段
+
+同时，也识别出了下一轮需要继续收口的运行时差异：
+
+- `trend-trading-backtest-service`
+- `trend-trading-backtest-view`
+
+虽然已经能在 `nacos` 模式下启动并在日志中完成注册，但当前通过 `Nacos` 的实例查询结果仍未返回可用 `hosts`，`gateway-service` 侧访问这两条路由时仍会返回 `503`。
+
+#### 这一步为什么重要
+
+- 前面的阶段更多是在恢复依赖、收口配置和保证可编译
+- 这一阶段开始把“能编译”真正推进到“能通过注册中心完成实际联通”
+- 同时，这一轮也把新的运行时阻塞点从泛泛的“环境问题”收缩成了更具体的“部分服务实例已注册但未被网关正常发现”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续排查 `trend-trading-backtest-service` 与 `trend-trading-backtest-view` 在 `Nacos` 中 `hosts` 为空的原因
+2. 验证是否还存在服务名、实例元数据或 `Nacos 3.1.1` 接口差异导致的实例发现不一致
+3. 在两条回测链路打通后，再考虑补齐 `Nacos Config` 模板导入与更完整的端到端联调
+
+### 2026-03-18 - 阶段 73：收口网关入口的混合联调可用态
+
+#### 本阶段目标
+
+- 在 `market-data-service` 已完成 `Nacos Discovery` 联通的基础上，继续把网关入口推进到“主线入口可用”
+- 对仍存在实例发现差异的回测链路先采用过渡策略，避免整体联调继续卡在单一点上
+- 让当前仓库进入“市场数据走 Nacos，回测与视图先可访问”的混合联调状态
+
+#### 已完成事项
+
+1. 补齐了网关回测与视图路由的前缀裁剪
+   - 更新 `gateway-service/src/main/resources/application.yml`
+   - 为 `api-backtest`
+   - 为 `api-view`
+   - 增加 `StripPrefix=1`
+
+2. 为 `nacos` 模式下的网关补充了过渡直连配置
+   - 更新 `gateway-service/src/main/resources/application-nacos.yml`
+   - 保持 `market-data-service` 继续走 `Nacos Discovery`
+   - 让 `trend-trading-backtest-service` 临时直连 `http://127.0.0.1:8051`
+   - 让 `trend-trading-backtest-view` 临时直连 `http://127.0.0.1:8041`
+
+3. 继续收口了回测链路的 `Nacos` 显式配置
+   - 更新 `trend-trading-backtest-service/src/main/resources/application-nacos.yml`
+   - 更新 `trend-trading-backtest-view/src/main/resources/application-nacos.yml`
+   - 显式补充 `spring.cloud.nacos.discovery.enabled=true`
+   - 显式补充 `spring.cloud.nacos.config.enabled=true`（回测服务）
+
+4. 完成了入口层联调验证
+   - 重启 `trend-trading-backtest-service`
+   - 重启 `trend-trading-backtest-view`
+   - 重启 `gateway-service`
+   - 验证 `http://127.0.0.1:8032/api-market/codes` 返回 `200`
+   - 验证 `http://127.0.0.1:8032/api-view/actuator/health` 返回 `200`
+   - 验证 `http://127.0.0.1:8032/api-backtest/simulate/...` 已从 `503` 前进到业务侧 `500`
+
+#### 当前结果
+
+当前主线入口已经从“只有市场数据链路可用”推进到“主线入口整体可访问”：
+
+- `api-market` 已通过 `Nacos Discovery` 打通
+- `api-view` 已通过网关成功访问到视图壳层
+- `api-backtest` 已不再卡在服务发现失败，而是进入回测业务本身的运行时错误排查阶段
+
+这意味着当前阻塞点已经进一步下沉：
+
+- 不再是 `Nacos` 是否启动
+- 不再是网关是否能发现下游
+- 而是回测业务接口自身的 `500` 错误
+
+#### 这一步为什么重要
+
+- 这一轮把“基础设施联调问题”继续压缩成了更具体的“业务服务运行时问题”
+- 入口层一旦整体可访问，后面排查回测业务异常会比同时混着注册中心、网关、配置中心问题更高效
+- 对重构主线来说，这一步也让当前仓库从“局部链路验证”进一步走向“系统入口可联调”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 直接排查 `trend-trading-backtest-service` 的 `500` 根因
+2. 判断是样例参数、上游市场数据为空、还是业务逻辑边界条件导致回测失败
+3. 在回测接口返回稳定结果后，再决定是否继续深挖 `Nacos` 中这两类服务的实例列表可见性差异
+
+### 2026-03-18 - 阶段 74：收口回测接口的空数据运行时异常
+
+#### 本阶段目标
+
+- 直接解决 `trend-trading-backtest-service` 当前通过网关访问时的 `500`
+- 把阻塞点从“业务接口异常崩溃”推进到“业务数据暂时为空但服务稳定响应”
+- 让主线联调能继续向前，而不是被空数据边界条件反复卡住
+
+#### 已完成事项
+
+1. 定位了回测接口的真实异常根因
+   - 实际调用 `trend-trading-backtest-service` 的 `/simulate/...`
+   - 读取 `.tools/backtest-service-nacos.log`
+   - 确认当前异常不是 `Nacos`、不是网关、也不是服务发现
+   - 最终根因是：
+     - 上游 `market-data-service` 的 `/data/000001` 当前返回 `[]`
+     - `BackTestController` 仍直接访问 `allIndexDatas.get(0)`
+     - 导致 `ArrayIndexOutOfBoundsException`
+
+2. 收口了回测控制器的空数据返回逻辑
+   - 更新 `trend-trading-backtest-service/src/main/java/bupt/web/BackTestController.java`
+   - 当指数数据为空时，不再抛 `500`
+   - 改为返回带 `message`、`code`、请求日期和空列表结构的稳定 JSON
+   - 当日期过滤后结果为空时，同样返回稳定空结果
+
+3. 收口了回测服务内部的边界条件处理
+   - 更新 `trend-trading-backtest-service/src/main/java/bupt/service/BackTestService.java`
+   - `listIndexData` 在空结果时直接返回空列表
+   - 避免 `winCount` / `lossCount` 为 `0` 时发生除零
+   - 避免空 `indexDatas` / 空 `profits` 时继续计算年度收益
+   - 为 `getYear` 与年度收益计算补上空集合保护
+
+4. 完成了直连与网关双路径验证
+   - 验证 `http://127.0.0.1:8051/simulate/...` 返回 `200`
+   - 验证 `http://127.0.0.1:8032/api-backtest/simulate/...` 返回 `200`
+   - 当前返回内容明确指出：
+     - `未获取到可用于回测的指数数据`
+     - `indexDatas` 为空
+     - `profits` / `trades` 为空
+
+#### 当前结果
+
+当前主线入口已经进一步收口：
+
+- `api-market` 返回 `200`
+- `api-view` 返回 `200`
+- `api-backtest` 也已从 `500` 收口为稳定 `200` JSON 响应
+
+这意味着当前仓库的主要阻塞点已经不再是“服务会不会崩”，而是更具体的：
+
+- 上游市场数据接口当前没有返回可用于回测的真实样本数据
+
+#### 这一步为什么重要
+
+- 把运行时崩溃收口成业务可解释结果，是进入下一轮数据联调的前提
+- 否则每次验证回测链路都会被同一个空列表异常打断，无法继续判断是数据问题还是调用问题
+- 对这一轮重构主线来说，这一步也意味着系统入口已经从“可访问”进一步进入“异常可控”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续排查 `market-data-service` 当前为什么对样例代码返回空数据
+2. 判断是本地数据源尚未同步、第三方接口未准备好，还是当前代码样例本身无有效数据
+3. 在补到一条可用样例数据后，再验证回测接口是否能返回真实回测结果
+
+### 2026-03-18 - 阶段 75：收口 trend-web 的静态入口与网关页面链路
+
+#### 本阶段目标
+
+- 把 `trend-web` 从“依赖 `5173` 开发服务器”推进到“由主线后端直接承接页面入口”
+- 让 `trend-trading-backtest-view` 不再只承担重定向和健康检查，而是能直接提供前端静态页面
+- 让 `gateway-service` 的 `/trend-web/**` 成为真正可访问的主线页面入口
+
+#### 已完成事项
+
+1. 为视图服务补齐了静态页面承接能力
+   - 更新 `trend-trading-backtest-view/src/main/java/bupt/web/ViewController.java`
+   - 新增 `trend-trading-backtest-view/src/main/java/bupt/config/TrendWebStaticResourceConfig.java`
+   - 更新 `trend-trading-backtest-view/src/main/resources/application.yml`
+   - 让 `trend-trading-backtest-view` 直接从仓库内的 `trend-web/dist` 提供 `/trend-web/**` 静态资源
+   - 增加了 `/trend-web/` 与前端单页路由的 `index.html` 回退
+   - 同时兼容从仓库根目录或模块目录启动时的静态目录查找
+
+2. 收口了网关的页面转发目标
+   - 更新 `gateway-service/src/main/resources/application.yml`
+   - 不再把 `/trend-web/**` 默认转到 `http://127.0.0.1:5173`
+   - 改为统一转发到 `trend-trading-backtest-view`
+   - 这样在 `local / nacos` 两种模式下都不再要求单独启动 Vite 开发服务器
+
+3. 同步修正了迁移文档与配置模板
+   - 更新 `gateway-service/README.md`
+   - 更新 `infra/nacos-config/templates/gateway-service-dev.yaml`
+   - 补齐了当前真实路由状态
+   - 同步把模板中的服务名收口为当前实际使用的小写形式
+   - 为 `api-backtest` / `api-view` 补齐了 `StripPrefix=1`
+
+4. 完成了编译与运行时验证
+   - 使用仓库内 Maven 对 `gateway-service` 与 `trend-trading-backtest-view` 执行了 `test`
+   - 当前结果为 `BUILD SUCCESS`
+   - 对两个模块执行了 `spring-boot:repackage`
+   - 重启 `trend-trading-backtest-view` 后，验证：
+     - `http://127.0.0.1:8041/trend-web/` 返回 `200`
+     - `http://127.0.0.1:8041/trend-web/status` 返回 `200`
+   - 重启 `gateway-service` 后，验证：
+     - `http://127.0.0.1:8032/trend-web/` 返回 `200`
+     - `http://127.0.0.1:8032/trend-web/status` 返回 `200`
+     - `http://127.0.0.1:8032/api-market/codes` 返回 `200`
+     - `http://127.0.0.1:8032/api-backtest/simulate/000300/5/1.01/0.95/0.001/2018-01-01/2019-05-09` 返回真实回测结果
+
+#### 当前结果
+
+当前主线已经不再只是“后端接口能调通”，而是进一步进入“页面入口也能直接访问”的状态：
+
+- `trend-trading-backtest-view` 已能直接承接 `trend-web` 的静态页面
+- `gateway-service` 已能通过 `/trend-web/**` 暴露统一前端入口
+- 当前访问页面和调用主线接口都不再依赖额外启动 `5173` 开发服务器
+
+#### 这一步为什么重要
+
+- 之前即使后端链路已经可用，前端入口仍依赖单独的前端开发进程，联调闭环并不完整
+- 把静态入口收进主线服务后，本地验证路径会明显更接近未来部署形态
+- 这也让当前仓库从“接口级联调可用”进一步进入“页面级联调可用”
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续排查 `trend-trading-backtest-service` 与 `trend-trading-backtest-view` 在 `Nacos` 中实例列表可见性不稳定的问题
+2. 评估是否可以移除 `gateway-service` 在 `nacos` profile 下对 `backtest/view` 的临时直连过渡配置
+3. 继续把前端默认演示路径和运行说明收口成更完整的本地启动闭环
+
+### 2026-03-18 - 阶段 76：继续深挖 backtest/view/gateway 的 Nacos 实例不可见问题
+
+#### 本阶段目标
+
+- 在当前主线入口已可用的前提下，继续尝试移除 `gateway-service` 对 `backtest/view` 的临时直连依赖
+- 直接验证 `trend-trading-backtest-service`、`trend-trading-backtest-view`、`gateway-service` 是否已经可以恢复为纯 `Nacos Discovery` 链路
+- 把问题从“现象层的 503”进一步压缩成更明确的服务注册事实
+
+#### 已完成事项
+
+1. 实际验证了“去掉直连覆盖”后的真实结果
+   - 临时移除了 `gateway-service/src/main/resources/application-nacos.yml` 中的：
+     - `trend.gateway.backtest-uri`
+     - `trend.gateway.view-uri`
+   - 重启 `gateway-service` 后验证：
+     - `http://127.0.0.1:8032/trend-web/` 返回 `503`
+     - `http://127.0.0.1:8032/api-view/actuator/health` 返回 `503`
+     - `http://127.0.0.1:8032/api-backtest/actuator/health` 返回 `503`
+   - 说明当前这两个链路仍然不能只依赖 `Nacos Discovery`
+
+2. 直接读取了 Nacos 的实例查询结果
+   - 通过本地脚本请求 `http://127.0.0.1:8848/nacos/v1/ns/instance/list`
+   - 验证结果为：
+     - `market-data-service` 返回了可用 `hosts`
+     - `trend-trading-backtest-service` 返回 `valid: true`，但 `hosts: []`
+     - `trend-trading-backtest-view` 返回 `valid: true`，但 `hosts: []`
+     - `gateway-service` 返回 `valid: true`，但 `hosts: []`
+   - 即使显式携带 `healthyOnly=false`，后三者仍然返回空 `hosts`
+
+3. 补充了服务侧与网络侧对照验证
+   - 验证 `trend-trading-backtest-view` 的 `/actuator/nacosdiscovery` 中，客户端确实认为自己要注册到 `Nacos`
+   - 验证 `backtest/view/gateway` 的本地健康检查均为 `UP`
+   - 验证通过局域网地址访问：
+     - `192.168.5.105:8041`
+     - `192.168.5.105:8051`
+     - `192.168.5.105:8032`
+     都可以连通
+   - 说明当前问题不是“服务没启动”，也不是“注册了一个本机无法访问的 IP”
+
+4. 收口了本阶段的试探性配置
+   - 曾临时为 `gateway-service`
+   - `trend-trading-backtest-service`
+   - `trend-trading-backtest-view`
+   显式增加 `spring.cloud.nacos.discovery.ip/port`
+   - 重启并验证后，`hosts` 仍然为空
+   - 因此已将这组无效试探配置从仓库中撤回
+
+5. 恢复了当前可用主线
+   - 将 `gateway-service` 的 `nacos` 过渡直连配置保留回仓库
+   - 验证：
+     - `http://127.0.0.1:8032/trend-web/` 返回 `200`
+     - `http://127.0.0.1:8032/api-view/actuator/health` 返回 `200`
+     - `http://127.0.0.1:8032/api-backtest/simulate/000300/5/1.01/0.95/0.001/2018-01-01/2019-05-09` 返回真实回测结果
+
+#### 当前结果
+
+这一轮已经把问题继续压缩得更具体：
+
+- 当前不是网关路由拼错
+- 不是 `backtest/view` 服务未启动
+- 不是它们注册到了本机不可达的 IP
+- 而是：在当前 `Nacos 3.1.1 + Spring Cloud Alibaba` 组合下，`market-data-service` 能返回实例，但 `gateway/backtest/view` 这三类服务在查询接口中始终表现为 `valid: true` 且 `hosts: []`
+
+因此，当前最合理的状态是：
+
+- 保留 `market-data-service` 继续走真实 `Nacos Discovery`
+- 保留 `gateway-service` 对 `backtest/view` 的临时直连过渡配置
+- 继续将这三类服务的 `hosts` 空列表问题视为单独专项问题处理
+
+#### 这一步为什么重要
+
+- 它证明了当前阻塞点已经不是泛泛的“服务发现不稳定”
+- 而是一个可以被明确描述和复现的 `Nacos` 实例可见性差异问题
+- 这会让后续排查更聚焦，也避免误把已经可用的页面与业务链路再次打断
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 对照 `market-data-service` 与 `gateway/backtest/view` 的依赖与运行方式差异，继续追查为什么只有前者能出现在 `hosts` 中
+2. 评估是否需要降低 `Nacos` 版本、切换启动方式，或补专门的服务注册兼容配置
+3. 在不打断当前可用入口的前提下，再决定是否继续推进“彻底移除直连过渡配置”

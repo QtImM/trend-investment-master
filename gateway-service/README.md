@@ -12,9 +12,10 @@
 
 ## 当前路由
 
-- `/api-market/**` -> `MARKET-DATA-SERVICE`
-- `/api-backtest/**` -> `TREND-TRADING-BACKTEST-SERVICE`
-- `/api-view/**` -> `TREND-TRADING-BACKTEST-VIEW`
+- `/trend-web/**` -> `trend-trading-backtest-view`
+- `/api-market/**` -> `market-data-service`
+- `/api-backtest/**` -> `trend-trading-backtest-service`
+- `/api-view/**` -> `trend-trading-backtest-view`
 
 ## 当前状态
 
@@ -23,6 +24,7 @@
 - 旧的 `index-zuul-service` 仍然保留
 - 新模块先与旧模块并存
 - 端口使用 `8032`，避免和现有 Zuul 的 `8031` 冲突
+- 当前 `trend-web` 页面入口已经优先通过 `trend-trading-backtest-view` 承接，不再依赖单独的 Vite 开发服务器
 
 ## 后续计划
 

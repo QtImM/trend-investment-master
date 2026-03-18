@@ -13,23 +13,27 @@ spring:
             allowedHeaders: "*"
       routes:
         - id: trend-web
-          uri: ${trend.web.dev-server-url:http://127.0.0.1:5173}
+          uri: ${trend.gateway.view-uri:http://127.0.0.1:8041}
           predicates:
             - Path=/trend-web/**
         - id: api-market
-          uri: lb://MARKET-DATA-SERVICE
+          uri: lb://market-data-service
           predicates:
             - Path=/api-market/**
           filters:
             - StripPrefix=1
         - id: api-backtest
-          uri: lb://TREND-TRADING-BACKTEST-SERVICE
+          uri: lb://trend-trading-backtest-service
           predicates:
             - Path=/api-backtest/**
+          filters:
+            - StripPrefix=1
         - id: api-view
-          uri: lb://TREND-TRADING-BACKTEST-VIEW
+          uri: lb://trend-trading-backtest-view
           predicates:
             - Path=/api-view/**
+          filters:
+            - StripPrefix=1
 
 eureka:
   client:
@@ -48,5 +52,5 @@ management:
       application: ${spring.application.name}
 
 trend:
-  web:
-    dev-server-url: http://127.0.0.1:5173
+  gateway:
+    view-uri: http://127.0.0.1:8041

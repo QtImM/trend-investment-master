@@ -23,6 +23,9 @@ public class BackTestService {
 
     public List<IndexData> listIndexData(String code){
         List<IndexData> result=indexDataGateway.getIndexData(code);
+        if (result == null || result.isEmpty()) {
+            return Collections.emptyList();
+        }
         Collections.reverse(result);
         for(IndexData indexData:result){
             System.out.println(indexData.getDate());
@@ -109,10 +112,12 @@ public class BackTestService {
             profits.add(profit);
 
         }
-        avgWinRate =totalWinRate/winCount;
-        avgLossRate=totalLossRate/lossCount;
+        avgWinRate = winCount == 0 ? 0 : totalWinRate / winCount;
+        avgLossRate = lossCount == 0 ? 0 : totalLossRate / lossCount;
 
-        List<AnnualProfit> annualProfits = caculateAnnualProfits(indexDatas, profits);
+        List<AnnualProfit> annualProfits = indexDatas.isEmpty() || profits.isEmpty()
+                ? Collections.emptyList()
+                : caculateAnnualProfits(indexDatas, profits);
 
         Map<String,Object> map=new HashMap<>();
         map.put("profits",profits);
@@ -160,6 +165,9 @@ public class BackTestService {
         return avg;
     }
     public float getYear(List<IndexData> allIndexDatas){
+        if (allIndexDatas == null || allIndexDatas.size() < 2) {
+            return 0;
+        }
         float years;
         String sDateStart=allIndexDatas.get(0).getDate();
         String sDateEnd=allIndexDatas.get(allIndexDatas.size()-1).getDate();
@@ -210,6 +218,9 @@ public class BackTestService {
     }
     //计算完整时间范围内，每一年的指数投资收益和趋势投资收益
     private List<AnnualProfit> caculateAnnualProfits(List<IndexData> indexDatas,List<Profit> profits){
+        if (indexDatas == null || indexDatas.isEmpty() || profits == null || profits.isEmpty()) {
+            return Collections.emptyList();
+        }
         List<AnnualProfit> result=new ArrayList<>();
         String strStartDate = indexDatas.get(0).getDate();
         String strEndDate = indexDatas.get(indexDatas.size()-1).getDate();

@@ -29,11 +29,17 @@ public class BackTestController {
             ,@PathVariable("startDate") String strStartDate
             ,@PathVariable("endDate") String strEndDate){
         List<IndexData> allIndexDatas = backTestService.listIndexData(code);
+        if (allIndexDatas.isEmpty()) {
+            return buildEmptyResult(code, strStartDate, strEndDate, "未获取到可用于回测的指数数据");
+        }
         //计算出开始日期和结束日期并返回
         String indexStartDate = allIndexDatas.get(0).getDate();
         String indexEndDate=allIndexDatas.get(allIndexDatas.size()-1).getDate();
         //根据开始日期和结束日期获取对应日期范围的数据
         allIndexDatas=filterByDateRange(allIndexDatas,strStartDate,strEndDate);
+        if (allIndexDatas.isEmpty()) {
+            return buildEmptyResult(code, strStartDate, strEndDate, "指定日期范围内没有可用于回测的指数数据");
+        }
         float sellRate=sellThreshold;
         float buyRate=buyThreshold;
         Map<String,?> simulateResult=backTestService.simulate(ma,sellRate,buyRate,serviceCharge,allIndexDatas);
@@ -70,6 +76,30 @@ public class BackTestController {
         result.put("avgLossRate", avgLossRate);
 
         result.put("annualProfits", annualProfits);
+        return result;
+    }
+
+    private Map<String, Object> buildEmptyResult(String code, String startDate, String endDate, String message) {
+        Map<String,Object> result=new HashMap<>();
+        result.put("code", code);
+        result.put("message", message);
+        result.put("requestedStartDate", startDate);
+        result.put("requestedEndDate", endDate);
+        result.put("indexDatas", Collections.emptyList());
+        result.put("indexStartDate", null);
+        result.put("indexEndDate", null);
+        result.put("profits", Collections.emptyList());
+        result.put("trades", Collections.emptyList());
+        result.put("years", 0F);
+        result.put("indexIncomeTotal", 0F);
+        result.put("indexIncomeAnnual", 0F);
+        result.put("trendIncomeTotal", 0F);
+        result.put("trendIncomeAnnual", 0F);
+        result.put("winCount", 0);
+        result.put("lossCount", 0);
+        result.put("avgWinRate", 0F);
+        result.put("avgLossRate", 0F);
+        result.put("annualProfits", Collections.emptyList());
         return result;
     }
 

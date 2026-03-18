@@ -18,23 +18,27 @@ spring:
             allowedHeaders: "*"
       routes:
         - id: trend-web
-          uri: ${trend.web.dev-server-url:http://127.0.0.1:5173}
+          uri: ${trend.gateway.view-uri:lb://trend-trading-backtest-view}
           predicates:
             - Path=/trend-web/**
         - id: api-market
-          uri: ${trend.gateway.market-uri:lb://MARKET-DATA-SERVICE}
+          uri: ${trend.gateway.market-uri:lb://market-data-service}
           predicates:
             - Path=/api-market/**
           filters:
             - StripPrefix=1
         - id: api-backtest
-          uri: ${trend.gateway.backtest-uri:lb://TREND-TRADING-BACKTEST-SERVICE}
+          uri: ${trend.gateway.backtest-uri:lb://trend-trading-backtest-service}
           predicates:
             - Path=/api-backtest/**
+          filters:
+            - StripPrefix=1
         - id: api-view
-          uri: ${trend.gateway.view-uri:lb://TREND-TRADING-BACKTEST-VIEW}
+          uri: ${trend.gateway.view-uri:lb://trend-trading-backtest-view}
           predicates:
             - Path=/api-view/**
+          filters:
+            - StripPrefix=1
 
 management:
   endpoint:

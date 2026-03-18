@@ -18,4 +18,14 @@ public class ViewController {
     public String legacyView() {
         return "redirect:" + trendWebEntryUrl;
     }
+
+    @GetMapping({"/trend-web", "/trend-web/"})
+    public String trendWebIndex() {
+        return "forward:/trend-web/index.html";
+    }
+
+    @GetMapping("/trend-web/{path:[^.]*}")
+    public String trendWebRoutes() {
+        return "forward:/trend-web/index.html";
+    }
 }

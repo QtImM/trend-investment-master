@@ -9,6 +9,7 @@ spring:
 trend:
   web:
     entry-url: ${TREND_WEB_ENTRY_URL:http://127.0.0.1:8032/trend-web/}
+    dist-location: ${TREND_WEB_DIST_LOCATION:trend-web/dist/}
 
 management:
   endpoints:

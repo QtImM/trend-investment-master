@@ -65,6 +65,10 @@ python .tools\verify_local_migration.py
   * `python .tools\local_stack.py up`
   * `python .tools\local_stack.py verify`
 
+如果需要一份更短、更适合交接的当前完成态基线说明，可直接查看：
+
+* `infra/transition/CURRENT_LOCAL_BASELINE.md`
+
 ##### 微服务端口
 
 微服务 | 项目名 |  端口  

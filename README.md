@@ -159,6 +159,41 @@ python .tools\verify_local_migration.py
 
 * `infra/transition/CURRENT_LOCAL_BASELINE.md`
 
+##### 监控与可观测性
+
+当前仓库已经补齐最小可观测性样板，推荐按以下顺序理解和使用：
+
+1. 先保证主链路已启动：
+   * `python .tools\local_stack.py up`
+2. 再确认主链路仍健康：
+   * `python .tools\local_stack.py verify`
+3. 如需查看指标与面板，再启动监控样板：
+   * `infra/docker-compose/prometheus`
+   * `infra/docker-compose/grafana`
+
+当前可直接使用的监控入口如下：
+
+* Prometheus：`http://127.0.0.1:9090`
+* Grafana：`http://127.0.0.1:3000`
+  * 默认账号：`admin`
+  * 默认密码：`admin`
+
+当前 Prometheus 样板默认抓取以下服务的 `/actuator/prometheus`：
+
+* `gateway-service`：`http://127.0.0.1:8032/actuator/prometheus`
+* `trend-trading-backtest-service`：`http://127.0.0.1:8051/actuator/prometheus`
+* `market-data-service`：`http://127.0.0.1:8061/actuator/prometheus`
+
+当前 Grafana 样板已经预置：
+
+* `Trend Prometheus` 数据源
+* `Trend Services Overview` 总览面板
+
+如果你需要更具体的启动命令、预置面板说明和当前监控边界，可直接查看：
+
+* `infra/docker-compose/prometheus/README.md`
+* `infra/docker-compose/grafana/README.md`
+
 ##### 微服务端口
 
 微服务 | 项目名 |  端口  

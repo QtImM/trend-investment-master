@@ -36,9 +36,10 @@ export function buildBacktestRequestPath(params: BacktestParams) {
 
 export async function simulateBacktest(params: BacktestParams) {
   const path = buildBacktestRequestPath(params);
+  const requestPath = `/api-backtest/simulate/${path}`;
 
   try {
-    const { data } = await http.get<BacktestResponse>(`/api-backtest/simulate/${path}/`);
+    const { data } = await http.get<BacktestResponse>(requestPath);
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

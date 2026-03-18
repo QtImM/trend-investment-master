@@ -143,7 +143,7 @@ export const useBacktestStore = defineStore('backtest', () => {
 
     loading.value = true;
     error.value = '';
-    lastRequestPath.value = `/api-backtest/simulate/${buildBacktestRequestPath(params.value)}/`;
+    lastRequestPath.value = `/api-backtest/simulate/${buildBacktestRequestPath(params.value)}`;
     lastRequestStatus.value = null;
     lastRequestError.value = '';
     lastRequestAt.value = new Date().toLocaleString('zh-CN');
@@ -151,7 +151,7 @@ export const useBacktestStore = defineStore('backtest', () => {
       if (resetDate) {
         params.value.startDate = null;
         params.value.endDate = null;
-        lastRequestPath.value = `/api-backtest/simulate/${buildBacktestRequestPath(params.value)}/`;
+        lastRequestPath.value = `/api-backtest/simulate/${buildBacktestRequestPath(params.value)}`;
       }
       let attempts = 0;
       while (true) {

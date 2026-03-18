@@ -19,7 +19,8 @@ import java.util.*;
 public class BackTestController {
     @Autowired
     BackTestService backTestService;
-    @GetMapping("/simulate/{code}/{ma}/{buyThreshold}/{sellThreshold}/{serviceCharge}/{startDate}/{endDate}")
+    @GetMapping({"/simulate/{code}/{ma}/{buyThreshold}/{sellThreshold}/{serviceCharge}/{startDate}/{endDate}",
+            "/simulate/{code}/{ma}/{buyThreshold}/{sellThreshold}/{serviceCharge}/{startDate}/{endDate}/"})
     @CrossOrigin
     public Map<String,Object> backTest(@PathVariable("code") String code
             ,@PathVariable("ma") int ma

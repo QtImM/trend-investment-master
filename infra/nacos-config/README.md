@@ -2,12 +2,13 @@
 
 ## 目录目的
 
-这个目录用于承接从 `index-config-server` 迁移到 `Nacos Config` 之后的配置模板。
+这个目录现在不再只是“迁移准备区”，而是当前主线已经投入使用的 `Nacos Config` 配置资产目录。
 
-当前阶段先完成两件事：
+它承担三件事：
 
-1. 把原本分散在各模块 `application.yml` / `bootstrap.yml` 中的配置按服务整理出来
-2. 为后续导入到 Nacos 的 `Data ID` 做落地准备
+1. 保存当前主链路正在使用的核心 `Data ID` 模板
+2. 作为本地 `Nacos` 配置同步的仓库内基线
+3. 为后续维护者提供统一的配置查看与更新入口
 
 ## 推荐命名方式
 
@@ -24,20 +25,15 @@
 - `templates/trend-trading-backtest-service-dev.yaml`
 - `templates/trend-trading-backtest-view-dev.yaml`
 
-## 当前处理策略
+## 当前使用方式
 
-当前项目还没有真正切换到 Nacos Config，原因是：
-
-- 现有项目仍运行在 `Spring Boot 2.0.3 + Spring Cloud Finchley`
-- 直接接入现代版本的 Nacos 有较高兼容风险
-
-因此这一步先做“配置模板入库”，后续待版本底座继续升级后，再正式接入 Nacos Config。
+当前仓库主线已经默认收口到 `Nacos Config`，核心服务会直接从本地 `Nacos` 读取配置。
 
 当前补充约定如下：
 
 - 服务运行配置优先放到 `templates/*.yaml` 中，作为未来导入 Nacos 的 Data ID 内容
 - `server-addr`、`file-extension` 这类连接 Nacos 本身的引导配置，不放在模板内，而是放在服务自己的 `bootstrap-*.yml`
-- 这样可以把“如何连到 Nacos”和“从 Nacos 里读取什么配置”拆开，后续扩展到其他服务时更清晰
+- 这样可以把“如何连到 Nacos”和“从 Nacos 里读取什么配置”拆开，当前维护和后续扩展都更清晰
 
 ## 当前本地同步方式
 
@@ -60,13 +56,31 @@ python .tools\nacos_config_sync.py put trend-trading-backtest-view-dev.yaml
 - `trend-trading-backtest-service-dev.yaml`
 - `trend-trading-backtest-view-dev.yaml`
 
-## 迁移顺序建议
+当前主链路验收脚本也会直接检查这四个 `Data ID` 是否存在：
 
-1. 先整理配置模板
-2. 再升级服务版本底座
-3. 最后让服务从 `Config Server` 切换到 `Nacos Config`
+```bat
+python .tools\verify_local_migration.py
+```
+
+因此这四个配置文件现在已经不只是“模板留档”，而是当前本地完成态的一部分。
+
+## 当前推荐维护顺序
+
+1. 先修改 `templates/*.yaml`
+2. 再执行 `python .tools\nacos_config_sync.py sync-core`
+3. 如需复核，再执行 `python .tools\verify_local_migration.py`
 
 补充说明：
 
 - `index-codes-service-dev.yaml` 与 `index-data-service-dev.yaml` 当前主要保留为迁移过程留档
 - 当前默认市场数据主线已经收敛到 `templates/market-data-service-dev.yaml`
+
+## 当前状态结论
+
+按当前主线口径，这个目录对应的迁移动作已经完成：
+
+- `index-config-server` 已退场
+- `Nacos Config` 已成为默认配置中心
+- 核心 `Data ID` 已可通过仓库脚本同步和验收
+
+后续如果还会继续改这里，性质已经不是“继续迁移”，而是日常维护和配置演进。

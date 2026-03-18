@@ -4,6 +4,13 @@
 
 当前仓库主线已经完成从老 Spring Cloud Netflix 技术栈向当前本地可运行链路的迁移收口。
 
+当前按仓库主线口径，迁移状态已经达到：
+
+* `100%` 迁移完成态
+* `100%` 本地可用态
+
+后续如果还会继续修改，主要属于测试深化、监控深化或业务演进，不再属于“主链路迁移是否完成”的范畴。
+
 你现在真正会用到的主链路是：
 
 * `gateway-service`：统一入口网关
@@ -161,6 +168,10 @@ python .tools\verify_local_migration.py
 如果需要一份更短、更适合交接的当前完成态基线说明，可直接查看：
 
 * `infra/transition/CURRENT_LOCAL_BASELINE.md`
+
+如果你需要查看配置中心这一层当前如何维护，也可以直接查看：
+
+* `infra/nacos-config/README.md`
 
 ##### 监控与可观测性
 

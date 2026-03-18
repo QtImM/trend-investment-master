@@ -23,6 +23,28 @@
 - 里程碑 3：业务服务现代化改造
 - 里程碑 4：前后端分离
 
+## 0.1 当前迁移完成态快照（2026-03-18）
+
+截至 2026 年 3 月 18 日，当前仓库主线已经达到本地可运行、可验收、可调试的迁移完成态，核心结论如下：
+
+- [x] 本地运行时已统一收口到 `Java 17 + Spring Boot 3.2.x + Spring Cloud 2023.0.x`
+- [x] 注册中心与配置中心已统一收口到本地 `Nacos 2.4.3`
+- [x] 系统统一入口已从 `index-zuul-service` 迁移为 `gateway-service`
+- [x] `market-data-service`、`trend-trading-backtest-service`、`trend-trading-backtest-view`、`gateway-service` 已全部接入 `nacos` profile 主链路
+- [x] 新前端入口已收口为 `trend-web`，并由 `trend-trading-backtest-view` 承载静态资源分发
+- [x] 页面入口、市场数据接口、回测接口、状态页与一键验收脚本均已验证可用
+- [x] 仓库内已经具备本地统一管理入口：
+  - `python .tools\local_stack.py up`
+  - `python .tools\local_stack.py status`
+  - `python .tools\local_stack.py verify`
+  - `python .tools\local_stack.py down`
+
+当前剩余事项已经不再是“主链路未打通”，而更偏向后续治理项：
+
+- [ ] 继续清理旧模块和旧说明中的历史表述
+- [ ] 继续提升测试覆盖与统一可观测性
+- [ ] 视需要再推进更彻底的服务收敛与模块退场
+
 ## 1. 文档目的
 
 这份文档有两个目标：

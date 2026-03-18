@@ -15,7 +15,7 @@ export class BacktestRequestError extends Error {
 
   constructor(requestPath: string, status?: number) {
     const statusLabel = status ? `（${status}）` : '';
-    super(`回测接口请求失败${statusLabel}：GET /api-backtest/simulate/${requestPath}/`);
+    super(`回测接口请求失败${statusLabel}：GET /api-backtest/simulate/${requestPath}`);
     this.name = 'BacktestRequestError';
     this.requestPath = requestPath;
     this.status = status;

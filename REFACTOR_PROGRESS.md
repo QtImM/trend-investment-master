@@ -4929,3 +4929,70 @@
 1. 继续根据你页面上的真实调试反馈，收掉剩余前端展示或交互层面的阻塞点
 2. 视情况重启 `trend-trading-backtest-service`，让尾斜杠兼容映射立即在运行时生效
 3. 在页面默认回测稳定后，再继续推进“迁移完成态”的剩余清理工作
+
+### 2026-03-18 - 阶段 85：恢复回测服务可用态并收口状态页诊断一致性
+
+#### 本阶段目标
+
+- 处理状态页中已经从 `404` 演进为 `503` 的新现象
+- 确认这次阻塞点到底是网关、Nacos 还是回测服务进程本身
+- 在恢复回测服务后，让状态页里的错误提示与真实请求路径完全一致
+
+#### 已完成事项
+
+1. 查实了 `503` 的直接根因
+   - 实际检查 `jps -lm`、`/api-backtest/actuator/health`、`http://127.0.0.1:8051/actuator/health`
+   - 确认：
+     - `gateway-service` 仍在运行
+     - `market-data-service`、`trend-trading-backtest-view`、`Nacos` 仍在运行
+     - `trend-trading-backtest-service` 当时已退出，`8051` 无法连接
+   - 这说明当前 `503` 不是路由问题，而是回测服务进程缺失导致的服务不可用
+
+2. 补了一个本地回测服务拉起脚本
+   - 新增 `.tools/start_backtest_service.py`
+   - 统一从：
+     - `trend-trading-backtest-service/target/trend-trading-backtest-service-1.0-SNAPSHOT.jar`
+     以 `nacos` profile 后台拉起服务
+   - 并把输出落到 `.tools/backtest-service-nacos.log`
+   - 避免再次为了恢复 `8051` 临时手写不稳定的 Windows 后台启动命令
+
+3. 恢复了回测服务运行态并完成回归验证
+   - 使用启动脚本重新拉起 `trend-trading-backtest-service`
+   - 验证 `http://127.0.0.1:8051/actuator/health` 返回 `200`
+   - 验证 `http://127.0.0.1:8032/api-backtest/actuator/health` 返回 `200`
+   - 验证 `http://127.0.0.1:8032/api-backtest/simulate/000300/20/1.01/0.99/0/null/null` 返回 `200`
+
+4. 收口了状态页错误提示与真实请求路径的不一致
+   - 更新 `trend-web/src/services/backtest.ts`
+   - 去掉错误提示文本里残留的尾部 `/`
+   - 让页面里显示的 `GET /api-backtest/simulate/...` 与实际请求完全一致
+
+5. 重新构建并完成整体验收
+   - 重新执行 `npm --prefix trend-web run build`
+   - 再次执行 `python .tools/verify_local_migration.py`
+   - 当前结果为 `VERIFICATION PASSED`
+
+#### 当前结果
+
+当前这次页面上的 `503` 已经被明确收口并恢复：
+
+- 阻塞点不是网关、不是 Nacos、也不是页面路由
+- 而是 `trend-trading-backtest-service` 进程当时没有在本机运行
+- 现在回测服务已经恢复，网关健康检查和回测模拟接口都重新返回 `200`
+- 状态页里的错误提示文本也已经和真实请求路径对齐
+
+这意味着当前项目已经重新回到“可直接继续调试业务逻辑”的状态。
+
+#### 这一步为什么重要
+
+- 如果只看到页面 `503`，很容易误判成注册中心或网关又不稳定
+- 这一步把问题明确压缩成“回测服务进程缺失”，避免继续在错误方向上排查
+- 同时把本地恢复方式沉淀成脚本后，后续即使服务再次掉线，也能更快恢复到调试基线
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 继续根据你的页面实际调试反馈，收掉剩余的展示层或交互层阻塞点
+2. 视情况补齐统一的本地服务启动脚本，让四个核心服务都具备仓库内可复用的恢复入口
+3. 在调试链路稳定后，再继续推进真正意义上的迁移完成态清理

@@ -69,11 +69,16 @@ python .tools\verify_local_migration.py
 
 微服务 | 项目名 |  端口  
 -|-|-
-第三方数据中心|third-part-index-data-project | 8090 
+统一入口网关|gateway-service | 8032
 市场数据服务|market-data-service | 8061
-路由|gateway-service | 8032
-模拟回测视图服务|trend-trading-backtest-view | 8041,8042,8043 
-模拟回测服务|trend-trading-backtest-service | 8051,8052,8053 
+回测计算服务|trend-trading-backtest-service | 8051
+前端壳层服务|trend-trading-backtest-view | 8041
+
+##### 历史/可选模块端口
+
+模块 | 当前角色 | 端口
+-|-|-
+third-part-index-data-project | 历史 fixture / mock-provider，当前主链路默认不要求启动 | 8090
 
 ##### 第三方工具端口
 

@@ -18,8 +18,8 @@
 | `eureka-server` | 服务注册与发现 | `Nacos Discovery` | 已退场 |
 | `index-config-server` | 配置中心 | `Nacos Config` | 已退场 |
 | `index-zuul-service` | 网关入口 | `gateway-service` + Spring Cloud Gateway | 已退场 |
-| `index-hystrix-dashboard` | 熔断监控看板 | Prometheus + Grafana | 待退场 |
-| `index-turbine` | 熔断聚合监控 | Prometheus + Grafana | 待退场 |
+| `index-hystrix-dashboard` | 熔断监控看板 | Prometheus + Grafana | 已退场 |
+| `index-turbine` | 熔断聚合监控 | Prometheus + Grafana | 已退场 |
 
 ## 二、退场原则
 
@@ -268,10 +268,6 @@
 2. Prometheus 指标可以正常采集
 3. Grafana 看板已初步建立
 
-### 当前建议
-
-这两个模块属于后退场模块，应排在注册中心、配置中心、网关之后处理。
-
 ### 当前试点进展
 
 1. `trend-trading-backtest-service`
@@ -313,9 +309,7 @@
 2. `trend-trading-backtest-service` 与 `gateway-service` 已暴露最小 `Prometheus` 指标入口
 3. 本地 `Prometheus` 与 `Grafana` 的最小运行样板都已入库
 
-因此当前已具备把 `index-hystrix-dashboard` 与 `index-turbine` 从父工程主构建中摘除的条件。
-
-本轮已执行的阶段性退场动作如下：
+当前这两个模块已经完成退场，本轮已执行的阶段性退场动作如下：
 
 1. 从父工程 `pom.xml` 中移除了：
    - `index-hystrix-dashboard`

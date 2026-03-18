@@ -5,10 +5,12 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Arrays;
 import java.util.Locale;
-import java.net.ServerSocket;
-import java.io.IOException;
 
 @SpringBootApplication
 @EnableCaching
@@ -20,12 +22,12 @@ public class MarketDataApplication {
         int nacosServerPort = 8848;
         boolean nacosProfileEnabled = isNacosProfileEnabled(args);
 
-        if (nacosProfileEnabled && !isPortAvailable(nacosServerPort)) {
+        if (nacosProfileEnabled && !isPortListening("127.0.0.1", nacosServerPort)) {
             System.err.printf("检查到端口%d 未启用，判断 nacos 服务器没有启动，本服务无法使用，故退出%n", nacosServerPort);
             System.exit(1);
         }
 
-        if (!isPortAvailable(redisPort)) {
+        if (!isPortListening("127.0.0.1", redisPort)) {
             System.err.printf("检查到端口%d 未启用，判断 redis 服务器没有启动，本服务无法使用，故退出%n", redisPort);
             System.exit(1);
         }
@@ -43,10 +45,19 @@ public class MarketDataApplication {
         }
     }
 
+    private static boolean isPortListening(String host, int port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), 1000);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     private static boolean isNacosProfileEnabled(String[] args) {
         String activeProfiles = resolveActiveProfiles(args);
         if (activeProfiles == null || activeProfiles.trim().isEmpty()) {
-            return true;
+            return false;
         }
 
         return Arrays.stream(activeProfiles.split(","))

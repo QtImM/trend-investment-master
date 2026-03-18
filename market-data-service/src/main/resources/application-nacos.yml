@@ -10,29 +10,13 @@ spring:
   cloud:
     nacos:
       config:
+        enabled: true
         server-addr: 127.0.0.1:8848
         file-extension: yaml
       discovery:
+        enabled: true
         server-addr: 127.0.0.1:8848
-
-market:
-  sync:
-    third-party-base-url: http://127.0.0.1:8090/indexes
-    interval-ms: 60000
-    initial-delay-ms: 15000
 
 eureka:
   client:
     enabled: false
-
-management:
-  endpoint:
-    prometheus:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
-  metrics:
-    tags:
-      application: ${spring.application.name}

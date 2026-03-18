@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+trend:
+  gateway:
+    market-uri: http://127.0.0.1:8061
+    backtest-uri: http://127.0.0.1:8051
+    view-uri: http://127.0.0.1:8041

@@ -3,10 +3,12 @@ package bupt;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Arrays;
 import java.util.Locale;
-import java.net.ServerSocket;
-import java.io.IOException;
 
 @SpringBootApplication
 public class GatewayServiceApplication {
@@ -15,7 +17,7 @@ public class GatewayServiceApplication {
         int nacosServerPort = 8848;
         boolean nacosProfileEnabled = isNacosProfileEnabled(args);
 
-        if (nacosProfileEnabled && !isPortAvailable(nacosServerPort)) {
+        if (nacosProfileEnabled && !isPortListening("127.0.0.1", nacosServerPort)) {
             System.err.printf("检查到端口%d 未启用，判断 nacos 服务器没有启动，本服务无法使用，故退出%n", nacosServerPort);
             System.exit(1);
         }
@@ -37,10 +39,19 @@ public class GatewayServiceApplication {
         }
     }
 
+    private static boolean isPortListening(String host, int port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), 1000);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     private static boolean isNacosProfileEnabled(String[] args) {
         String activeProfiles = resolveActiveProfiles(args);
         if (activeProfiles == null || activeProfiles.trim().isEmpty()) {
-            return true;
+            return false;
         }
 
         return Arrays.stream(activeProfiles.split(","))

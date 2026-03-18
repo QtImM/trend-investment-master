@@ -4026,3 +4026,69 @@
 1. 实际启动 `gateway-service` 与 `market-data-service`，验证 `Nacos Discovery` 运行时链路
 2. 验证 `Nacos Config` 的 Data ID 加载是否与 `infra/nacos-config/templates` 对齐
 3. 再决定是否继续补充 `LoadBalancer`、链路追踪或运行时观测细节
+
+### 2026-03-18 - 阶段 71：收口 gateway-service / market-data-service 的双模启动验证
+
+#### 本阶段目标
+
+- 在当前开发机未启动 `Nacos` 的前提下，先把 `gateway-service` 与 `market-data-service` 收成真正可用的“local / nacos 双模运行”
+- 保持显式 `nacos` profile 的迁移主线不变，同时恢复本地直连验证能力
+- 实际验证这两个主线模块在 `Boot 3 + Java 17` 下的本地运行路径
+
+#### 已完成事项
+
+1. 收口了默认运行模式
+   - 更新 `gateway-service/src/main/resources/application.yml`
+   - 更新 `market-data-service/src/main/resources/application.yml`
+   - 将默认 profile 从 `nacos` 改为 `local`
+   - 在默认配置下显式关闭 `spring.cloud.nacos.discovery/config`
+
+2. 为网关补齐了本地直连路由
+   - 新增 `gateway-service/src/main/resources/application-local.yml`
+   - 让 `api-market / api-backtest / api-view` 在 `local` 模式下直接指向本地端口
+   - 保留 `application-nacos.yml` 中的 `Nacos Config / Discovery` 显式启用入口
+
+3. 收口了 Nacos 专用配置职责
+   - 更新 `gateway-service/src/main/resources/application-nacos.yml`
+   - 更新 `market-data-service/src/main/resources/application-nacos.yml`
+   - 让 `application-nacos.yml` 只承载 `Nacos` 连接与导入职责
+   - 避免把本地公共运行配置重复堆在 `nacos` 专用文件中
+
+4. 修正了启动探活逻辑中的历史误判
+   - 更新 `gateway-service/src/main/java/bupt/GatewayServiceApplication.java`
+   - 更新 `market-data-service/src/main/java/bupt/MarketDataApplication.java`
+   - 将“依赖服务是否已启动”的判断从“端口是否可绑定”改为“端口是否可连接”
+   - 修复了 `Nacos / Redis` 明明在监听却被误判为“未启动”的问题
+
+5. 完成了本地验证
+   - 当前环境的 `mvn` 命令不可用，已复用仓库内 `.tools/apache-maven-3.9.9`
+   - 使用仓库内 Maven 执行 `gateway-service,market-data-service test`
+   - 当前结果为 `BUILD SUCCESS`
+   - 实际启动 `gateway-service` 的 `local` 模式，日志确认成功监听 `8032`
+   - 实际启动 `market-data-service` 的 `local` 模式，日志确认成功初始化 `8061`
+   - 使用 `curl` 验证 `http://127.0.0.1:8061/codes` 返回 `[]`
+   - 使用 `curl` 验证 `http://127.0.0.1:8061/sync/codes` 返回有效 JSON 响应
+
+#### 当前结果
+
+现在这两个主线模块已经不再被“本机没有 Nacos 就完全跑不起来”卡住：
+
+- `local` 模式可用于本地联调和基础运行验证
+- `nacos` 模式仍保留为显式切换入口
+- 启动前置检查不再错误拦截已经可用的 `Redis / Nacos` 端口
+
+这一步让“保留旧体系可运行、新旧并行、先试点再扩展”的迁移策略重新落到可执行状态，而不是只停留在依赖和配置层。
+
+#### 这一步为什么重要
+
+- 阶段 70 已经恢复了 `Nacos` 兼容链路，但默认运行方式仍然过度依赖本机必须先有 `Nacos`
+- 当前开发环境下 `8848` 未启动，如果不先补齐双模运行，后续所有运行验证都会被环境阻塞
+- 同时，启动探活逻辑里的误判会让后续联调结论失真，必须先修正
+
+#### 下一步计划
+
+下一步优先考虑以下动作：
+
+1. 在具备 `Nacos` 环境后，显式以 `nacos` profile 启动 `gateway-service` 与 `market-data-service`
+2. 验证 `Nacos Discovery` 注册与 `Nacos Config` Data ID 加载是否真正生效
+3. 视验证结果再决定是否补 `market-data-service` 的 `Actuator`，以便后续观测与联调

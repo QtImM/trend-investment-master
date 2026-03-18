@@ -1,9 +1,14 @@
 spring:
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:nacos}
+    default: local
   application:
     name: gateway-service
   cloud:
+    nacos:
+      discovery:
+        enabled: false
+      config:
+        enabled: false
     gateway:
       globalcors:
         cors-configurations:
@@ -17,17 +22,17 @@ spring:
           predicates:
             - Path=/trend-web/**
         - id: api-market
-          uri: lb://MARKET-DATA-SERVICE
+          uri: ${trend.gateway.market-uri:lb://MARKET-DATA-SERVICE}
           predicates:
             - Path=/api-market/**
           filters:
             - StripPrefix=1
         - id: api-backtest
-          uri: lb://TREND-TRADING-BACKTEST-SERVICE
+          uri: ${trend.gateway.backtest-uri:lb://TREND-TRADING-BACKTEST-SERVICE}
           predicates:
             - Path=/api-backtest/**
         - id: api-view
-          uri: lb://TREND-TRADING-BACKTEST-VIEW
+          uri: ${trend.gateway.view-uri:lb://TREND-TRADING-BACKTEST-VIEW}
           predicates:
             - Path=/api-view/**
 

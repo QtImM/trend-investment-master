@@ -8,49 +8,13 @@ spring:
   cloud:
     nacos:
       config:
+        enabled: true
         server-addr: 127.0.0.1:8848
         file-extension: yaml
       discovery:
+        enabled: true
         server-addr: 127.0.0.1:8848
-    gateway:
-      globalcors:
-        cors-configurations:
-          "[/**]":
-            allowedOrigins: "*"
-            allowedMethods: "*"
-            allowedHeaders: "*"
-      routes:
-        - id: trend-web
-          uri: ${trend.web.dev-server-url:http://127.0.0.1:5173}
-          predicates:
-            - Path=/trend-web/**
-        - id: api-market
-          uri: lb://MARKET-DATA-SERVICE
-          predicates:
-            - Path=/api-market/**
-          filters:
-            - StripPrefix=1
-        - id: api-backtest
-          uri: lb://TREND-TRADING-BACKTEST-SERVICE
-          predicates:
-            - Path=/api-backtest/**
-        - id: api-view
-          uri: lb://TREND-TRADING-BACKTEST-VIEW
-          predicates:
-            - Path=/api-view/**
 
 eureka:
   client:
     enabled: false
-
-management:
-  endpoint:
-    prometheus:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
-  metrics:
-    tags:
-      application: ${spring.application.name}

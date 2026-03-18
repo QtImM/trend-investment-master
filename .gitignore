@@ -34,6 +34,7 @@ target/
 
 # Local temporary tooling / investigation
 .tools/
+.m2/
 .temp-config-repo/
 
 # Frontend build output

@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import { fetchIndexes, simulateBacktest } from '../services/backtest';
+import { BacktestRequestError, buildBacktestRequestPath, fetchIndexes, simulateBacktest } from '../services/backtest';
 import type {
   AnnualProfitRecord,
   BacktestParams,
@@ -30,6 +30,10 @@ export const useBacktestStore = defineStore('backtest', () => {
   const error = ref('');
   const lastUpdatedAt = ref('');
   const indexSource = ref<'market-data-service' | ''>('');
+  const lastRequestPath = ref('');
+  const lastRequestStatus = ref<number | null>(null);
+  const lastRequestError = ref('');
+  const lastRequestAt = ref('');
 
   const indexDatas = ref<IndexDataPoint[]>([]);
   const profits = ref<ProfitPoint[]>([]);
@@ -139,16 +143,22 @@ export const useBacktestStore = defineStore('backtest', () => {
 
     loading.value = true;
     error.value = '';
+    lastRequestPath.value = `/api-backtest/simulate/${buildBacktestRequestPath(params.value)}/`;
+    lastRequestStatus.value = null;
+    lastRequestError.value = '';
+    lastRequestAt.value = new Date().toLocaleString('zh-CN');
     try {
       if (resetDate) {
         params.value.startDate = null;
         params.value.endDate = null;
+        lastRequestPath.value = `/api-backtest/simulate/${buildBacktestRequestPath(params.value)}/`;
       }
       let attempts = 0;
       while (true) {
         try {
           const result = await simulateBacktest(params.value);
           applyResult(result);
+          lastRequestStatus.value = 200;
           break;
         } catch (err) {
           if (attempts >= retryCount || !isTransientSimulationError(err)) {
@@ -160,6 +170,12 @@ export const useBacktestStore = defineStore('backtest', () => {
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : '回测失败';
+      if (err instanceof BacktestRequestError) {
+        lastRequestStatus.value = err.status ?? null;
+        lastRequestError.value = err.message;
+      } else {
+        lastRequestError.value = err instanceof Error ? err.message : '回测失败';
+      }
     } finally {
       loading.value = false;
     }
@@ -212,6 +228,10 @@ export const useBacktestStore = defineStore('backtest', () => {
     hasIndexes,
     lastUpdatedAt,
     indexSource,
+    lastRequestPath,
+    lastRequestStatus,
+    lastRequestError,
+    lastRequestAt,
     bootstrap,
     runSimulation,
     patchParams,

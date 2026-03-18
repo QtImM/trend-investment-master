@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import SystemStatusPanel from '../components/SystemStatusPanel.vue';
+import { fetchEndpointStatuses, type EndpointStatus } from '../services/system-status';
 import { useBacktestWorkspace } from '../composables/useBacktestWorkspace';
 
 const store = useBacktestWorkspace();
+const endpointStatuses = ref<EndpointStatus[]>([]);
+const checking = ref(false);
+const checkedAt = ref('');
 const milestones = [
   '旧基础设施模块已经完成退场或主构建收缩。',
   'trend-web 已接入当前 Gateway 入口链路。',
   'trend-trading-backtest-view 已收缩为纯跳转壳层。',
   'trend-web 已开始优先读取 market-data-service。',
+  '当前状态页已经可以直接展示最近一次回测请求和核心接口检查结果。',
 ];
 
 const marketSourceText = computed(() => {
@@ -15,6 +21,20 @@ const marketSourceText = computed(() => {
     return 'market-data-service';
   }
   return '等待初始化';
+});
+
+async function refreshStatuses() {
+  checking.value = true;
+  try {
+    endpointStatuses.value = await fetchEndpointStatuses();
+    checkedAt.value = new Date().toLocaleString('zh-CN');
+  } finally {
+    checking.value = false;
+  }
+}
+
+onMounted(async () => {
+  await refreshStatuses();
 });
 </script>
 
@@ -86,5 +106,16 @@ const marketSourceText = computed(() => {
         </ul>
       </article>
     </section>
+
+    <SystemStatusPanel
+      :endpoint-statuses="endpointStatuses"
+      :checking="checking"
+      :checked-at="checkedAt"
+      :request-path="store.lastRequestPath"
+      :request-status="store.lastRequestStatus"
+      :request-error="store.lastRequestError"
+      :request-at="store.lastRequestAt"
+      @refresh="refreshStatuses"
+    />
   </main>
 </template>

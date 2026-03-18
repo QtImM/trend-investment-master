@@ -363,6 +363,77 @@ select {
   margin-top: 24px;
 }
 
+.diagnostics-card {
+  margin-top: 24px;
+}
+
+.diagnostics-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.action-button.compact {
+  min-height: 40px;
+}
+
+.diagnostics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.diagnostics-block {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(14, 22, 36, 0.58);
+  border: 1px solid rgba(173, 188, 211, 0.08);
+}
+
+.diagnostics-block strong {
+  font-size: 1.2rem;
+}
+
+.diagnostics-block code,
+.endpoint-item code {
+  color: #9fe7ff;
+  word-break: break-all;
+}
+
+.diagnostics-block p,
+.diagnostics-block small,
+.endpoint-meta small {
+  color: #a9b5c8;
+  line-height: 1.6;
+}
+
+.endpoint-list {
+  display: grid;
+  gap: 12px;
+}
+
+.endpoint-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(173, 188, 211, 0.08);
+}
+
+.endpoint-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.endpoint-meta {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
 .status-list,
 .milestone-list {
   display: grid;
@@ -448,7 +519,8 @@ tbody td {
   .chart-grid,
   .metrics-grid,
   .form-grid,
-  .status-grid {
+  .status-grid,
+  .diagnostics-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -462,7 +534,8 @@ tbody td {
   .chart-grid,
   .metrics-grid,
   .form-grid,
-  .status-grid {
+  .status-grid,
+  .diagnostics-grid {
     grid-template-columns: 1fr;
   }
 
@@ -477,5 +550,15 @@ tbody td {
   .action-row,
   .state-actions {
     flex-direction: column;
+  }
+
+  .diagnostics-heading,
+  .endpoint-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .endpoint-meta {
+    justify-items: start;
   }
 }

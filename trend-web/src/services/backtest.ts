@@ -9,6 +9,19 @@ function normalizePathValue(value: string | null): string {
 
 export const fetchIndexes = fetchMarketIndexes;
 
+export class BacktestRequestError extends Error {
+  requestPath: string;
+  status?: number;
+
+  constructor(requestPath: string, status?: number) {
+    const statusLabel = status ? `（${status}）` : '';
+    super(`回测接口请求失败${statusLabel}：GET /api-backtest/simulate/${requestPath}/`);
+    this.name = 'BacktestRequestError';
+    this.requestPath = requestPath;
+    this.status = status;
+  }
+}
+
 export function buildBacktestRequestPath(params: BacktestParams) {
   return [
     params.currentIndex,
@@ -29,9 +42,7 @@ export async function simulateBacktest(params: BacktestParams) {
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const status = error.response?.status;
-      const statusLabel = status ? `（${status}）` : '';
-      throw new Error(`回测接口请求失败${statusLabel}：GET /api-backtest/simulate/${path}/`);
+      throw new BacktestRequestError(path, error.response?.status);
     }
     throw error;
   }

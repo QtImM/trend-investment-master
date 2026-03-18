@@ -31,6 +31,12 @@ python .tools\local_stack.py down
 * `verify`：执行整条迁移链路验收
 * `down`：先停止四个核心服务，再停止本地 `Nacos`
 
+如果你想快速验证统一脚本没有被后续改坏，当前还提供了配套单元测试：
+
+```bat
+python .tools\test_local_stack.py
+```
+
 如果你只想单独执行验收，也可以直接使用：
 
 ```bat

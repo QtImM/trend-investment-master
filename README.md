@@ -67,7 +67,7 @@ python .tools\test_local_stack.py
 python .tools\test_verify_local_migration.py
 ```
 
-如果你想验证回测服务最关键的控制器稳定性，当前还可以直接执行：
+如果你想验证回测服务最关键的业务回归测试，当前还可以直接执行：
 
 ```bat
 .tools\apache-maven-3.9.9\bin\mvn.cmd -pl trend-trading-backtest-service test
@@ -77,6 +77,9 @@ python .tools\test_verify_local_migration.py
 
 * 空数据场景不再直接抛错
 * 带尾斜杠的回测 URL 不再返回 `404`
+* 核心回测服务对远端数据做倒序处理
+* 空输入时 `simulate()` 仍返回稳定结构
+* 典型买卖场景下会产出交易统计和年度收益结果
 
 如果你只想单独执行验收，也可以直接使用：
 
